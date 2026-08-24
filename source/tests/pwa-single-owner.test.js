@@ -10,7 +10,6 @@ function read(path) {
 const index = read('index.html');
 const homeFinal = read('js/home-final.js');
 const englishRollout = read('js/i18n/english-rollout.js');
-const shadowInit = read('js/22-init.js');
 const homeFinalizer = read('js/home-reference-finalizer.js');
 const worker = read('service-worker.js');
 
@@ -18,7 +17,6 @@ const registrationSources = [
   ['index.html', index],
   ['js/home-final.js', homeFinal],
   ['js/i18n/english-rollout.js', englishRollout],
-  ['js/22-init.js', shadowInit],
   ['js/home-reference-finalizer.js', homeFinalizer]
 ];
 let registrations = 0;
@@ -43,7 +41,7 @@ assert(!homeFinal.includes('window.location.reload()'), 'worker activation must 
 
 assert(!englishRollout.includes('forceFreshWorker'), 'language startup must not be coupled to PWA registration');
 assert(/loading=true;loadPacks\(\)\.then/.test(englishRollout), 'language startup must continue directly through its own phrase-pack loader');
-assert(!shadowInit.includes("'./sw.js'"), 'shadow init must not reference the nonexistent legacy sw.js');
+assert.strictEqual(fs.existsSync('js/22-init.js'), false, 'the unloaded init shadow must stay deleted');
 assert(homeFinalizer.includes('navigator.serviceWorker.getRegistration()'), 'Home finalizer may request an update from the existing owner');
 assert(!homeFinalizer.includes('serviceWorker.register('), 'Home finalizer must not create another registration');
 

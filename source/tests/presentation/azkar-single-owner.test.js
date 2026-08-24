@@ -9,7 +9,6 @@ function read(path) {
 
 const index = read('index.html');
 const navigation = read('js/06-navigation.js');
-const shadowInit = read('js/22-init.js');
 const homeFinal = read('js/home-final.js');
 const bootstrap = read('js/presentation/bootstrap.js');
 const registry = read('js/presentation/page-registry.js');
@@ -22,11 +21,11 @@ assert.match(
   /<div class="page" id="page-azkar" data-external-page="azkar" aria-label="الأذكار"><\/div>/,
   'index.html must retain only the empty Azkar iframe host'
 );
+assert.strictEqual(fs.existsSync('js/22-init.js'), false, 'the unloaded init shadow must stay deleted');
 
 [
   ['index.html', index],
   ['js/06-navigation.js', navigation],
-  ['js/22-init.js', shadowInit],
   ['js/home-final.js', homeFinal],
   ['js/presentation/azkar/host.js', host]
 ].forEach(function (entry) {

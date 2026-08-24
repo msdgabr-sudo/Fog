@@ -13,7 +13,8 @@ const retired = [
   'js/14-shadow.js',
   'js/15-polar-drift.js',
   'js/16-map.js',
-  'js/19-main-loop.js'
+  'js/19-main-loop.js',
+  'js/22-init.js'
 ];
 
 retired.forEach(function (path) {
@@ -35,11 +36,19 @@ retired.forEach(function (path) {
   'function drawMap()',
   'drawMap();',
   "let eCache=null,eKey='';",
-  'let _lastSp=null,_lastMp=null;'
+  'let _lastSp=null,_lastMp=null;',
+  "document.addEventListener('touchstart'",
+  "document.getElementById('sp-canvas')",
+  "document.getElementById('qo-canvas')",
+  'window._celCheck = _celCheck;'
 ].forEach(function (token) {
   assert(index.includes(token), 'live inline owner or its call was lost: ' + token);
 });
 
 assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live English rollout owner must remain in home-final');
 
-console.log('PASS six unloaded numbered shadows stay retired while every live inline owner remains intact');
+['activateBubble', 'deactivateBubble', '_swAdhanNotify', 'level-ball', 'level-txt'].forEach(function (token) {
+  assert(!index.includes(token), 'unreachable init-only feature leaked into the live inline owner: ' + token);
+});
+
+console.log('PASS seven unloaded numbered shadows stay retired while every live inline owner remains intact');

@@ -9,15 +9,13 @@ function read(path) {
 }
 
 const index = read('index.html');
-const shadowInit = read('js/22-init.js');
 const homeFinal = read('js/home-final.js');
 const navigation = read('js/06-navigation.js');
 const quranBack = read('js/presentation/quran/back-history.js');
 const azkarBack = read('js/presentation/azkar/back-history.js');
 
 [
-  ['index.html', index],
-  ['js/22-init.js', shadowInit]
+  ['index.html', index]
 ].forEach(function (entry) {
   const path = entry[0];
   const source = entry[1];
@@ -36,6 +34,7 @@ const azkarBack = read('js/presentation/azkar/back-history.js');
 });
 
 assert.strictEqual(fs.existsSync('js/21-quran.js'), false, 'misnamed dead background renderer shadow must stay deleted');
+assert.strictEqual(fs.existsSync('js/22-init.js'), false, 'the unloaded init shadow must stay deleted');
 assert(/function\s+GT\s*\(id\)/.test(index), 'index must retain the current page renderer until the later extraction phase');
 assert(index.includes('loop();'), 'scientific/application main loop startup must remain untouched');
 assert(index.includes("document.addEventListener('touchstart'"), 'existing fullscreen gesture hook must remain outside retired Back code');

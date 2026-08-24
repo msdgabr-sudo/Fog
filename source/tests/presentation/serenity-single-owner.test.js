@@ -10,7 +10,6 @@ function read(path) {
 const index = read('index.html');
 const homeFinal = read('js/home-final.js');
 const navigation = read('js/06-navigation.js');
-const shadowInit = read('js/22-init.js');
 const bootstrap = read('js/presentation/bootstrap.js');
 const registry = read('js/presentation/page-registry.js');
 const page = read('pages/serenity.html');
@@ -21,6 +20,7 @@ assert.strictEqual(
   false,
   'the competing Serenity stream owner must be deleted'
 );
+assert.strictEqual(fs.existsSync('js/22-init.js'), false, 'the unloaded init shadow must stay deleted');
 
 assert.match(
   index,
@@ -31,8 +31,7 @@ assert.match(
 [
   ['index.html', index],
   ['js/home-final.js', homeFinal],
-  ['js/06-navigation.js', navigation],
-  ['js/22-init.js', shadowInit]
+  ['js/06-navigation.js', navigation]
 ].forEach(function (entry) {
   const path = entry[0];
   const source = entry[1];
