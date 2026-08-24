@@ -11,6 +11,7 @@ const homeLanguagePicker = fs.readFileSync('js/i18n/home-language-picker.js', 'u
 const internalLanguageBridge = fs.readFileSync('js/i18n/internal-screen-language-bridge.js', 'utf8');
 const presentationBootstrap = fs.readFileSync('js/presentation/bootstrap.js', 'utf8');
 const liveCompassMode = fs.readFileSync('js/compass-mode-view.js', 'utf8');
+const compassPage = fs.readFileSync('pages/compass.html', 'utf8');
 const digitalCompassPage = fs.readFileSync('pages/digital-compass.html', 'utf8');
 const prayerPage = fs.readFileSync('pages/prayer.html', 'utf8');
 const pageRegistry = fs.readFileSync('js/presentation/page-registry.js', 'utf8');
@@ -132,6 +133,26 @@ assert(index.includes('pCache=calcPrayers(evts)'), 'the main loop must continue 
 });
 ['\'p-cd\'', '\'p-nn\'', '\'p-prog\'', '\'p-list\''].forEach(function (token) {
   assert(!pageRegistry.includes(token), 'retired Prayer ID returned to the page-loader contract: ' + token);
+});
+
+[
+  "getElementById('box-diff-inline')",
+  'function updateDates()',
+  "set('date-greg'",
+  "set('date-hijri'",
+  "set('s-eot'",
+  "set('s-eots'",
+  "set('s-rf'",
+  "gel('skyArc')",
+  "gel('sunBall')",
+  "gel('moonBall')",
+  "gel('qibla-needle')",
+  "gel('qibla-head')"
+].forEach(function (token) {
+  assert(!index.includes(token), 'retired parent Compass artifact returned: ' + token);
+});
+['box-heading','box-qibla','box-diff','box-dir','compass-accuracy','manual-cal-section','sunFill','moonFill','mag-decl-inline'].forEach(function (id) {
+  assert(index.includes("'" + id + "'") || compassPage.includes('id="' + id + '"'), 'live Compass contract was lost: ' + id);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');

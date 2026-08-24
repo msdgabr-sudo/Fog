@@ -40,6 +40,9 @@ The live owner is `pages/falaki.html`, mounted by `js/presentation/falaki/host.j
 ### Prayer parent-document presentation
 The live visible screen is `pages/prayer.html`, mounted through the guarded presentation loader and rendered by `js/presentation/prayer/screen.js`. The main loop still seeds the shared `pCache`, while its obsolete hidden list renderer, hidden compatibility nodes, and writers targeting nonexistent azimuth labels were retired. Prayer calculations, scheduling, Adhan playback, settings, and visible detail fields remain intact.
 
+### Compass parent-document artifacts
+Both Compass fragments mount into the parent document, so their real IDs and public actions remain live. Only writers for IDs absent from the parent and both fragments were retired: the superseded date panel, vanished sky-body markers, old SVG needle, unused EOT/refraction labels, and a missing inline-deviation mirror. The canonical canvas, slider, device sensor state, digital adapter, calibration controls, visible values, and sensitivity path were not changed.
+
 ### Settings / Help
 Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 

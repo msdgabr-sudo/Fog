@@ -11,6 +11,7 @@ const index = read('index.html');
 const adhanUi = read('js/presentation/prayer/adhan-ui.js');
 const digitalAdapter = read('js/presentation/compass/digital-adapter.js');
 const homeFinal = read('js/home-final.js');
+const prayerScreen = read('js/presentation/prayer/screen.js');
 
 const retiredTokens = [
   'id="compass-activate"',
@@ -50,6 +51,9 @@ assert(adhanUi.includes("typeof adhanPlayNow==='function'"), 'prayer screen must
 
 assert(/function\s+saveCfg\s*\(/.test(index), 'settings persistence must remain');
 assert(homeFinal.includes("typeof window.saveCfg==='function'"), 'Home language control must retain settings persistence bridge');
-assert(/function\s+updateDates\s*\(/.test(index), 'the executing date updater must remain');
+assert(!/function\s+updateDates\s*\(/.test(index), 'the retired duplicate date updater must not return');
+assert(index.includes("set('hm-date-greg'") && index.includes("set('hm-date-hijri'"), 'Home date writers must remain');
+assert(index.includes("set('pr-h',new Intl.DateTimeFormat"), 'Prayer detail Hijri writer must remain');
+assert(prayerScreen.includes('function hijri(now)') && prayerScreen.includes("byId('qa-hijri')"), 'the visible Prayer date owner must remain');
 
 console.log('PASS index dead-code Batch A removal and live dependency retention');
