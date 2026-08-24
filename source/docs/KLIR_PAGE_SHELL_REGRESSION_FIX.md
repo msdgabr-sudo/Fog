@@ -18,13 +18,18 @@ Removing the legacy stylesheet therefore also removed shared application infrast
 ## Corrective action
 The generic page-shell rules were moved to their proper owner: `css/07-pages.css`.
 
-The legacy `css/22-azkar.css` remains detached from `index.html`; it is not restored. Prayer, Falaki, and Azkar therefore remain external-only presentation screens while the common router/page shell is preserved independently.
+The legacy `css/22-azkar.css` was first detached from `index.html`. After the common
+router/page-shell rules were verified in `css/07-pages.css` and repository-wide
+reachability confirmed no remaining import, link, cache entry, or script consumer,
+the detached legacy file was deleted in the Fog single-owner cleanup. Prayer,
+Falaki, and Azkar remain external-only presentation screens while the common router
+and page shell stay independently owned by `css/07-pages.css`.
 
 ## Static verification performed
 - `css/07-pages.css` now owns `.page` default hidden state.
 - `.page.active` behavior matches the previous working contract.
 - `page-azkar`, `page-quran`, and `page-serenity` keep their historical active display modes.
-- `index.html` continues to omit `css/13-prayer-times.css` and `css/22-azkar.css`.
+- `index.html` omits `css/13-prayer-times.css`; the detached `css/22-azkar.css` is deleted.
 - Prayer, Falaki, and Azkar continue to exist in `index.html` only as route shells.
 - No astronomical verification, solver, camera, or digital-compass file was modified by this fix.
 - Concurrent Serenity work was not rewritten.

@@ -49,7 +49,7 @@ Retained and protected. Both remain live integrated paths.
 - Prayer, Azkar, Quran and Falaki now retain required parent hosts rather than their former full legacy presentations in `index.html`.
 
 ## Important regression lesson
-A previous attempted deletion of `css/22-azkar.css` exposed shared page-shell rules and caused a layout/navigation regression. That deletion was reverted. Permanent rule: never infer ownership from a filename; inspect every selector/function/ID and its repository-wide dependencies before removal.
+A previous attempted deletion of `css/22-azkar.css` exposed shared page-shell rules and caused a layout/navigation regression. That deletion was reverted until the shared rules moved to `css/07-pages.css`. The later Fog single-owner cleanup deleted the now-detached file only after verifying it had no import, link, cache entry, or script consumer. Permanent rule: never infer ownership from a filename; inspect every selector/function/ID and its repository-wide dependencies before removal.
 
 ## Service Worker / offline audit
 The current `service-worker.js` does not reference the removed legacy stylesheets `css/13-prayer-times.css`, `css/14-night-page.css`, or `css/22-azkar.css`. It does include the modern Prayer/Azkar/Quran/Falaki/Compass presentation assets and hosts required for offline readiness.

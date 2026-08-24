@@ -100,5 +100,5 @@
     renderState(nav);
   });
 
-  root.__qiblaAzkarBackHistory={version:VERSION,stateKey:KEY,views:['home','reader','audio']};
+  root.__qiblaAzkarBackHistory={version:VERSION,owner:'azkar-iframe',stateKey:KEY,views:['home','reader','audio']};
 })(typeof globalThis!=='undefined'?globalThis:window);

@@ -22,15 +22,6 @@
         'css/presentation/prayer/settings-overrides.css'
       ])
     }),
-    azkar: Object.freeze({
-      rootId: 'page-azkar',
-      fragment: 'pages/azkar.html',
-      requiredIds: Object.freeze([
-        'page-azkar','az-categories-screen','az-reading-screen','az-reading-title',
-        'zk-pf','zk-pt','zs-sabah','zs-masa','zs-nawm','zs-fajr','zs-salah','zs-duaa'
-      ]),
-      presentationCss: Object.freeze(['css/presentation/azkar/screen.css'])
-    }),
     serenity: Object.freeze({
       rootId: 'page-serenity',
       fragment: 'pages/serenity.html',

@@ -11,8 +11,8 @@ const cases = [
     ids: ['qrApp','qrHome','qrReader','qrSurahList','qrSearchInput','qrReaderSurah','qrText','qrFontMinus','qrReaderBookmark']
   },
   {
-    name: 'azkar', path: 'pages/azkar.html', root: 'page-azkar',
-    ids: ['page-azkar','az-categories-screen','az-reading-screen','az-reading-title','zk-pf','zk-pt','zs-sabah','zs-masa','zs-nawm','zs-fajr','zs-salah','zs-duaa']
+    name: 'azkar', path: 'pages/azkar.html', root: 'azkarApp',
+    ids: ['azkarApp','azHome','azReader','azAudio','azCategoryGrid','azBackHome','azDhikrText','azAudioPhrase','azAudioToggle']
   },
   {
     name: 'serenity', path: 'pages/serenity.html', root: 'page-serenity',

@@ -54,6 +54,9 @@ The Service Worker was reviewed but intentionally not modified in this stage bec
 ## Remaining cleanup
 
 - Audit old global CSS references in `index.html` selector-by-selector before removing any stylesheet link.
-- Do not remove `css/13-prayer-times.css` or `css/22-azkar.css` merely because the modern screens are external; first prove every selector is unused outside legacy presentation.
+- `css/22-azkar.css` was removed only after its shared `.page` contract had moved to
+  `css/07-pages.css` and a repository-wide reachability check proved the detached
+  file had no runtime consumer. Apply the same proof requirement to any remaining
+  legacy stylesheet; never delete by filename inference.
 - Perform controlled Service Worker/offline tests after presentation cleanup stabilizes.
 - Continue to keep Home, digital compass, astronomical verification/camera/solver files outside this cleanup scope unless explicitly authorized.

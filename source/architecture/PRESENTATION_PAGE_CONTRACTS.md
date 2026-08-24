@@ -13,10 +13,11 @@ Presentation files MUST NOT import, call, mutate, duplicate, or replace any astr
 - `pages/quran.html`
 - `pages/azkar.html`
 - `pages/serenity.html`
-- `css/presentation/azkar/screen.css`
 - `css/presentation/serenity/screen.css`
 - `js/presentation/quran/host.js`
 - `js/presentation/quran/back-history.js`
+- `js/presentation/azkar/host.js`
+- `js/presentation/azkar/back-history.js`
 - `js/presentation/page-registry.js`
 - `js/presentation/page-loader.js`
 
@@ -25,6 +26,10 @@ Presentation files MUST NOT import, call, mutate, duplicate, or replace any astr
 The Quran screen is mounted directly as a same-origin iframe by `quran/host.js`; its
 nested Reader → index history is owned only by `quran/back-history.js`. It is not a
 page-loader fragment and must not be registered in `page-registry.js`.
+
+The Azkar screen follows the same ownership rule: `azkar/host.js` mounts the
+standalone page, while `azkar/back-history.js` owns Home/Reader/Audio child history.
+It is not a page-loader fragment and must not be registered in `page-registry.js`.
 
 For pages that still use the guarded page loader, a page is activated only after:
 
@@ -42,7 +47,8 @@ For pages that still use the guarded page loader, a page is activated only after
 
 ## Azkar required IDs
 
-`page-azkar`, `az-categories-screen`, `az-reading-screen`, `az-reading-title`, `zk-pf`, `zk-pt`, `zs-sabah`, `zs-masa`, `zs-nawm`, `zs-fajr`, `zs-salah`, `zs-duaa`.
+`azkarApp`, `azHome`, `azReader`, `azAudio`, `azCategoryGrid`, `azBackHome`,
+`azDhikrText`, `azAudioPhrase`, `azAudioToggle`.
 
 ## Serenity required IDs
 
