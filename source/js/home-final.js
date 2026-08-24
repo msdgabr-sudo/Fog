@@ -116,22 +116,19 @@
    The production index.html still contains a legacy inline GT wrapper and popstate
    listener. home-final.js is a guaranteed deferred entry point, so it runs after
    those inline declarations. This layer becomes the single runtime owner of top-
-   level history and the Quran reader sub-level without touching any calculation,
-   sensor, astronomical, GNSS, prayer or verification engine. */
+   level app history. Nested iframe screens own their own child history without
+   touching any calculation, sensor, astronomical, GNSS, prayer or verification engine. */
 (function(){
   'use strict';
   var KEY='qiblaastroNav';
   var VERSION=3;
   var renderPage=(typeof window._origGT==='function')?window._origGT:window.GT;
-  var originalQrOpen=(typeof window.qrOpen==='function')?window.qrOpen:null;
-  var originalQrBack=(typeof window.qrBack==='function')?window.qrBack:null;
   if(typeof renderPage!=='function')return;
 
   function valid(id){return !!(id&&document.getElementById('page-'+id));}
-  function stateFor(page,sub){
+  function stateFor(page){
     var s={};
     s[KEY]={version:VERSION,page:page};
-    if(sub)s[KEY].sub=sub;
     return s;
   }
   function navState(state){
@@ -139,13 +136,6 @@
     return nav&&nav.version===VERSION&&valid(nav.page)?nav:null;
   }
   function statePage(state){var nav=navState(state);return nav?nav.page:null;}
-  function isQuranReaderState(state){
-    var nav=navState(state);
-    return !!(nav&&nav.page==='quran'&&nav.sub&&nav.sub.type==='reader'&&Number.isInteger(nav.sub.surah)&&nav.sub.surah>=1&&nav.sub.surah<=114);
-  }
-  function quranReaderVisible(){
-    try{var reader=document.getElementById('qr-reader');return !!(reader&&reader.style.display!=='none');}catch(_){return false;}
-  }
   function domPage(){
     try{
       var active=document.querySelector('.page.active');
@@ -156,27 +146,9 @@
     return 'home';
   }
   function render(id){try{renderPage(id);}catch(err){try{console.error('[nav] render failed',err);}catch(_){}}}
-  function closeQuranReader(){
-    if(originalQrBack&&quranReaderVisible()){
-      try{originalQrBack();}catch(err){try{console.error('[nav] Quran reader close failed',err);}catch(_){}}
-    }
-  }
   function renderHistoryState(state){
     var nav=navState(state);
     if(!nav)return;
-    if(nav.page==='quran'){
-      render('quran');
-      if(nav.sub&&nav.sub.type==='reader'&&originalQrOpen){
-        var surah=Number(nav.sub.surah);
-        if(Number.isInteger(surah)&&surah>=1&&surah<=114){
-          try{originalQrOpen(surah);}catch(err){try{console.error('[nav] Quran reader restore failed',err);}catch(_){}}
-          return;
-        }
-      }
-      closeQuranReader();
-      return;
-    }
-    closeQuranReader();
     render(nav.page);
   }
 
@@ -192,12 +164,10 @@
 
     if(id==='home'){
       if(visible!=='home'&&current!=='home'){
-        // If a Quran reader sub-level is open, consume it first so browser Back
-        // remains a true hierarchy: reader -> Quran index -> Home.
+        // Consume the single app-level internal entry before returning Home.
         try{history.back();return;}catch(_){ }
       }
       try{history.replaceState(stateFor('home'),'');}catch(_){ }
-      closeQuranReader();
       render('home');
       return;
     }
@@ -206,50 +176,21 @@
       if(current==='home')history.pushState(stateFor(id),'');
       else history.replaceState(stateFor(id),'');
     }catch(_){ }
-    if(id!=='quran')closeQuranReader();
     render(id);
   };
-
-  // Quran reader is a genuine child navigation level. Opening a Surah pushes one
-  // child entry above the Quran index; moving next/previous Surah replaces that
-  // child entry instead of growing history. The visible reader implementation is
-  // left untouched and is called only after the history contract is established.
-  if(originalQrOpen){
-    window.qrOpen=function(num){
-      var surah=Number(num);
-      if(!Number.isInteger(surah)||surah<1||surah>114)return originalQrOpen(num);
-      var current=navState(history.state);
-      try{
-        if(current&&current.page==='quran'&&current.sub&&current.sub.type==='reader'){
-          history.replaceState(stateFor('quran',{type:'reader',surah:surah}),'');
-        }else if(current&&current.page==='quran'){
-          history.pushState(stateFor('quran',{type:'reader',surah:surah}),'');
-        }
-      }catch(_){ }
-      return originalQrOpen(surah);
-    };
-  }
-
-  if(originalQrBack){
-    window.qrBack=function(){
-      if(isQuranReaderState(history.state)){
-        try{history.back();return;}catch(_){ }
-      }
-      return originalQrBack();
-    };
-  }
 
   // Capture phase is intentional: it runs before the legacy inline bubble-phase
   // popstate listener, then stops that obsolete handler from adding/replaying its
   // private _pageHistory stack. The browser has already moved the history index;
-  // we render exactly the state it selected, including Quran reader sub-levels.
+  // we render exactly the app-level state it selected. Iframe-local bridges own
+  // nested reader states and their popstate events remain inside each iframe.
   window.addEventListener('popstate',function(event){
     try{event.stopImmediatePropagation();}catch(_){ }
     if(navState(event.state))renderHistoryState(event.state);
     // If the state is outside QiblaAstro, do nothing: Android/Chrome owns it.
   },true);
 
-  window.__qiblaBackNavigation={version:VERSION,owner:'home-final',stateKey:KEY,quranReader:true};
+  window.__qiblaBackNavigation={version:VERSION,owner:'home-final',stateKey:KEY,nestedNavigation:'iframe-owned'};
 })();
 
 /* PWA registration lives here because home-final.js is a guaranteed deferred script in

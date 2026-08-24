@@ -76,8 +76,6 @@ function GT(id){
   if(id==='compass'){setTimeout(function(){var ds=gel('dev-slider');if(ds)ds.dispatchEvent(new Event('input'));},500);}
   if(id==='gnss'){setTimeout(function(){if(!gnssHasTrustedFix)tryBrowserGPS();},300);}
   if((id==='compass'||id==='gnss')&&gnssHasTrustedFix){updateQiblaFromPosition();}
-  if(id==='quran'){_qrActive=true;try{qrInit();}catch(e){}}
-  else{try{qrDeactivate();}catch(e){}}
   // Home is the navigation hub. Internal screens never retain the legacy tab/ad chrome.
   var nav=document.querySelector('nav.nav,div.nav,.nav');
   if(nav)nav.style.display='none';

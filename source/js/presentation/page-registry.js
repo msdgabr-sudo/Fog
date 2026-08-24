@@ -22,15 +22,6 @@
         'css/presentation/prayer/settings-overrides.css'
       ])
     }),
-    quran: Object.freeze({
-      rootId: 'page-quran',
-      fragment: 'pages/quran.html',
-      requiredIds: Object.freeze([
-        'page-quran','qr-list-view','qr-reader-view','qr-surah-list','qr-search',
-        'qr-surah-title','qr-ayahs','qr-font-size','qr-bookmark-btn'
-      ]),
-      presentationCss: Object.freeze(['css/presentation/quran/screen.css'])
-    }),
     azkar: Object.freeze({
       rootId: 'page-azkar',
       fragment: 'pages/azkar.html',

@@ -7,8 +7,8 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const cases = [
   {
-    name: 'quran', path: 'pages/quran.html', root: 'page-quran',
-    ids: ['page-quran','qr-list-view','qr-reader-view','qr-surah-list','qr-search','qr-surah-title','qr-ayahs','qr-font-size','qr-bookmark-btn']
+    name: 'quran', path: 'pages/quran.html', root: 'qrApp',
+    ids: ['qrApp','qrHome','qrReader','qrSurahList','qrSearchInput','qrReaderSurah','qrText','qrFontMinus','qrReaderBookmark']
   },
   {
     name: 'azkar', path: 'pages/azkar.html', root: 'page-azkar',

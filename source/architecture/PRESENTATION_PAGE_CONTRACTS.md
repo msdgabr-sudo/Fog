@@ -1,7 +1,5 @@
 # QiblaAstro — Presentation Page Integration Contracts
 
-Branch: `new`
-
 ## Purpose
 
 Prepare Quran, Azkar, and Serenity as replaceable presentation modules while keeping every astronomical verification, camera, capture, solver, equation, quality gate, store, and scientific runtime untouched.
@@ -15,15 +13,20 @@ Presentation files MUST NOT import, call, mutate, duplicate, or replace any astr
 - `pages/quran.html`
 - `pages/azkar.html`
 - `pages/serenity.html`
-- `css/presentation/quran/screen.css`
 - `css/presentation/azkar/screen.css`
 - `css/presentation/serenity/screen.css`
+- `js/presentation/quran/host.js`
+- `js/presentation/quran/back-history.js`
 - `js/presentation/page-registry.js`
 - `js/presentation/page-loader.js`
 
 ## Activation policy
 
-The guarded page loader is intentionally not auto-started. A page is activated only after:
+The Quran screen is mounted directly as a same-origin iframe by `quran/host.js`; its
+nested Reader → index history is owned only by `quran/back-history.js`. It is not a
+page-loader fragment and must not be registered in `page-registry.js`.
+
+For pages that still use the guarded page loader, a page is activated only after:
 
 1. The incoming design is placed in its page/CSS presentation slot.
 2. Required IDs are verified.
@@ -34,7 +37,8 @@ The guarded page loader is intentionally not auto-started. A page is activated o
 
 ## Quran required IDs
 
-`page-quran`, `qr-list-view`, `qr-reader-view`, `qr-surah-list`, `qr-search`, `qr-surah-title`, `qr-ayahs`, `qr-font-size`, `qr-bookmark-btn`.
+`qrApp`, `qrHome`, `qrReader`, `qrSurahList`, `qrSearchInput`, `qrReaderSurah`,
+`qrText`, `qrFontMinus`, `qrReaderBookmark`, `qrReaderBack`.
 
 ## Azkar required IDs
 
@@ -50,6 +54,8 @@ No page fragment or page-specific presentation stylesheet/script may contain ast
 
 ## Design import rule
 
-When approved new screen designs arrive, import them into these presentation slots rather than copying a whole replacement `index.html`. This keeps design evolution physically separated from the protected scientific core.
+When approved new screen designs arrive, import them into their standalone page and
+controller files rather than copying a whole replacement `index.html`. This keeps
+design evolution physically separated from the protected scientific core.
 
 © 2026 محمد سيد جبر بحيرى — Mohamed SG Behairy. All Rights Reserved.
