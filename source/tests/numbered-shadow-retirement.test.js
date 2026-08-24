@@ -6,6 +6,7 @@ const assert = require('assert');
 const index = fs.readFileSync('index.html', 'utf8');
 const homeFinal = fs.readFileSync('js/home-final.js', 'utf8');
 const worker = fs.readFileSync('service-worker.js', 'utf8');
+const referencePreview = fs.readFileSync('reference-preview.html', 'utf8');
 
 const retired = [
   'js/04-core.js',
@@ -17,7 +18,8 @@ const retired = [
   'js/16-map.js',
   'js/19-main-loop.js',
   'js/22-init.js',
-  'js/99-misc.js'
+  'js/99-misc.js',
+  'js/100-reference-dashboard-stage2.js'
 ];
 
 retired.forEach(function (path) {
@@ -78,5 +80,7 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');
 assert(!index.includes('G-QMRD6BZDRH'), 'the stale Analytics identity from the retired core shadow must not return');
+assert.strictEqual(fs.existsSync('js/101-reference-home-rebuild-stage4.js'), true, 'the live reference-preview runtime must remain');
+assert(referencePreview.includes('js/101-reference-home-rebuild-stage4.js'), 'reference preview must keep loading its stage-4 runtime');
 
-console.log('PASS ten unloaded numbered shadows stay retired while every live inline owner remains intact');
+console.log('PASS eleven unloaded runtime shadows stay retired while every live owner remains intact');
