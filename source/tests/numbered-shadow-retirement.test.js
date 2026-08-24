@@ -52,9 +52,6 @@ retired.forEach(function (path) {
   'function loadCfg()',
   'function saveCfg()',
   'loadCfg();',
-  'function shareApp()',
-  'function copyQibla()',
-  "if(!MDECL_READY){set('share-feedback'",
   'function drawPolaris(maz,mvis,malt)',
   'drawPolaris(mp.az,moonV,mp.altApp);',
   'function drawShadow(saz,salt,vis)',
@@ -85,6 +82,10 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
 
 ['اتجاه القبلة من الجيزة', 'القبلة تقع جنوب شرق'].forEach(function (token) {
   assert(!index.includes(token), 'stale fixed-location share copy leaked into the live owner: ' + token);
+});
+
+['function shareApp()', 'function copyQibla()', 'share-feedback'].forEach(function (token) {
+  assert(!index.includes(token), 'unreachable Help-only share runtime returned: ' + token);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');

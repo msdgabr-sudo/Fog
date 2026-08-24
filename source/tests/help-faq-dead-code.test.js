@@ -5,16 +5,17 @@ const assert = require('assert');
 
 const index = fs.readFileSync('index.html', 'utf8');
 
-assert(index.includes('id="page-help"'), 'the live Help screen must remain available');
-assert(index.includes('🚀 البداية السريعة'), 'the Help quick-start guide must remain available');
-assert(index.includes('📚 المراجع العلمية'), 'the Help scientific references must remain available');
-assert(index.includes('onclick="shareApp()"'), 'the Help share action must remain wired');
-assert(index.includes('onclick="copyQibla()"'), 'the Help Qibla copy action must remain wired');
-assert(/function\s+shareApp\s*\(/.test(index), 'the live share handler must remain defined');
-assert(/function\s+copyQibla\s*\(/.test(index), 'the live Qibla copy handler must remain defined');
 assert(index.includes('const JDF='), 'the scientific Julian-date helper after the retired block must remain intact');
 
 [
+  'id="page-help"',
+  '🚀 البداية السريعة',
+  '📚 المراجع العلمية',
+  'onclick="shareApp()"',
+  'onclick="copyQibla()"',
+  'function shareApp(',
+  'function copyQibla(',
+  'id="share-feedback"',
   'id="faq-list"',
   'function buildFAQ(',
   'function toggleFAQ(',
@@ -27,4 +28,4 @@ assert(index.includes('const JDF='), 'the scientific Julian-date helper after th
 
 assert.strictEqual(fs.existsSync('js/09-faq.js'), false, 'the unloaded FAQ shadow copy must stay deleted');
 
-console.log('PASS Help stays live while the unreachable FAQ presentation and shadow runtime stay retired');
+console.log('PASS unreachable Help/FAQ presentation and their private runtime stay retired');

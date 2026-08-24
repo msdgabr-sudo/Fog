@@ -627,60 +627,6 @@
 
 </div>
 
-<!-- ════════════════════ PAGE: HELP ════════════════════ -->
-<div class="page" id="page-help">
-
-  <div class="night-hero" style="border-top-color:#C880FF">
-    <h2 style="color:#C880FF">❓ دليل الاستخدام الشامل</h2>
-    <p>كل ما تحتاج معرفته لاستخدام QiblaAstro باحتراف</p>
-  </div>
-
-  <!-- Quick guide -->
-  <div class="sec-hdr">🚀 البداية السريعة</div>
-  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
-    <div style="background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius-sm);padding:11px 13px;display:flex;gap:10px;">
-      <div style="width:28px;height:28px;border-radius:50%;background:var(--gold-d);color:var(--gold-l);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">١</div>
-      <div><div style="font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:2px;">🧭 البوصلة</div><div style="font-size:.72rem;color:var(--txt2);line-height:1.7;">السهم الذهبي يشير للقبلة. انظر الرقم الذهبي الكبير = اتجاه القبلة بالدرجات من الشمال. الخط الأزرق المتقطع = الشمال المغناطيسي (بوصلتك).</div></div>
-    </div>
-    <div style="background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius-sm);padding:11px 13px;display:flex;gap:10px;">
-      <div style="width:28px;height:28px;border-radius:50%;background:var(--moon-d);color:var(--moon);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٢</div>
-      <div><div style="font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:2px;">🌙 الليل — بدون بوصلة</div><div style="font-size:.72rem;color:var(--txt2);line-height:1.7;">استخدم القمر أو نجم القطب. التطبيق يحسب السمت الدقيق للقمر ويخبرك كم درجة وفي أي جهة القبلة منه.</div></div>
-    </div>
-    <div style="background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius-sm);padding:11px 13px;display:flex;gap:10px;">
-      <div style="width:28px;height:28px;border-radius:50%;background:rgba(240,200,60,.2);color:var(--sun);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٣</div>
-      <div><div style="font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:2px;">☀️ المعايرة — نهاراً وليلاً وداخلياً</div><div style="font-size:.72rem;color:var(--txt2);line-height:1.7;">7 طرق لتحديد القبلة بدون أي أداة. عند الظهر الشمسي: التطبيق ينبهك والظل يشير شمالاً بدقة مطلقة.</div></div>
-    </div>
-    <div style="background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius-sm);padding:11px 13px;display:flex;gap:10px;">
-      <div style="width:28px;height:28px;border-radius:50%;background:rgba(64,184,112,.2);color:var(--ok);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٤</div>
-      <div><div style="font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:2px;">🕌 الصلاة — مواقيت دقيقة</div><div style="font-size:.72rem;color:var(--txt2);line-height:1.7;">مواقيت محسوبة فلكياً بنفس دقة خوارزميات الشمس. العداد يحسب الوقت المتبقي للصلاة القادمة.</div></div>
-    </div>
-  </div>
-
-  <!-- Scientific references -->
-  <div class="sec-hdr">📚 المراجع العلمية</div>
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius);padding:13px;">
-    <div style="display:flex;flex-direction:column;gap:6px;">
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.7;padding:6px 0;border-bottom:1px solid var(--rim);">📖 <strong style="color:var(--txt)">Jean Meeus</strong> — Astronomical Algorithms, 2nd Ed. Willmann-Bell (1998)</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.7;padding:6px 0;border-bottom:1px solid var(--rim);">📖 <strong style="color:var(--txt)">NOAA / BGS</strong> — World Magnetic Model 2025 Technical Report (Dec 2024)</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.7;padding:6px 0;border-bottom:1px solid var(--rim);">📖 <strong style="color:var(--txt)">IERS</strong> — Earth Orientation Parameters, Chandler Wobble (2026)</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.7;padding:6px 0;border-bottom:1px solid var(--rim);">📖 <strong style="color:var(--txt)">Chapront, Touze, Francou</strong> — ELP2000/82 Lunar Theory, Astron. Astrophys. (1983)</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.7;padding:6px 0;">📖 <strong style="color:var(--txt)">Bennett</strong> — The Calculation of Astronomical Refraction in Marine Navigation, J. Navigation (1982)</div>
-    </div>
-  </div>
-
-  <!-- Share button -->
-  <div style="width:100%;display:flex;gap:10px;">
-    <button onclick="shareApp()" style="flex:1;padding:13px;border-radius:var(--radius);border:1px solid var(--gold-d);background:var(--gold-d);color:var(--gold-l);font-family:'Noto Naskh Arabic',serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;">
-      📤 مشاركة التطبيق
-    </button>
-    <button onclick="copyQibla()" style="flex:1;padding:13px;border-radius:var(--radius);border:1px solid var(--rim);background:var(--panel);color:var(--txt);font-family:'Noto Naskh Arabic',serif;font-size:.85rem;cursor:pointer;transition:all .2s;">
-      📋 نسخ اتجاه القبلة
-    </button>
-  </div>
-  <div id="share-feedback" style="font-size:.72rem;color:var(--ok);text-align:center;min-height:20px;"></div>
-
-</div>
-
 <!-- [HTML-12] PAGE: AZKAR (الأذكار) -->
 <!-- PAGE: AZKAR -->
 <div class="page" id="page-azkar" data-external-page="azkar" aria-label="الأذكار"></div>
@@ -1277,24 +1223,6 @@ function saveCfg(){
   try{localStorage.setItem('qibla-cfg',JSON.stringify(CFG));}catch(e){}
 }
 loadCfg();
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-8] SHARE & COPY
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  SHARE & COPY
-// ════════════════════════════════════════════════
-function shareApp(){
-  const txt=`🕌 QiblaAstro — بوصلة القبلة الفلكية\nالقبلة من موقعك: ${QT.toFixed(2)}° (${typeof d8==='function'?d8(QT):''})\n© Mohamed Sayed Gabr Behairy`;
-  if(navigator.share){navigator.share({title:'QiblaAstro',text:txt}).catch(()=>{});}
-  else{navigator.clipboard?.writeText(txt).then(()=>{const f=gel('share-feedback');if(f){f.textContent='✓ تم النسخ';setTimeout(()=>f.textContent='',2500);}});}
-}
-function copyQibla(){
-  if(!MDECL_READY){set('share-feedback','⚠ يلزم GPS/GNSS موثوق أولاً');return;}
-  const txt=`اتجاه القبلة من موقعك الحالي:\n• حقيقي: ${QT.toFixed(2)}°\n• مغناطيسي معروض: ${QM.toFixed(2)}°\n• الاتجاه: ${typeof d8==='function'?d8(QT):''}\n© QiblaAstro — Mohamed Sayed Gabr Behairy`;
-  navigator.clipboard?.writeText(txt).then(()=>{const f=gel('share-feedback');if(f){f.textContent='✓ تم نسخ اتجاه القبلة';setTimeout(()=>f.textContent='',2500);}});
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // [JS-10] JULIAN DATE
