@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="prayer_channel_adhan">Prayer times — Adhan</string>
+  <string name="prayer_channel_notice">Prayer times — Alerts</string>
+  <string name="prayer_channel_description">Local QiblaAstro prayer-time alerts</string>
+  <string name="prayer_notification_title">QiblaAstro — Prayer times</string>
+  <string name="prayer_notification_now">It is time for %1$s</string>
+  <string name="prayer_notification_advance">%1$s is approaching — %2$d minutes remaining</string>
+  <string name="prayer_name_fajr">Fajr</string><string name="prayer_name_dhuhr">Dhuhr</string><string name="prayer_name_asr">Asr</string><string name="prayer_name_maghrib">Maghrib</string><string name="prayer_name_isha">Isha</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="prayer_channel_adhan">Waktu salat — Azan</string>
+  <string name="prayer_channel_notice">Waktu salat — Pengingat</string>
+  <string name="prayer_channel_description">Pengingat waktu salat lokal QiblaAstro</string>
+  <string name="prayer_notification_title">QiblaAstro — Waktu salat</string>
+  <string name="prayer_notification_now">Waktunya %1$s</string>
+  <string name="prayer_notification_advance">%1$s segera tiba — tersisa %2$d menit</string>
+  <string name="prayer_name_fajr">Subuh</string><string name="prayer_name_dhuhr">Zuhur</string><string name="prayer_name_asr">Asar</string><string name="prayer_name_maghrib">Magrib</string><string name="prayer_name_isha">Isya</string>
+</resources>

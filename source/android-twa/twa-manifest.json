@@ -1,0 +1,35 @@
+{
+  "packageId": "com.qiblalabs",
+  "host": "app.qiblalabs.com",
+  "name": "QiblaAstro ELITE",
+  "launcherName": "QiblaAstro",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#05080F",
+  "themeColorDark": "#05080F",
+  "navigationColor": "#05080F",
+  "navigationColorDark": "#05080F",
+  "backgroundColor": "#05080F",
+  "startUrl": "/?twa=1",
+  "webManifestUrl": "https://app.qiblalabs.com/manifest.json",
+  "iconUrl": "https://app.qiblalabs.com/icons/icon-512x512.png",
+  "maskableIconUrl": "https://app.qiblalabs.com/icons/maskable/icon-maskable-512x512.png",
+  "appVersion": "3.1.0",
+  "appVersionCode": 3,
+  "minSdkVersion": 23,
+  "splashScreenFadeOutDuration": 0,
+  "enableNotifications": true,
+  "enableSiteSettingsShortcut": true,
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "signingKey": {
+    "path": "./keystore/qiblaastro-upload.jks",
+    "alias": "qiblaastro"
+  },
+  "fingerprints": [],
+  "generatorApp": "bubblewrap-cli"
+}

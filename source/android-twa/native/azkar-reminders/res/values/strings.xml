@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="azkar_channel_name">تنبيهات الأذكار</string>
+    <string name="azkar_channel_description">تنبيهات صوتية للأذكار المختارة</string>
+    <string name="azkar_notification_title">QiblaAstro — تذكير بالذكر</string>
+    <string name="azkar_default_phrase">ذكر الله</string>
+    <string name="azkar_start_title">تشغيل تنبيه الأذكار</string>
+    <string name="azkar_start_message">تشغيل \"%1$s\" كل %2$d دقيقة؟</string>
+    <string name="azkar_start_action">تشغيل</string>
+    <string name="azkar_stop_title">إيقاف تنبيه الأذكار</string>
+    <string name="azkar_stop_message">هل تريد إيقاف التنبيه الصوتي للأذكار؟</string>
+    <string name="azkar_stop_action">إيقاف</string>
+    <string name="azkar_cancel_action">إلغاء</string>
+    <string name="azkar_stopped_toast">تم إيقاف تنبيه الأذكار</string>
+    <string name="azkar_permission_required">يلزم السماح بالإشعارات لتشغيل تنبيهات الأذكار</string>
+    <string name="azkar_started_toast">تم تشغيل تنبيه الأذكار</string>
+</resources>

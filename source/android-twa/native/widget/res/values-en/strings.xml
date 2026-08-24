@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_app_name">QiblaAstro</string>
+    <string name="widget_city_unavailable">Open the app to detect the city</string>
+    <string name="widget_refresh_required">Open the app to refresh</string>
+    <string name="widget_value_unavailable">—</string>
+    <string name="widget_qibla_unavailable">Qibla —</string>
+    <string name="widget_qibla_value">Qibla %1$s°</string>
+</resources>

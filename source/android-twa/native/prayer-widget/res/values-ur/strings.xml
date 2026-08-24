@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="prayer_channel_adhan">نماز کے اوقات — اذان</string>
+  <string name="prayer_channel_notice">نماز کے اوقات — یاددہانی</string>
+  <string name="prayer_channel_description">QiblaAstro کی مقامی نماز یاددہانیاں</string>
+  <string name="prayer_notification_title">QiblaAstro — نماز کے اوقات</string>
+  <string name="prayer_notification_now">%1$s کا وقت ہو گیا ہے</string>
+  <string name="prayer_notification_advance">%1$s قریب ہے — %2$d منٹ باقی</string>
+  <string name="prayer_name_fajr">فجر</string><string name="prayer_name_dhuhr">ظہر</string><string name="prayer_name_asr">عصر</string><string name="prayer_name_maghrib">مغرب</string><string name="prayer_name_isha">عشاء</string>
+</resources>

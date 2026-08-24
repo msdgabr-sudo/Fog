@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_app_name">QiblaAstro</string>
+    <string name="widget_city_unavailable">Buka aplikasi untuk mendeteksi kota</string>
+    <string name="widget_refresh_required">Buka aplikasi untuk memperbarui</string>
+    <string name="widget_value_unavailable">—</string>
+    <string name="widget_qibla_unavailable">Kiblat —</string>
+    <string name="widget_qibla_value">Kiblat %1$s°</string>
+</resources>

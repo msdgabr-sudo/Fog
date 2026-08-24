@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_app_name">QiblaAstro</string>
+    <string name="widget_city_unavailable">افتح التطبيق لتحديد المدينة</string>
+    <string name="widget_refresh_required">افتح التطبيق للتحديث</string>
+    <string name="widget_value_unavailable">—</string>
+    <string name="widget_qibla_unavailable">القبلة —</string>
+    <string name="widget_qibla_value">القبلة %1$s°</string>
+</resources>

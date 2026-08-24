@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="16dp"
+    android:background="#101820">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_app_name"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:textColor="#E8C878" />
+
+    <TextView
+        android:id="@+id/widget_city"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="@string/widget_city_unavailable"
+        android:textSize="12sp"
+        android:textColor="#AFC0D6"
+        android:gravity="end"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/widget_next_prayer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/widget_refresh_required"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:gravity="end" />
+
+    <TextView
+        android:id="@+id/widget_prayer_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_value_unavailable"
+        android:textSize="14sp"
+        android:textColor="#DCE5EE"
+        android:gravity="end" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/widget_hijri"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/widget_value_unavailable"
+            android:textSize="12sp"
+            android:textColor="#AFC0D6" />
+
+        <TextView
+            android:id="@+id/widget_qibla"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_qibla_unavailable"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</LinearLayout>

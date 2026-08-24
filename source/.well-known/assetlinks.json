@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.qiblalabs",
+      "sha256_cert_fingerprints": [
+        "2F:04:F6:F6:4D:09:E0:82:32:BC:5A:1F:DD:58:4B:19:8F:37:92:F6:18:18:98:AC:F0:0C:7F:AC:C0:BA:7D:B8",
+        "BD:44:CA:0B:4C:F9:7A:D6:C2:66:63:92:D0:84:04:8F:E1:6C:86:36:7A:8C:E8:B2:52:81:9C:29:2F:7B:13:C5"
+      ]
+    }
+  }
+]
