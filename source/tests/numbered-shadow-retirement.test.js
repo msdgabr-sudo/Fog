@@ -7,6 +7,8 @@ const index = fs.readFileSync('index.html', 'utf8');
 const homeFinal = fs.readFileSync('js/home-final.js', 'utf8');
 const worker = fs.readFileSync('service-worker.js', 'utf8');
 const referencePreview = fs.readFileSync('reference-preview.html', 'utf8');
+const homeLanguagePicker = fs.readFileSync('js/i18n/home-language-picker.js', 'utf8');
+const internalLanguageBridge = fs.readFileSync('js/i18n/internal-screen-language-bridge.js', 'utf8');
 
 const retired = [
   'js/04-core.js',
@@ -19,7 +21,8 @@ const retired = [
   'js/19-main-loop.js',
   'js/22-init.js',
   'js/99-misc.js',
-  'js/100-reference-dashboard-stage2.js'
+  'js/100-reference-dashboard-stage2.js',
+  'js/i18n/direction.js'
 ];
 
 retired.forEach(function (path) {
@@ -82,5 +85,11 @@ assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must r
 assert(!index.includes('G-QMRD6BZDRH'), 'the stale Analytics identity from the retired core shadow must not return');
 assert.strictEqual(fs.existsSync('js/101-reference-home-rebuild-stage4.js'), true, 'the live reference-preview runtime must remain');
 assert(referencePreview.includes('js/101-reference-home-rebuild-stage4.js'), 'reference preview must keep loading its stage-4 runtime');
+assert(homeLanguagePicker.includes('function setDocDirection(l)'), 'the live Home language owner must retain document direction switching');
+assert(homeLanguagePicker.includes("(l==='ar'||l==='ur')?'rtl':'ltr'"), 'Arabic and Urdu must remain RTL in the live Home language owner');
+assert(internalLanguageBridge.includes('function direction(doc,lang)'), 'the live internal-screen language owner must retain frame direction switching');
+assert(internalLanguageBridge.includes('.qr-text,#qrText,.qr-basmala'), 'Quran source text must remain direction-protected');
+assert(internalLanguageBridge.includes('.az-dhikr-text,#azDhikrText'), 'Dhikr source text must remain direction-protected');
+assert(internalLanguageBridge.includes('QiblaInternalLanguageBridge=Object.freeze'), 'the live internal language bridge API must remain available');
 
-console.log('PASS eleven unloaded runtime shadows stay retired while every live owner remains intact');
+console.log('PASS twelve unloaded runtime shadows stay retired while every live owner remains intact');
