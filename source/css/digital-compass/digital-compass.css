@@ -32,7 +32,7 @@
 
 .qd-screen {
   /* Exact qappan digital-control edge treatment. */
-  --qd-line: rgba(116, 185, 232, .40);
+  --qd-line: rgba(218, 174, 72, .86);
   --qd-blue: #78bff2;
   --qd-cyan: #5ac8fa;
   --qd-green: #63c779;
@@ -165,7 +165,7 @@
   height: 1px;
   border-radius: 999px;
   pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(185, 229, 255, .45), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 226, 150, .38), transparent);
 }
 
 .qd-screen .qd-card {
@@ -247,7 +247,7 @@
 
 .qd-screen button.qd-card:active,
 .qd-screen .qd-action:active {
-  border-color: rgba(116, 185, 232, .58);
+  border-color: rgba(238, 199, 98, .96);
   filter: brightness(1.07);
   transform: translateY(3px) scale(.992);
   box-shadow:

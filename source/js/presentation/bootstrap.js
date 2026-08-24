@@ -39,7 +39,6 @@ function loadCompass(){
               loadScript('js/presentation/compass/trusted-qibla-refresh.js?v=20260814-trusted-qibla1','data-qibla-trusted-qibla-refresh');
               loadStyle('css/compass-astro-dashboard.css?v=20260809-reference-ui1','data-qibla-astro-dashboard-style');
               loadStyle('css/compass-confidence-final.css?v=20260809-reference-ui1','data-qibla-confidence-final-style');
-              loadStyle('css/compass-astro-gold-borders.css?v=20260808-062','data-qibla-astro-gold-borders');
               loadScript('js/compass-astro-dashboard.js?v=20260809-reference-ui1','data-qibla-astro-dashboard',function(){
                 loadStyle('css/astro-verification-controls.css?v=20260809-verified-controls1','data-qibla-astro-controls-style');
                 loadScript('js/presentation/astro-verification-controls.js?v=20260809-verified-controls1','data-qibla-astro-controls',function(){

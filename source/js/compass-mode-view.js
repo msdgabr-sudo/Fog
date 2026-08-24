@@ -8,6 +8,21 @@
   var observer=null;
   function byId(id){return root.document?root.document.getElementById(id):null;}
   function adapter(){return root.QiblaDigitalCompassAdapter||null;}
+  function actionWrapper(actionName){
+    if(!root.document)return null;
+    var button=root.document.querySelector('button[onclick*="'+actionName+'"]');
+    return button?button.parentElement:null;
+  }
+  function show(node,visible){
+    if(!node)return;
+    node.style.display=visible?'':'none';
+    node.setAttribute('aria-hidden',visible?'false':'true');
+  }
+  function syncLegacyDigitalActions(){
+    var visible=currentMode==='digital';
+    show(actionWrapper('showManualCal'),visible);
+    show(actionWrapper('tryBrowserGPS'),visible);
+  }
 
   function ensureAstroHomeButton(){
     if(!root.document)return null;
@@ -60,6 +75,7 @@
     page.classList.toggle('qa-astro-dashboard-active',currentMode==='astro');
     var host=root.QiblaDigitalCompassScreenHost;
     if(host&&typeof host.setActive==='function')host.setActive(currentMode==='digital');
+    syncLegacyDigitalActions();
     syncHomeButton();
   }
   function apply(mode){
