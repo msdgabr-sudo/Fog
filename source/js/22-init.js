@@ -36,11 +36,6 @@ function deactivateBubble(){
 }
 
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
-}
-
-
 function _swAdhanNotify(title, body){
   try{
     if('Notification' in window){

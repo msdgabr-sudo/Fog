@@ -56,7 +56,7 @@ assert(quranBack.includes("owner:'quran-iframe'"), 'Quran child history must rem
 assert(azkarBack.includes("owner:'azkar-iframe'"), 'Azkar child history must remain iframe-owned');
 
 const navStart = homeFinal.indexOf('/* Android/TWA Back compatibility layer.');
-const navEnd = homeFinal.indexOf('/* PWA registration lives here', navStart);
+const navEnd = homeFinal.indexOf('/* Sole PWA registration owner.', navStart);
 assert(navStart >= 0 && navEnd > navStart, 'top-level navigation runtime must remain independently testable');
 
 let activePage = 'home';

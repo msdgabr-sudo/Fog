@@ -33,6 +33,7 @@ assert.deepStrictEqual(missingRequired, [],
 const manifest = JSON.parse(read('manifest.json'));
 const webmanifest = JSON.parse(read('site.webmanifest'));
 const index = read('index.html');
+const homeFinal = read('js/home-final.js');
 const sw = read('service-worker.js');
 
 assert.deepStrictEqual(webmanifest, manifest,
@@ -74,9 +75,11 @@ assert.deepStrictEqual([...new Set(missingManifestAssets)], [],
 
 assert(/<link\s+rel=["']manifest["'][^>]+href=["']manifest\.json["']/i.test(index),
   'index.html must link the primary manifest.json.');
-assert(index.includes("navigator.serviceWorker.register('service-worker.js'"),
-  'index.html must register the local service worker.');
-assert(index.includes("scope: './'"),
+assert(!index.includes('serviceWorker.register('),
+  'index.html must delegate PWA registration to its guaranteed external runtime.');
+assert(homeFinal.includes("navigator.serviceWorker.register('./service-worker.js'"),
+  'home-final.js must register the local service worker.');
+assert(homeFinal.includes("{scope:'./'}"),
   'Service worker registration scope must remain relative.');
 assert(sw.includes("const OFFLINE_URL='./offline.html'"),
   'Service worker offline fallback must remain local and relative.');

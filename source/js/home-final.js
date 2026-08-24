@@ -190,9 +190,9 @@
   window.__qiblaBackNavigation={version:VERSION,owner:'home-final',stateKey:KEY,nestedNavigation:'iframe-owned'};
 })();
 
-/* PWA registration lives here because home-final.js is a guaranteed deferred script in
-   index.html. This keeps Service Worker startup independent from the legacy inline PWA
-   block and does not touch calculations, sensors, navigation or screen rendering. */
+/* Sole PWA registration owner. home-final.js is a guaranteed deferred script in
+   index.html; registration remains independent from calculations, sensors,
+   navigation and screen rendering. */
 (function(){
   'use strict';
 
