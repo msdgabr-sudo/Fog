@@ -16,12 +16,12 @@ for(const re of [/\bfunction\s+([A-Za-z_$][\w$]*)\s*\(/g,/\b(?:const|let|var)\s+
 const vars=[]; let vm; const vre=/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g; while((vm=vre.exec(html)))vars.push(vm[1]);
 const defs={}; for(const n of functions)defs[n]=(defs[n]||0)+1;
 const varDefs={}; for(const n of vars)varDefs[n]=(varDefs[n]||0)+1;
-const handlerNames=[]; let hm; const hre=/\bon(?:click|change|input|submit|load|error)\s*=\s*["']\s*([A-Za-z_$][\w$]*)\s*\(/gi; while((hm=hre.exec(html)))handlerNames.push(hm[2]);
+const handlerNames=[]; let hm; const hre=/\bon(?:click|change|input|submit|load|error)\s*=\s*["']\s*([A-Za-z_$][\w$]*)\s*\(/gi; while((hm=hre.exec(html)))handlerNames.push(hm[1]);
 const usage=n=>count(html,new RegExp('\\b'+n.replace(/[$]/g,'\\$&')+'\\b','g'));
 const deadFunctions=uniq(functions).map(name=>({name,definitions:defs[name],occurrences:usage(name)})).filter(x=>x.occurrences<=x.definitions).sort((a,b)=>a.occurrences-b.occurrences||a.name.localeCompare(b.name));
 const duplicateFunctions=Object.entries(defs).filter(([,n])=>n>1).map(([name,definitions])=>({name,definitions,occurrences:usage(name)}));
 const duplicateVars=Object.entries(varDefs).filter(([,n])=>n>1).map(([name,definitions])=>({name,definitions,occurrences:usage(name)}));
-const missingHandlers=uniq(handlerNames).filter(n=>usage(n)===count(html,new RegExp('(?:onclick|onchange|oninput|onsubmit|onload|onerror)\\s*=\\s*["'][^"']*\\b'+n.replace(/[$]/g,'\\$&')+'\\s*\\(','gi')));
+const missingHandlers=uniq(handlerNames).filter(n=>usage(n)===count(html,new RegExp("(?:onclick|onchange|oninput|onsubmit|onload|onerror)\\s*=\\s*[\"'][^\"']*\\b"+n.replace(/[$]/g,'\\$&')+'\\s*\\(','gi')));
 const ids=[]; let im; const ire=/\bid=["']([^"']+)["']/g; while((im=ire.exec(html)))ids.push(im[1]);
 const idCounts={};ids.forEach(x=>idCounts[x]=(idCounts[x]||0)+1);
 const duplicateIds=Object.entries(idCounts).filter(([,n])=>n>1).map(([id,count])=>({id,count}));
