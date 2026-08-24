@@ -27,7 +27,8 @@ const retired = [
   'js/100-reference-dashboard-stage2.js',
   'js/i18n/direction.js',
   'js/presentation/compass/digital-layout.js',
-  'js/presentation/compass/mode-view.js'
+  'js/presentation/compass/mode-view.js',
+  'js/system-check.js'
 ];
 
 retired.forEach(function (path) {
@@ -104,4 +105,4 @@ assert(!liveCompassMode.includes('QiblaDigitalCompassLayout'), 'live mode coordi
 assert(digitalCompassPage.includes('id="qd-screen"'), 'isolated digital compass screen must remain available');
 assert(digitalCompassPage.includes('id="qd-heading-sub">اضغط للتفعيل'), 'digital compass activation prompt must remain intact');
 
-console.log('PASS fourteen unloaded runtime shadows stay retired while every live owner remains intact');
+console.log('PASS fifteen unloaded runtime shadows stay retired while every live owner remains intact');
