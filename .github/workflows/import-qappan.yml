@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - .github/workflows/import-qappan.yml
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -28,12 +26,12 @@ jobs:
           git -C /tmp/qapp-source checkout c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac
           test "$(git -C /tmp/qapp-source rev-parse HEAD)" = "c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac"
 
-      - name: Replace Fog contents with the source snapshot
+      - name: Replace Fog contents except protected workflow files
         run: |
-          rsync -a --delete --exclude='.git' /tmp/qapp-source/ ./
-          test ! -e .github/workflows/import-qappan.yml
+          rsync -a --delete --exclude='.git' --exclude='.github/' /tmp/qapp-source/ ./
+          test -e .github/workflows/import-qappan.yml
 
-      - name: Verify and publish the imported snapshot
+      - name: Verify and publish ordinary source files
         run: |
           test "$(git -C /tmp/qapp-source rev-parse HEAD)" = "c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac"
           git config user.name "github-actions[bot]"
