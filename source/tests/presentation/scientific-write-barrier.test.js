@@ -6,7 +6,7 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '../..');
 const files = [
-  'js/presentation/compass/mode-view.js',
+  'js/compass-mode-view.js',
   'js/presentation/compass/astro-dashboard.js',
   'js/presentation/prayer/screen.js',
   'js/presentation/prayer/adhan-ui.js',

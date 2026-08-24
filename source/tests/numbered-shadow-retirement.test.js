@@ -9,6 +9,9 @@ const worker = fs.readFileSync('service-worker.js', 'utf8');
 const referencePreview = fs.readFileSync('reference-preview.html', 'utf8');
 const homeLanguagePicker = fs.readFileSync('js/i18n/home-language-picker.js', 'utf8');
 const internalLanguageBridge = fs.readFileSync('js/i18n/internal-screen-language-bridge.js', 'utf8');
+const presentationBootstrap = fs.readFileSync('js/presentation/bootstrap.js', 'utf8');
+const liveCompassMode = fs.readFileSync('js/compass-mode-view.js', 'utf8');
+const digitalCompassPage = fs.readFileSync('pages/digital-compass.html', 'utf8');
 
 const retired = [
   'js/04-core.js',
@@ -22,7 +25,9 @@ const retired = [
   'js/22-init.js',
   'js/99-misc.js',
   'js/100-reference-dashboard-stage2.js',
-  'js/i18n/direction.js'
+  'js/i18n/direction.js',
+  'js/presentation/compass/digital-layout.js',
+  'js/presentation/compass/mode-view.js'
 ];
 
 retired.forEach(function (path) {
@@ -91,5 +96,12 @@ assert(internalLanguageBridge.includes('function direction(doc,lang)'), 'the liv
 assert(internalLanguageBridge.includes('.qr-text,#qrText,.qr-basmala'), 'Quran source text must remain direction-protected');
 assert(internalLanguageBridge.includes('.az-dhikr-text,#azDhikrText'), 'Dhikr source text must remain direction-protected');
 assert(internalLanguageBridge.includes('QiblaInternalLanguageBridge=Object.freeze'), 'the live internal language bridge API must remain available');
+assert(presentationBootstrap.includes("loadScript('js/compass-mode-view.js"), 'bootstrap must retain the live compass mode coordinator');
+assert(!presentationBootstrap.includes('presentation/compass/mode-view.js'), 'bootstrap must not restore the retired compass mode chain');
+assert(liveCompassMode.includes('QiblaDigitalCompassScreenHost'), 'live mode coordinator must switch the isolated digital screen host');
+assert(liveCompassMode.includes('QiblaCompassViewMode=Object.freeze'), 'live compass mode API must remain available');
+assert(!liveCompassMode.includes('QiblaDigitalCompassLayout'), 'live mode coordinator must not depend on the retired legacy layout annotator');
+assert(digitalCompassPage.includes('id="qd-screen"'), 'isolated digital compass screen must remain available');
+assert(digitalCompassPage.includes('id="qd-heading-sub">اضغط للتفعيل'), 'digital compass activation prompt must remain intact');
 
-console.log('PASS twelve unloaded runtime shadows stay retired while every live owner remains intact');
+console.log('PASS fourteen unloaded runtime shadows stay retired while every live owner remains intact');
