@@ -1250,7 +1250,6 @@ function calcPrayers(evts){
 //  HELPERS
 // ════════════════════════════════════════════════
 const D8=['شمال','شمال شرق','شرق','جنوب شرق','جنوب','جنوب غرب','غرب','شمال غرب'];
-const DI=['⬆','↗','➡','↘','⬇','↙','⬅','↖'];
 function d8(az){return D8[Math.round(((az%360)+360)/45)%8];}
 function hm(h){
   if(h==null||isNaN(h))return'--:--';
@@ -1276,103 +1275,6 @@ function set(id,v){
   });
 }
 function seti(id,v){const e=gel(id);if(e)e.innerHTML=v;}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-17] DIRECTION GRID
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  DIRECTION GRID
-// ════════════════════════════════════════════════
-function buildDG(id,baz,bvis,blbl,bico){
-  const qC=Math.round(((QT%360)+360)/45)%8;
-  const bC=bvis?Math.round(((baz%360)+360)/45)%8:-1;
-  const degs=[0,45,90,135,180,225,270,315];
-  const el=gel(id);if(!el)return;
-  el.innerHTML=D8.map((nm,i)=>{
-    const isQ=i===qC,isB=i===bC&&!isQ;
-    return`<div class="dc${isQ?' hl':isB?' hlm':''}"><div class="d-icon">${isQ?'🕋':isB?bico:DI[i]}</div><div class="d-name">${nm}</div><div class="d-deg">${degs[i]}°</div><div class="d-note">${isQ?'القبلة':isB?blbl:''}</div></div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-18] MOON PHASE CANVAS
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  MOON PHASE CANVAS
-// ════════════════════════════════════════════════
-function drawPhase(ill,elong){
-  const c=gel('phaseCvs');if(!c)return;
-  const x=c.getContext('2d'),W=88,CX=44,CY=44,R=34;
-  x.clearRect(0,0,W,W);
-  x.beginPath();x.arc(CX,CY,R,0,Math.PI*2);x.fillStyle='#06080E';x.fill();
-  x.strokeStyle='#1E2E44';x.lineWidth=1.5;x.stroke();
-  x.save();x.beginPath();x.arc(CX,CY,R,0,Math.PI*2);x.clip();
-  const wan=elong>180,frac=wan?2*ill-1:1-2*ill,tx=CX+R*frac*(wan?-1:1);
-  const lg=x.createRadialGradient(CX,CY,0,CX,CY,R);
-  lg.addColorStop(0,'#D8E8FF');lg.addColorStop(.6,'#8AAEF0');lg.addColorStop(1,'#3A5898');
-  x.beginPath();x.moveTo(tx,CY-R);
-  if(!wan){x.bezierCurveTo(CX,CY-R,CX,CY+R,tx,CY+R);x.bezierCurveTo(CX+R,CY+R,CX+R,CY-R,tx,CY-R);}
-  else{x.bezierCurveTo(CX,CY-R,CX,CY+R,tx,CY+R);x.bezierCurveTo(CX-R,CY+R,CX-R,CY-R,tx,CY-R);}
-  x.fillStyle=lg;x.fill();x.restore();
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-19] POLARIS FINDER CANVAS
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  POLARIS FINDER CANVAS
-// ════════════════════════════════════════════════
-let ptick=0;
-function drawPolaris(maz,mvis,malt){
-  const c=gel('polarisCvs');if(!c)return;
-  const x=c.getContext('2d'),W=128,CX=64,CY=64,R=56;
-  x.clearRect(0,0,W,W);
-  const bg=x.createRadialGradient(CX,CY,0,CX,CY,R);
-  bg.addColorStop(0,'#08091A');bg.addColorStop(1,'#020408');
-  x.beginPath();x.arc(CX,CY,R,0,Math.PI*2);x.fillStyle=bg;x.fill();
-  x.strokeStyle='#1A2A40';x.lineWidth=1.5;x.stroke();
-  // Altitude rings
-  [30,60].forEach(a=>{const r=R*(1-a/90);x.beginPath();x.arc(CX,CY,r,0,Math.PI*2);x.strokeStyle='rgba(26,44,68,.4)';x.lineWidth=.8;x.stroke();x.font='7px monospace';x.fillStyle='rgba(60,90,128,.6)';x.textAlign='left';x.fillText(a+'°',CX+r+2,CY);});
-  // N cardinal
-  x.font='bold 11px "JetBrains Mono",monospace';x.fillStyle='#3A7ACD';x.textAlign='center';x.textBaseline='middle';
-  x.fillText('N',CX,CY-R+12);
-  // Polaris glow
-  const pR=R*(1-LAT/90),pX=CX,pY=CY-pR;
-  const pg=x.createRadialGradient(pX,pY,2,pX,pY,11);
-  pg.addColorStop(0,'rgba(96,240,240,.95)');pg.addColorStop(1,'rgba(96,240,240,0)');
-  x.beginPath();x.arc(pX,pY,11,0,Math.PI*2);x.fillStyle=pg;x.fill();
-  x.beginPath();x.arc(pX,pY,4,0,Math.PI*2);x.fillStyle='#60F0F0';x.fill();
-  x.font='7px "JetBrains Mono",monospace';x.fillStyle='rgba(96,240,240,.75)';x.fillText('★',pX,pY-12);
-  // Rotating Dipper
-  ptick++;
-  const da=ptick*.008;
-  [[50,42,46,22],[46,22,42,30],[38,32,36,44]].forEach(([r1,a1,r2,a2])=>{
-    const rd1=(a1+da*R2D-90)*D2R,rd2=(a2+da*R2D-90)*D2R;
-    const x1=pX+r1*Math.cos(rd1),y1=pY+r1*Math.sin(rd1),x2=pX+r2*Math.cos(rd2),y2=pY+r2*Math.sin(rd2);
-    x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.strokeStyle='rgba(180,160,100,.32)';x.lineWidth=1;x.stroke();
-    [[x1,y1],[x2,y2]].forEach(([px2,py2])=>{x.beginPath();x.arc(px2,py2,2.5,0,Math.PI*2);x.fillStyle='rgba(200,180,120,.4)';x.fill();});
-  });
-  // Guide line to polaris
-  const d1r=(44+da*R2D-90)*D2R;
-  x.beginPath();x.moveTo(pX+46*Math.cos(d1r),pY+46*Math.sin(d1r));x.lineTo(pX,pY);
-  x.strokeStyle='rgba(96,240,240,.15)';x.lineWidth=1.2;x.setLineDash([3,3]);x.stroke();x.setLineDash([]);
-  // Moon if visible
-  if(mvis&&malt>2){
-    const mR=R*(1-malt/90),mRad=(maz-90)*D2R;
-    const mx=CX+mR*Math.cos(mRad),my=CY+mR*Math.sin(mRad);
-    const mg=x.createRadialGradient(mx,my,2,mx,my,8);
-    mg.addColorStop(0,'rgba(138,174,240,.8)');mg.addColorStop(1,'rgba(138,174,240,0)');
-    x.beginPath();x.arc(mx,my,8,0,Math.PI*2);x.fillStyle=mg;x.fill();
-    x.beginPath();x.arc(mx,my,4,0,Math.PI*2);x.fillStyle='#8AAEF0';x.fill();
-  }
-  // Qibla direction
-  const qr=(QT-90)*D2R;
-  x.font='9px serif';x.fillStyle='rgba(200,164,74,.5)';x.textAlign='center';x.textBaseline='middle';
-  x.fillText('🕋',CX+R*.72*Math.cos(qr),CY+R*.72*Math.sin(qr));
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // [JS-21] POLAR DRIFT — Chandler wobble simulation
@@ -1451,25 +1353,6 @@ function updatePrayers(now,evts){
     const isN=i===ni,isPa=!isN&&ci>=0&&i<=ci;
     return`<div class="p-row${isN?' curr':isPa?' past':''}"><div class="p-ico">${PICO[p.n]||'🕌'}</div><div class="p-name">${p.n}</div>${isN?'<div class="p-tag">قادمة</div>':''}<div class="p-time">${hm(p.h)}</div></div>`;
   }).join('');
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-23] METHOD RANKING
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  METHOD RANKING
-// ════════════════════════════════════════════════
-function buildMethods(malt,mill,salt){
-  const night=salt<-6,moonOk=malt>5&&mill>.12;
-  const items=[
-    {ico:'⭐',t:'نجم القطب — بولاريس',d:'ارتفاعه ثابت 30° شمالاً · دقة < 0.02°',v:`القبلة = ${QT.toFixed(1)}° منه باتجاه عقارب الساعة`,cls:night?'best':'',tag:'ahi',r:night?'متاح الآن 🌙':'انتظر الظلام'},
-    {ico:'🌙',t:'موضع القمر ELP2000',d:`حساب فلكي دقيق ±0.1° · مرجع اتجاهي موثوق`,v:moonOk?`القمر الآن سمت ${moonPos(new Date()).az.toFixed(0)}° ارتفاع ${malt.toFixed(0)}°`:'الارتفاع أو الإضاءة غير كافيَيْن',cls:moonOk?'best':'',tag:moonOk?'ahi':'tag-lo',r:moonOk?'متاح الآن 🌙':'غير كافٍ الآن'},
-    {ico:'✨',t:'النجوم المرشدة',d:'الجوزاء غرباً · العقرب جنوباً · نجوم الدب يشيرون لبولاريس',v:'دقة ~5° مع التدريب البسيط',cls:night?'good':'',tag:'amid',r:night?'السماء مظلمة الآن':'انتظر الليل'},
-    {ico:'🧭',t:'بوصلة + تصحيح WMM2025',d:MDECL_READY?`تصحيح WMM2025 = ${mdeclDisplay(2,true)}`:'بانتظار GPS/GNSS موثوق',v:MDECL_READY?`قبلة البوصلة المصحَّحة = ${qmDisplay(1)}`:'غير متاح قبل تثبيت الموقع',cls:MDECL_READY?'good':'',tag:'amid',r:MDECL_READY?'متاح — يتأثر بمعايرة الهاتف':'الموقع مطلوب'},
-  ];
-  const el=gel('methList');if(!el)return;
-  el.innerHTML=items.map(m=>`<div class="m-item ${m.cls}"><div class="m-ico">${m.ico}</div><div class="m-body"><div class="m-title">${m.t}${m.cls==='best'?' ✓':''}</div><div class="m-desc">${m.d}</div><div class="m-val" style="color:${m.cls==='best'?'var(--gold-l)':m.cls==='good'?'var(--gold)':'var(--txt3)'}">${m.v}</div><span class="m-tag ${m.tag}">${m.r}</span></div></div>`).join('');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2000,33 +1883,6 @@ function loop(){
     set('pr-s',hm(evts.sH));set('pr-saz','سمت '+evts.azS.toFixed(1)+'°');
     set('pr-n',hm(evts.nH));
   }
-
-  // ── NIGHT PAGE ──
-  set('nc-az',mp.az.toFixed(1)+'°');set('nc-d',d8(mp.az));
-  set('nc-alt',mp.altApp.toFixed(1)+'°');set('nc-s',moonV?'فوق الأفق ✓':'تحت الأفق');
-  set('nc-ill',(mp.illum*100).toFixed(0)+'%');
-  const phn=phaseName(mp.illum,mp.elong);set('nc-ph',phn);
-  drawPhase(mp.illum,mp.elong);
-  set('ph-name',phn);
-  set('ph-desc',`إضاءة ${(mp.illum*100).toFixed(0)}% · استطالة ${mp.elong.toFixed(0)}°`);
-  const mrs2=evts?moonRS(evts,mp):null;
-  set('ph-times',mrs2?`🌙 شروق ${hm(mrs2.rH)} · غروب ${hm(mrs2.sH)}`:'');
-  drawPolaris(mp.az,moonV,mp.altApp);
-  set('polaris-alt-display',LAT>=0?LAT.toFixed(2)+'° شمالاً':'غير مرئي من هذا الموقع');
-  set('polaris-qibla-display',QT.toFixed(1)+'°');
-  set('pol-status',sp.altApp<-6?'السماء مظلمة — ابحث عنه الآن ⭐':'انتظر الظلام الكامل (~1 ساعة بعد الغروب)');
-  buildMethods(mp.altApp,mp.illum,sp.altApp);
-  buildDG('dgN',mp.az,moonV,'القمر','🌙');
-  set('night-dg-h',`القمر: ${d8(mp.az)} (${mp.az.toFixed(0)}°) · بولاريس: شمال دائماً`);
-  // Night Qibla instruction
-  const diffM=((QT-mp.az)+360)%360,degM=Math.min(diffM,360-diffM).toFixed(0);
-  const sideM=diffM<180?'يسار القمر':'يمين القمر';
-  let qi=``;
-  if(sp.altApp<-6)qi+=`<strong style="color:var(--pole)">① بولاريس:</strong> ابحث عنه شمالاً${LAT>=0?` على ارتفاع يقارب ${LAT.toFixed(1)}°`:''}.<br>اتجاه القبلة من الشمال الحقيقي = <strong>${QT.toFixed(1)}°</strong>.<br><br>`;
-  if(moonV&&mp.altApp>5)qi+=`<strong style="color:var(--moon)">② القمر:</strong> سمته الآن ${mp.az.toFixed(0)}°<br>القبلة على بُعد <strong>${degM}°</strong> إلى <strong>${sideM}</strong>.<br>${diffM<180?`→ واجه القمر ثم انحرف ${degM}° يساراً.`:`→ واجه القمر ثم انحرف ${(360-diffM).toFixed(0)}° يميناً.`}<br><br>`;
-  if(!moonV&&sp.altApp>=-6)qi+=`<em style="color:var(--txt3)">القمر تحت الأفق الآن.</em><br><br>`;
-  qi+=MDECL_READY?`<strong style="color:var(--qmag)">③ البوصلة المُصحَّحة:</strong> اضبطها على <strong>${qmDisplay(1)}</strong><br>(تصحيح WMM2025 ${mdeclDisplay(2,true)})`:`<strong style="color:var(--qmag)">③ البوصلة المُصحَّحة:</strong> بانتظار GPS/GNSS موثوق`;
-  seti('qn-instr',qi);
 
   // ── PRAYER PAGE ──
   set('prayer-location-label',gnssHasTrustedFix?'موقعك الحالي · GPS':'الموقع غير محدد');

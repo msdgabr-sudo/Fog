@@ -34,6 +34,9 @@ Retired in a coordinated cleanup. The unreachable DOM, every main-loop writer, t
 ### Map (`page-map`)
 Retired with its fixed-Giza `drawMap()` renderer and per-loop call after proving that no route reaches the screen.
 
+### Falaki / Night parent-document runtime
+The live owner is `pages/falaki.html`, mounted by `js/presentation/falaki/host.js` inside `#page-night`. The old parent-document writers and private canvas renderers were retired after proving that every target ID had disappeared. Shared calculation engines used by the live host remain intact.
+
 ### Settings / Help
 Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 

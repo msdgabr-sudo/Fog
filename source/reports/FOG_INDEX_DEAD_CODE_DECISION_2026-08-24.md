@@ -342,6 +342,13 @@
 - أزيلت محددات `#page-cal` فقط من طبقتي العرض، وحُولت الحماية الاختبارية من إبقاء المسار القديم إلى منع عودته.
 - لم تُحذف معايرة بوصلة الهاتف الحية: `startCalibration`, `finishCalibration`, `resetCompassCalibration`, `showManualCal`, `hideManualCal`, `calOffset` وعقد شاشة البوصلة بقيت كما هي.
 
+### سلسلة عرض Night القديمة في الوثيقة الأم
+
+- ثبت مسار الملكية الحي: `home-reference-finalizer.js` يحمّل `presentation/bootstrap.js`، ثم `presentation/falaki/host.js` يركب `pages/falaki.html` داخل `#page-night`. يحمي Service Worker واختبار Falaki المستقل هذا المسار.
+- كانت كتلة Night المضمنة تكتب كل ثانية إلى 16 معرفًا غير موجود، منها `nc-az`, `phaseCvs`, `polarisCvs`, `methList`, `dgN` و`qn-instr`.
+- حُذفت كتلة writers ودوال العرض الخاصة بها: `buildDG`, `drawPhase`, `drawPolaris`, `buildMethods`، ومعهما الثابتان الخاصان `DI` و`ptick`.
+- بقيت محركات `solarEvts`, `moonPos`, `moonRS`, `phaseName` دون تغيير؛ يستخدمها Falaki/Home ومزامنة الأحداث، ولم يُمس أي ملف أو API من دورة التحقق الفلكي.
+
 ## التعليقات والتنظيف الشكلي
 
 - حُذفت 62 سطرًا من حواجز الفصل وعناوين الصفحات المكررة فقط؛ لم تُحذف عقدة DOM أو تعليمة JavaScript أو قاعدة CSS.

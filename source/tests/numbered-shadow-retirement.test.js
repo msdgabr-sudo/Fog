@@ -52,8 +52,6 @@ retired.forEach(function (path) {
   'function loadCfg()',
   'function saveCfg()',
   'loadCfg();',
-  'function drawPolaris(maz,mvis,malt)',
-  'drawPolaris(mp.az,moonV,mp.altApp);',
   'function drawPolarDrift(now)',
   'drawPolarDrift(now);',
   "let eCache=null,eKey='';",
@@ -99,6 +97,19 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
   "seti('cal-qi'"
 ].forEach(function (token) {
   assert(!index.includes(token), 'unreachable legacy Calibration runtime returned: ' + token);
+});
+
+[
+  'function buildDG(',
+  'function drawPhase(',
+  'function drawPolaris(',
+  'function buildMethods(',
+  "set('nc-az'",
+  "seti('qn-instr'",
+  'const DI=',
+  'let ptick='
+].forEach(function (token) {
+  assert(!index.includes(token), 'retired parent-document Night presentation returned: ' + token);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');
