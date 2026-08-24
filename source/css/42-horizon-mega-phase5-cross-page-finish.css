@@ -220,7 +220,6 @@
 
 /* Astronomy, calibration and serenity media surfaces. */
 #page-night canvas,
-#page-cal canvas,
 #page-serenity :is(canvas,audio,video){
   border-radius:18px!important;
   border:1px solid rgba(128,207,244,.12)!important;

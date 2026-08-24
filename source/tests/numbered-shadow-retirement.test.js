@@ -54,8 +54,6 @@ retired.forEach(function (path) {
   'loadCfg();',
   'function drawPolaris(maz,mvis,malt)',
   'drawPolaris(mp.az,moonV,mp.altApp);',
-  'function drawShadow(saz,salt,vis)',
-  'drawShadow(sp.az,sp.altApp,sunV);',
   'function drawPolarDrift(now)',
   'drawPolarDrift(now);',
   "let eCache=null,eKey='';",
@@ -88,6 +86,19 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
 
 ['id="page-map"', 'id="mapCvs"', 'function drawMap()', 'drawMap();'].forEach(function (token) {
   assert(!index.includes(token), 'unreachable fixed-Giza Map runtime returned: ' + token);
+});
+
+[
+  'id="page-cal"',
+  'id="shadowCvs"',
+  'id="err-table"',
+  'function drawShadow(saz,salt,vis)',
+  'drawShadow(sp.az,sp.altApp,sunV);',
+  "buildDG('dgD'",
+  "set('cal-az'",
+  "seti('cal-qi'"
+].forEach(function (token) {
+  assert(!index.includes(token), 'unreachable legacy Calibration runtime returned: ' + token);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');

@@ -37,7 +37,7 @@ Any unresolved reference => NO DELETE.
 If existing runtime code accesses the candidate DOM without a null guard, the DOM cannot be removed until that runtime dependency is safely eliminated in a separately reviewed change.
 
 Example discovered during audit:
-`page-cal` contains `#err-table`, while the main update loop accesses `gel('err-table').children.length` without a null check. Therefore `page-cal` is NOT currently safe to remove.
+`page-cal` contained `#err-table`, while the main update loop accessed `gel('err-table').children.length` without a null check. The later coordinated cleanup removed both the DOM and that runtime dependency in one reviewed change; deleting the DOM alone remains forbidden by this gate.
 
 ## Gate 4 — Protected-zone gate
 Before every write, verify that the diff does not touch protected files or protected DOM/runtime contracts.
@@ -65,11 +65,11 @@ After every cleanup commit:
 - Only after successful acceptance may the next cleanup commit begin.
 
 ## Current audit result — Calibration (`page-cal`)
-Status: **KEEP / NOT SAFE TO DELETE**.
+Status: **RETIRED AS A COORDINATED UNIT**.
 
-Reason: `page-cal` is actively updated by the main runtime. The main update path writes to calibration IDs and calls calibration drawing/build functions. In addition, `#err-table` is accessed without a null guard. Removing only the HTML would risk a runtime exception affecting the wider application.
+Reason: no navigation route reached the legacy page. Its DOM, main-loop writes, `drawShadow()` renderer, and unsafe `err-table` access were removed together, so no null-dependent residue remains.
 
-No calibration HTML/CSS/JS is to be deleted in the current cleanup stage.
+The live device-compass calibration APIs and `calOffset` flow remain outside this retired page and must not be removed by this decision.
 
 ## Stop condition
 If there is any visual regression, dead navigation button, missing screen, runtime error, layout-width regression, or unexpected behavior: stop cleanup immediately and compare against `klir` before any further change.

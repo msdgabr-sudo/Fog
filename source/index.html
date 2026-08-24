@@ -262,131 +262,6 @@
 
 <div class="page" id="page-night" data-external-page="falaki" aria-label="فلكي"></div>
 
-<!-- [HTML-6] PAGE: CALIBRATE (المعايرة) -->
-<div class="page" id="page-cal">
-
-  <div class="cal-hero">
-    <h2>☀️ المعايرة الشاملة — كل الظروف</h2>
-    <p>في الهواء الطلق · في الظهيرة · في مكان مغلق بلا أي أداة</p>
-  </div>
-
-  <div class="sec-hdr">☀ الشمس كمرجع — الآن</div>
-  <div class="grid2">
-    <div class="stat"><lbl>سمت الشمس الآن</lbl><div class="val" id="cal-az">---°</div><div class="sub" id="cal-dir">---</div></div>
-    <div class="stat accent-gold"><lbl>القبلة من الشمس</lbl><div class="val" id="cal-diff" style="color:var(--gold)">---°</div><div class="sub" id="cal-side">---</div></div>
-  </div>
-
-  <div class="dir-wrap">
-    <div class="dir-hdr">خريطة الاتجاهات النهارية — الشمس كمرجع</div>
-    <div class="dir-grid" id="dgD"></div>
-  </div>
-
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius);padding:12px;">
-    <div style="font-size:.57rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;">⌚ ساعة الظل</div>
-    <canvas id="shadowCvs" width="360" height="175" style="width:100%;height:auto;display:block;border-radius:7px;"></canvas>
-    <div style="font-size:.71rem;line-height:1.8;margin-top:8px;color:var(--txt2);" id="shad-txt">---</div>
-  </div>
-
-  <div class="qi-card">
-    <div class="card-hdr">📐 القبلة النهارية</div>
-    <div class="qi-body" id="cal-qi">---</div>
-  </div>
-
-  <!-- NOON SHADOW SPECIAL CASE -->
-  <div class="sec-hdr">🌞 الظهر الشمسي — لحظة الظل الأقصر</div>
-  <div style="width:100%;background:linear-gradient(135deg,#0C0C04,var(--panel));border:1px solid var(--rim);border-right:3px solid var(--sun);border-radius:var(--radius);padding:14px;">
-    <div style="font-size:.6rem;color:var(--sun);font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:9px;">⭐ أفضل لحظة في اليوم — دقة مطلقة بدون أي أداة</div>
-    <div style="font-size:.76rem;line-height:1.9;color:var(--txt);">
-      <strong style="color:var(--sun)">لماذا الظهر الشمسي خاص؟</strong><br>
-      عند الظهر الشمسي الحقيقي (<span id="noon-time-cal" style="color:var(--sun);font-family:'JetBrains Mono',monospace;font-weight:700">--:--</span>) تكون الشمس على خط الزوال المحلي. راقب أقصر ظل، واستخدم سمت الشمس المعروض لتحديد خط الشمال–الجنوب الحقيقي.
-    </div>
-    <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px;">
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <div style="width:22px;height:22px;border-radius:50%;background:var(--gold-d);color:var(--gold-l);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">١</div>
-        <div style="font-size:.74rem;color:var(--txt2);line-height:1.75;">ضع أي شيء عمودي (قلم، عصا، زجاجة) على سطح أفقي في الشمس</div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <div style="width:22px;height:22px;border-radius:50%;background:var(--gold-d);color:var(--gold-l);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٢</div>
-        <div style="font-size:.74rem;color:var(--txt2);line-height:1.75;">راقب الظل — عند أقصر نقطة له = هذه لحظة الظهر الشمسي الحقيقي</div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <div style="width:22px;height:22px;border-radius:50%;background:var(--gold-d);color:var(--gold-l);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٣</div>
-        <div style="font-size:.74rem;color:var(--txt2);line-height:1.75;">اتجاه الظل في هذه اللحظة يحدد <strong style="color:var(--pole)">خط الشمال–الجنوب الحقيقي</strong>؛ استخدم سمت الشمس المعروض لمعرفة جهة الشمال</div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <div style="width:22px;height:22px;border-radius:50%;background:var(--gold-d);color:var(--gold-l);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٤</div>
-        <div style="font-size:.74rem;color:var(--txt2);line-height:1.75;">من الشمال → اتبع اتجاه القبلة الحالي <strong id="cal-qibla-from-north" style="color:var(--gold)">---°</strong> المعروض من موقعك</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;padding:9px 11px;background:rgba(240,200,60,.07);border-radius:8px;border:1px solid rgba(240,200,60,.18);">
-      <div style="font-size:.65rem;color:var(--sun);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">⚠ الظهر الشمسي الحقيقي ≠ 12:00 ظهراً</div>
-      <div style="font-size:.7rem;color:var(--txt2);line-height:1.7;">يتقدم أو يتأخر بسبب معادلة الزمن والموقع الجغرافي. حسب موقعك اليوم = <span id="noon-time-cal2" style="color:var(--sun);font-family:'JetBrains Mono',monospace;font-weight:700">--:--</span></div>
-    </div>
-  </div>
-
-  <!-- INDOOR — NO TOOLS -->
-  <div class="sec-hdr">🏠 المكان المغلق — بلا أي أداة</div>
-  <div style="width:100%;background:linear-gradient(135deg,#06040C,var(--panel));border:1px solid var(--rim);border-right:3px solid var(--moon);border-radius:var(--radius);padding:14px;">
-    <div style="font-size:.6rem;color:var(--moon);font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;">🧠 سبع طرق — من الأدق إلى الأبسط</div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid var(--pole);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--pole);margin-bottom:5px;">① القبلة المحفوظة في الذاكرة</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;">قبل دخول أي مكان مغلق احفظ اتجاه القبلة بالنسبة لمعلم ثابت (باب، شارع، نافذة). داخل المبنى: استرجع المعلم واستنتج القبلة. <span style="color:var(--pole)">دقة: ~5-10°</span></div>
-    </div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid var(--gold);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:5px;">② محاذاة المبنى مع الشبكة الجغرافية</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;">إذا عرفت اتجاه أحد محاور المبنى بالنسبة للشمال الحقيقي، يمكنك استخدامه كمرجع ثم اتباع اتجاه القبلة المعروض في التطبيق. لا تفترض أن اتجاه الشوارع أو الجدران واحد في كل مدينة.</div>
-    </div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid var(--ok);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--ok);margin-bottom:5px;">③ شعاع الضوء الطبيعي من نافذة أو شق</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;"><strong>صباحاً:</strong> الضوء من الشرق · <strong>ظهراً:</strong> من الجنوب · <strong>مساءً:</strong> من الغرب. حتى ظل بسيط من ثقب صغير يكفي لتحديد الجهة. <span style="color:var(--ok)">دقة: ~15-25°</span></div>
-    </div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid var(--warn);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--warn);margin-bottom:5px;">④ الساعة التناظرية كبوصلة شمسية</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;">وجّه عقرب الساعة الصغير نحو الشمس — نصف الزاوية بينه وبين الرقم 12 = <strong>الجنوب</strong>. من الجنوب انحرف 43.8° يساراً = القبلة. <span style="color:var(--warn)">دقة: ~10-15°</span></div>
-    </div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid var(--moon);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--moon);margin-bottom:5px;">⑤ المساجد المجاورة كمرجع</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;">أي مسجد في المنطقة هو بوصلة حية — اتجاه المحراب = اتجاه القبلة. إذا رأيت مسجداً من النافذة أو عرفت موضعه استخدمه مرجعاً. <span style="color:var(--moon)">دقة: مثالية</span></div>
-    </div>
-
-    <div style="background:var(--ink2);border-radius:10px;padding:11px 13px;margin-bottom:8px;border-right:3px solid #FF9080;">
-      <div style="font-size:.8rem;font-weight:700;color:#FF9080;margin-bottom:5px;">⑥ دفء الجدار الجنوبي</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.8;">في مصر (شمال خط الاستواء): <strong>الجدار الجنوبي دائماً الأدفأ</strong> لأن الشمس تميل جنوباً دائماً. المسّ بظهر يدك يكشف الفرق. <span style="color:#FF9080">دقة: ~30° — للاستدلال العام</span></div>
-    </div>
-
-    <div style="background:linear-gradient(135deg,rgba(200,164,74,.08),var(--ink2));border-radius:10px;padding:11px 13px;border:1px solid rgba(200,164,74,.18);">
-      <div style="font-size:.8rem;font-weight:700;color:var(--gold-l);margin-bottom:5px;">⑦ الاجتهاد المنطقي — الفقه الإسلامي يسانده</div>
-      <div style="font-size:.72rem;color:var(--txt2);line-height:1.9;">
-        إذا انعدمت كل الوسائل: استخدم ذاكرتك وعقلك — تذكر اتجاه دخولك، الانعطافات داخل المبنى، والمعالم التي مررت بها.<br><br>
-        <strong style="color:var(--gold-l)">قال الفقهاء:</strong> "إذا اشتبهت عليه القبلة اجتهد وصلى ولا إعادة عليه" — الاجتهاد الصادق مقبول وصلاتك صحيحة.
-      </div>
-    </div>
-  </div>
-
-  <!-- Error-distance table -->
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius);overflow:hidden;">
-    <div style="padding:9px 13px;border-bottom:1px solid var(--rim);font-size:.58rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;">📏 الخطأ الزاوي وانحرافه عن الكعبة (مسافة 1300 كم)</div>
-    <div style="padding:9px;display:flex;flex-direction:column;gap:5px;" id="err-table"></div>
-  </div>
-
-  <div class="tips">
-    <h4>📐 طريقة الخطوتين (خارجياً — دون أي أدوات)</h4>
-    <ul>
-      <li>ضع عصا عمودية — علّم طرف الظل (نقطة أ)</li>
-      <li>انتظر 15-20 دقيقة — علّم الظل مجدداً (نقطة ب)</li>
-      <li>الخط من أ إلى ب = غرب → شرق بدقة عالية</li>
-      <li>الخط العمودي عليه = شمال ↔ جنوب</li>
-      <li>القبلة = 136.2° من الشمال (يميناً)</li>
-    </ul>
-  </div>
-
-</div>
-
 <!-- [HTML-7] PAGE: PRAYER (الصلاة) -->
 <!-- PAGE: PRAYER — EXTERNAL PRESENTATION MODULE -->
 <!-- Full screen source: pages/prayer.html -->
@@ -1500,51 +1375,6 @@ function drawPolaris(maz,mvis,malt){
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// [JS-20] SHADOW DIAL
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  SHADOW DIAL
-// ════════════════════════════════════════════════
-function drawShadow(saz,salt,vis){
-  const c=gel('shadowCvs');if(!c)return;
-  const x=c.getContext('2d'),W=360,H=175,GX=180,GY=138,R=65;
-  x.clearRect(0,0,W,H);x.fillStyle='#040608';x.fillRect(0,0,W,H);
-  // Ground
-  const gg=x.createLinearGradient(0,GY,W,GY);gg.addColorStop(0,'rgba(50,90,50,0)');gg.addColorStop(.5,'rgba(50,90,50,.25)');gg.addColorStop(1,'rgba(50,90,50,0)');x.fillStyle=gg;x.fillRect(0,GY,W,2);
-  // Circle
-  x.beginPath();x.arc(GX,GY,R,0,Math.PI*2);x.strokeStyle='#1A2C44';x.lineWidth=1.5;x.stroke();
-  // Cardinals
-  x.font='11px "JetBrains Mono",monospace';x.textAlign='center';x.textBaseline='middle';
-  [['N',0,'#3A7ACD'],['E',90,'#4A6A80'],['S',180,'#4A6A80'],['W',270,'#4A6A80']].forEach(([l,d,cl])=>{
-    const r=(d-90)*D2R;x.fillStyle=cl;x.fillText(l,GX+(R+13)*Math.cos(r),GY+(R+13)*Math.sin(r));
-  });
-  // Peg
-  x.beginPath();x.moveTo(GX,GY);x.lineTo(GX,GY-45);x.strokeStyle='rgba(170,150,90,.6)';x.lineWidth=3;x.lineCap='round';x.stroke();
-  if(vis&&salt>2){
-    const shAz=(saz+180)%360,shR=(shAz-90)*D2R;
-    const sLen=Math.min(R-8,50*(1-salt/90)+12);
-    const sg=x.createLinearGradient(GX,GY,GX+sLen*Math.cos(shR),GY+sLen*Math.sin(shR));
-    sg.addColorStop(0,'rgba(150,130,75,.65)');sg.addColorStop(1,'rgba(50,40,16,.1)');
-    x.beginPath();x.moveTo(GX,GY);x.lineTo(GX+sLen*Math.cos(shR),GY+sLen*Math.sin(shR));
-    x.strokeStyle=sg;x.lineWidth=9;x.lineCap='round';x.stroke();
-    const sr=(saz-90)*D2R;
-    x.beginPath();x.moveTo(GX,GY);x.lineTo(GX+22*Math.cos(sr),GY+22*Math.sin(sr));
-    x.strokeStyle='rgba(240,200,60,.4)';x.lineWidth=2;x.lineCap='round';x.stroke();
-    x.font='12px serif';x.fillStyle='rgba(240,200,60,.6)';x.textAlign='center';x.textBaseline='middle';
-    x.fillText('☀',GX+31*Math.cos(sr),GY+31*Math.sin(sr));
-  } else {
-    x.font='12px "Noto Naskh Arabic",serif';x.fillStyle='#3A5A7A';x.textAlign='center';x.textBaseline='middle';
-    x.fillText(vis?'الشمس منخفضة جداً':'الشمس تحت الأفق',GX,GY);
-  }
-  const qr=(QT-90)*D2R;
-  x.beginPath();x.moveTo(GX,GY);x.lineTo(GX+R*.72*Math.cos(qr),GY+R*.72*Math.sin(qr));
-  x.strokeStyle='rgba(200,164,74,.28)';x.lineWidth=2;x.setLineDash([4,3]);x.stroke();x.setLineDash([]);
-  x.font='9px serif';x.fillStyle='rgba(200,164,74,.52)';x.textAlign='center';x.textBaseline='middle';
-  x.fillText('🕋',GX+R*.84*Math.cos(qr),GY+R*.84*Math.sin(qr));
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 // [JS-21] POLAR DRIFT — Chandler wobble simulation
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -2198,43 +2028,8 @@ function loop(){
   qi+=MDECL_READY?`<strong style="color:var(--qmag)">③ البوصلة المُصحَّحة:</strong> اضبطها على <strong>${qmDisplay(1)}</strong><br>(تصحيح WMM2025 ${mdeclDisplay(2,true)})`:`<strong style="color:var(--qmag)">③ البوصلة المُصحَّحة:</strong> بانتظار GPS/GNSS موثوق`;
   seti('qn-instr',qi);
 
-  // ── CALIBRATE PAGE ──
-  set('cal-az',sp.az.toFixed(1)+'°');set('cal-dir',d8(sp.az));
-  const diff=((QT-sp.az)+360)%360,deg=Math.min(diff,360-diff).toFixed(0);
-  set('cal-diff',deg+'°');set('cal-side',sunV?diff<180?'يسار الشمس':'يمين الشمس':'الشمس تحت الأفق');
-  buildDG('dgD',sp.az,sunV,'الشمس','☀️');
-  drawShadow(sp.az,sp.altApp,sunV);
-  const shAz=(sp.az+180)%360;
-  set('shad-txt',sunV?`ظل العصا الآن → ${d8(shAz)} (${shAz.toFixed(0)}°) — الشمال في جهة ${d8((shAz+90)%360)}`:'الشمس تحت الأفق — استخدم صفحة 🌙 الليل');
-  // Noon proximity alert + dynamic Qibla
-  if(evts){
-    set('noon-time-cal',hm(evts.nH));set('noon-time-cal2',hm(evts.nH));
-    const minsToNoon=(lh-evts.nH)*60; // negative = before noon
-    const absMin=Math.abs(minsToNoon);
-    if(absMin<1.5){
-      seti('cal-qi',`<span style="font-size:1rem">⭐</span> <strong style="color:var(--sun)">الظهر الشمسي الحقيقي الآن!</strong><br>
-        ظل أي شيء عمودي أمامك يشير إلى <strong style="color:var(--pole)">الشمال الجغرافي الحقيقي</strong> بدقة مطلقة.<br>
-        انحرف من نهاية الظل <strong style="color:var(--gold)">${QT.toFixed(1)}°</strong> يميناً = القبلة.`);
-    } else if(absMin<10&&minsToNoon<0){
-      seti('cal-qi',`<strong style="color:var(--sun)">🕛 الظهر بعد ${absMin.toFixed(0)} دقيقة</strong><br>
-        الظل يقترب من أقصر نقطة — راقبه وستحصل على الشمال بدقة مطلقة.`);
-    } else if(absMin<10&&minsToNoon>0){
-      seti('cal-qi',`<strong style="color:var(--sun)">🕛 مضى على الظهر ${absMin.toFixed(0)} دقيقة</strong><br>
-        الظل كان شمالاً منذ قليل — لا يزال شبه شمالي بدقة جيدة.`);
-    } else if(!sunV){
-      seti('cal-qi',`<span style="color:var(--moon)">الشمس تحت الأفق الآن.<br>انتقل إلى 🌙 الليل للمعايرة بالقمر ونجم القطب.</span>`);
-    } else if(sp.altApp<5){
-      seti('cal-qi',`<span style="color:var(--warn)">⚠ الشمس قريبة من الأفق (${sp.altApp.toFixed(1)}°) — الظل طويل جداً وأقل دقة.<br>أفضل وقت للمعايرة: بين الضحى والعصر.</span>`);
-    } else if(diff<180){
-      seti('cal-qi',`واجه الشمس (<strong style="color:var(--sun)">${sp.az.toFixed(0)}°</strong>)،<br>القبلة على <strong style="color:var(--gold-l)">يسارك بـ${deg}°</strong><br><em style="color:var(--txt3)">→ كتفك الأيمن للشمس = القبلة أمامك</em>`);
-    } else {
-      seti('cal-qi',`واجه الشمس (<strong style="color:var(--sun)">${sp.az.toFixed(0)}°</strong>)،<br>القبلة على <strong style="color:var(--gold-l)">يمينك بـ${(360-diff).toFixed(0)}°</strong><br><em style="color:var(--txt3)">→ كتفك الأيسر للشمس = القبلة أمامك</em>`);
-    }
-  }
-
   // ── PRAYER PAGE ──
   set('prayer-location-label',gnssHasTrustedFix?'موقعك الحالي · GPS':'الموقع غير محدد');
-  set('cal-qibla-from-north',QT.toFixed(1)+'°');
   updatePrayers(now,evts);
   try{set('pr-h',new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'numeric',month:'long',year:'numeric'}).format(now));}catch(e){}
 
@@ -2246,37 +2041,6 @@ function loop(){
   set('cfg-qt',QT.toFixed(2)+'°');set('cfg-qm',qmDisplay(2));
   set('cfg-md',mdeclDisplay(2,true));
 
-  // ── CALIBRATE extras ──
-  if(evts){
-    set('noon-time-cal', hm(evts.nH));
-    set('noon-time-cal2', hm(evts.nH));
-  }
-  // Error distance table (built once)
-  if(!gel('err-table').children.length){
-    const rows=[
-      {lbl:'VSOP87 (شمس)',    deg:.1,  col:'var(--ok)'},
-      {lbl:'ELP2000 (قمر)',   deg:.5,  col:'var(--moon)'},
-      {lbl:'بولاريس',          deg:.02, col:'var(--pole)'},
-      {lbl:'بوصلة + WMM2025', deg:2,   col:'var(--gold)'},
-      {lbl:'بوصلة هاتف عادية',deg:5,   col:'var(--warn)'},
-      {lbl:'بوصلة غير معايرة',deg:15,  col:'var(--err)'},
-      {lbl:'تخمين عام',        deg:30,  col:'var(--err)'},
-    ];
-    const D=1300;
-    gel('err-table').innerHTML=rows.map(r=>{
-      const km=(2*D*Math.sin(r.deg/2*D2R)).toFixed(1);
-      const pct=Math.min(100,(r.deg/30)*100);
-      return`<div style="display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:7px;background:var(--ink2);">
-        <div style="width:8px;height:8px;border-radius:50%;background:${r.col};flex-shrink:0"></div>
-        <div style="flex:1;font-size:.7rem;color:var(--txt)">${r.lbl}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:${r.col};width:36px;text-align:left">${r.deg}°</div>
-        <div style="width:80px;height:5px;background:var(--ink3);border-radius:3px;overflow:hidden;flex-shrink:0">
-          <div style="width:${pct}%;height:100%;background:${r.col};border-radius:3px"></div>
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:${r.col};width:55px;text-align:left">${km} كم</div>
-      </div>`;
-    }).join('');
-  }
 
   // ── Device compass needle (if active) ──
   set('mag-decl-inline', MDECL_READY?MDECL.toFixed(2):'---');

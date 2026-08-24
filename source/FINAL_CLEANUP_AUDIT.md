@@ -27,17 +27,15 @@ Do not modify as part of cleanup:
 
 The corresponding presentation bootstrap/hosts remain active. Their parent hosts/anchors in `index.html` are required architecture, not removable legacy markup.
 
-## Legacy retained intentionally
+## Legacy cleanup decisions
 ### Calibration (`page-cal`)
-Retained. The main loop actively writes to calibration DOM IDs and canvases, including `cal-az`, `cal-dir`, `cal-diff`, `cal-side`, `dgD`, `shadowCvs`, `shad-txt`, `cal-qi`, `noon-time-cal`, `noon-time-cal2`, `cal-qibla-from-north`, and `err-table`.
-
-Important coupling: `gel('err-table').children.length` is accessed without a null guard. Removing the Calibration DOM while keeping the current loop could throw and interrupt later runtime updates.
+Retired in a coordinated cleanup. The unreachable DOM, every main-loop writer, the unsafe `gel('err-table').children.length` path, and the private `drawShadow()` renderer were removed in the same change. Device-compass calibration remains owned by the live Compass screen.
 
 ### Map (`page-map`)
-Retained. `drawMap()` remains part of the main loop. Removal is not justified by navigation visibility alone.
+Retired with its fixed-Giza `drawMap()` renderer and per-loop call after proving that no route reaches the screen.
 
 ### Settings / Help
-Retained. No fully proven safe removal boundary was established.
+Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 
 ### GNSS / Serenity
 Retained and protected. Both remain live integrated paths.
