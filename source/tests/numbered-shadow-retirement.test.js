@@ -63,8 +63,6 @@ retired.forEach(function (path) {
   "document.getElementById('sp-canvas')",
   "document.getElementById('qo-canvas')",
   'window._celCheck = _celCheck;',
-  "const permBtn = gel('compass-perm-btn');",
-  "const calBtn = gel('cal-compass-btn');",
   "const devSlider = gel('dev-slider');",
   'loop();'
 ].forEach(function (token) {
@@ -147,11 +145,26 @@ assert(index.includes('pCache=calcPrayers(evts)'), 'the main loop must continue 
   "gel('sunBall')",
   "gel('moonBall')",
   "gel('qibla-needle')",
-  "gel('qibla-head')"
+  "gel('qibla-head')",
+  'function startCalibration()',
+  'function finishCalibration()',
+  'function requestCompassPermission()',
+  'function updateCompassStatus(',
+  'function _safeOrient()',
+  'function _requestCompassPermission()',
+  'calSamples',
+  'calMode',
+  'calTimer',
+  'CAL_DURATION',
+  "gel('cal-compass-btn')",
+  "gel('cal-progress-bar')",
+  "gel('cal-result')",
+  "gel('compass-perm-btn')",
+  "gel('compass-ring')"
 ].forEach(function (token) {
   assert(!index.includes(token), 'retired parent Compass artifact returned: ' + token);
 });
-['box-heading','box-qibla','box-diff','box-dir','compass-accuracy','manual-cal-section','sunFill','moonFill','mag-decl-inline'].forEach(function (id) {
+['box-heading','box-qibla','box-diff','box-dir','compass-accuracy','manual-cal-section','cal-offset-display','sunFill','moonFill','mag-decl-inline'].forEach(function (id) {
   assert(index.includes("'" + id + "'") || compassPage.includes('id="' + id + '"'), 'live Compass contract was lost: ' + id);
 });
 

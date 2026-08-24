@@ -365,6 +365,13 @@
 - بقيت `sunFill`, `moonFill`, حقول السمت والارتفاع، `box-heading/box-qibla/box-diff`, canvas `cvs`, slider `dev-slider`, حالة المستشعر، المعايرة اليدوية، والمحوّل الرقمي دون تغيير.
 - لم يُغيّر هذا التنظيف حساسية المؤشر أو معادلات البوصلة أو موضع زر المنزل أو أي ملف من دورة التحقق الفلكي.
 
+### مسار المعايرة التلقائية المنقطع
+
+- كانت `startCalibration/finishCalibration` لا تُستدعيان إلا من `cal-compass-btn` غير الموجود، وتعتمدان على `cal-result`, `cal-progress-bar`, `compass-ring` غير الموجودة أيضًا.
+- حُذفت الدالتان وجامع العينات `calSamples/calMode/calTimer/CAL_DURATION`، كما حُذف غلاف الإذن القديم الذي كان ينتهي إلى `_requestCompassPermission()` فارغة وزر `compass-perm-btn` غير موجود.
+- بقي مدخل التفعيل الحي `activateCompass` الذي يستدعيه `qibla-card-runtime` والمحوّل الرقمي، وبقي `onDeviceOrientation` والتنعيم `0.15` وحالة `deviceHeading` دون تغيير.
+- بقيت المعايرة المستخدمة فعليًا: `resetCompassCalibration`, `showManualCal`, `hideManualCal`, `calOffset` وأزرار التصحيح اليدوي في شاشتي البوصلة.
+
 ## التعليقات والتنظيف الشكلي
 
 - حُذفت 62 سطرًا من حواجز الفصل وعناوين الصفحات المكررة فقط؛ لم تُحذف عقدة DOM أو تعليمة JavaScript أو قاعدة CSS.

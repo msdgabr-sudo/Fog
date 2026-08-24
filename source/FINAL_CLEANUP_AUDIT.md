@@ -43,6 +43,8 @@ The live visible screen is `pages/prayer.html`, mounted through the guarded pres
 ### Compass parent-document artifacts
 Both Compass fragments mount into the parent document, so their real IDs and public actions remain live. Only writers for IDs absent from the parent and both fragments were retired: the superseded date panel, vanished sky-body markers, old SVG needle, unused EOT/refraction labels, and a missing inline-deviation mirror. The canonical canvas, slider, device sensor state, digital adapter, calibration controls, visible values, and sensitivity path were not changed.
 
+The disconnected eight-second sample collector and its empty permission wrapper were also retired after proving that all of their controls were absent. Live activation remains owned by `activateCompass`; digital/manual calibration remains owned by `resetCompassCalibration`, `showManualCal`, `hideManualCal`, and the shared `calOffset` controls.
+
 ### Settings / Help
 Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 

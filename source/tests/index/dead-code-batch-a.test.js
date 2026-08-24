@@ -48,6 +48,10 @@ assert(adhanUi.includes("typeof adhanPlayNow==='function'"), 'prayer screen must
   assert(new RegExp('function\\s+' + name + '\\s*\\(').test(index), 'live compass calibration function must remain: ' + name);
   assert(digitalAdapter.includes(name), 'digital compass adapter must retain calibration bridge: ' + name);
 });
+assert(/function\s+activateCompass\s*\(/.test(index), 'the canonical live compass activation entry point must remain');
+['startCalibration','finishCalibration','calSamples','calMode','calTimer','CAL_DURATION','compass-perm-btn','cal-compass-btn','cal-progress-bar','cal-result','compass-ring'].forEach(function (token) {
+  assert(!index.includes(token), 'disconnected automatic calibration/permission token returned: ' + token);
+});
 
 assert(/function\s+saveCfg\s*\(/.test(index), 'settings persistence must remain');
 assert(homeFinal.includes("typeof window.saveCfg==='function'"), 'Home language control must retain settings persistence bridge');
