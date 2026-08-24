@@ -1,0 +1,34 @@
+name: Index Surgical Audit
+
+on:
+  push:
+    branches: [new]
+    paths:
+      - 'index.html'
+      - 'scripts/audit-index-surgery.js'
+      - '.github/workflows/index-surgery-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: new
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Generate surgical audit
+        run: node scripts/audit-index-surgery.js
+      - name: Commit report
+        run: |
+          git config user.name 'qiblaastro-audit-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add reports/index-surgery-audit.json reports/index-surgery-audit.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Audit: refresh index surgical map [skip ci]'
+          git push origin HEAD:new

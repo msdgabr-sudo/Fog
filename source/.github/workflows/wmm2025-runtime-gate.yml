@@ -1,0 +1,43 @@
+name: WMM2025 trusted GNSS runtime gate
+
+on:
+  push:
+    branches: [A2]
+    paths:
+      - 'index.html'
+      - 'js/05-gnss.js'
+      - 'js/10-astronomy.js'
+      - 'js/geomag/wmm2025.js'
+      - 'js/geomag/wmm2025-runtime.js'
+      - 'js/presentation/bootstrap.js'
+      - 'js/presentation/compass/trusted-qibla-refresh.js'
+      - 'service-worker.js'
+      - 'pages/wmm2025-test.html'
+      - 'tests/wmm2025-browser-page.test.js'
+      - 'tests/wmm2025-runtime-integration.test.js'
+      - 'tests/wmm2025-audit-gate.js'
+      - 'tests/trusted-qibla-premium-refresh.test.js'
+      - '.github/workflows/wmm2025-runtime-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-location-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify official WMM2025 reference values
+        run: node tests/wmm2025-official-gate.js
+      - name: Verify trusted GNSS runtime integration and protected hashes
+        run: node tests/wmm2025-runtime-integration.test.js
+      - name: Verify trusted Qibla reaches Premium presentation in both load orders
+        run: node tests/trusted-qibla-premium-refresh.test.js
+      - name: Audit canonical and experimental WMM files
+        run: node tests/wmm2025-audit-gate.js
+      - name: Verify browser test page uses the canonical trusted runtime
+        run: node tests/wmm2025-browser-page.test.js

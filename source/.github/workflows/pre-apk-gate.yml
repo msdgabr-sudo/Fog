@@ -1,0 +1,39 @@
+name: Pre-APK Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - pre
+    paths:
+      - 'manifest.json'
+      - 'site.webmanifest'
+      - 'index.html'
+      - 'js/home-final.js'
+      - 'service-worker.js'
+      - 'icons/**'
+      - 'CNAME'
+      - 'PRE_APK_ANDROID_IDENTITY.md'
+      - '.well-known/assetlinks.json'
+      - 'tools/pre_apk_check.py'
+      - 'android-twa/**'
+      - '.gitignore'
+      - '.github/workflows/pre-apk-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pre
+        uses: actions/checkout@v4
+      - name: Use Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run repository-side Pre-APK gate
+        run: python tools/pre_apk_check.py
+      - name: Run Android TWA identity and secret-safety gate
+        run: python android-twa/check_twa_config.py

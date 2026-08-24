@@ -1,0 +1,135 @@
+name: Verify main release source and build unsigned AAB
+
+# SINGLE-BRANCH RELEASE GATE
+# --------------------------
+# `main` is the authoritative source for both the deployed web application and
+# future Android release builds. source/.release-source-sha records historical
+# provenance only; it does NOT authorize replacing current main/source with the
+# older Mizan baseline.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'source/**'
+      - '.github/workflows/verify-release-snapshot.yml'
+      - 'RELEASE_SOURCE.md'
+      - 'REPOSITORY_STATE.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: 6e49775df5742413371a4165ea985173c43f5f5e
+  BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Verify baseline provenance marker and absence of secrets
+        run: |
+          set -euo pipefail
+          test -f source/.release-source-sha
+          test "$(tr -d '\r\n' < source/.release-source-sha)" = "$SOURCE_SHA"
+          if find source -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname '*.p12' -o -iname '*.pfx' -o -iname '*service-account*.json' \) -print -quit | grep -q .; then
+            echo 'ERROR: secret material is forbidden in the release repository.' >&2
+            exit 1
+          fi
+          echo 'Baseline provenance marker verified. Current main/source remains authoritative.'
+
+      - name: Run current main source release gates
+        working-directory: source
+        run: |
+          set -euo pipefail
+          python3 tools/pre_apk_check.py
+          python3 android-twa/check_twa_config.py
+          node tests/wmm2025-official-gate.js
+          node tests/wmm2025-global-coverage.test.js
+          node tests/wmm2025-runtime-integration.test.js
+          node tests/prayer-global-methods.test.js
+          node tests/prayer-global-runtime-integration.test.js
+          node tests/local-timezone-adapter.test.js
+          node tests/timezone-production-wiring.test.js
+          node tests/trusted-location-runtime-sync.test.js
+          node tests/i18n-roundtrip-safety.test.js
+          node tests/a2-phone-ui-regressions.test.js
+          node tests/permissions-gnss-adhan-cycle.test.js
+          node tests/astronomical-verification-store-persistence.test.js
+          node tests/native-android-localization-security.test.js
+          node tests/pre-native-release-readiness.test.js
+
+      - name: Pull pinned Bubblewrap toolchain
+        run: docker pull "$BUBBLEWRAP_IMAGE"
+
+      - name: Generate Android project from current main TWA manifest
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
+          sudo chown -R "$(id -u):$(id -g)" source/android-twa
+          test -x source/android-twa/gradlew
+          test -f source/android-twa/app/src/main/AndroidManifest.xml
+
+      - name: Enforce API 36 and inject approved native features
+        run: |
+          set -euo pipefail
+          python3 source/android-twa/ensure_target_api_36.py
+          pwsh -NoProfile -File source/android-twa/apply_native_azkar_reminders.ps1
+          pwsh -NoProfile -File source/android-twa/apply_native_widget.ps1
+          python3 source/android-twa/check_release_integration.py
+          (cd source && node tests/native-android-localization-security.test.js)
+
+      - name: Build unsigned release AAB
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
+            set -euo pipefail
+            CFG=/root/.bubblewrap/config.json
+            export JAVA_HOME=$(node -p "require(\"$CFG\").jdkPath")
+            export ANDROID_HOME=$(node -p "require(\"$CFG\").androidSdkPath")
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            SDKMANAGER=$(find "$ANDROID_HOME" -type f -name sdkmanager -perm -111 | head -1)
+            test -n "$SDKMANAGER"
+            export PATH="$JAVA_HOME/bin:$(dirname "$SDKMANAGER"):$ANDROID_HOME/platform-tools:$PATH"
+            yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+            "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;35.0.0"
+            ./gradlew --no-daemon :app:processReleaseMainManifest
+            python3 check_generated_permissions.py
+            bubblewrap build --skipSigning --skipPwaValidation --manifest=twa-manifest.json
+          '
+          sudo chown -R "$(id -u):$(id -g)" source/android-twa
+
+      - name: Verify and stage unsigned AAB artifact
+        run: |
+          set -euo pipefail
+          CANDIDATE=''
+          for f in \
+            source/android-twa/app/build/outputs/bundle/release/app-release.aab \
+            source/android-twa/app-release-bundle.aab; do
+            if [ -s "$f" ]; then CANDIDATE="$f"; break; fi
+          done
+          test -n "$CANDIDATE"
+          mkdir -p dist
+          cp "$CANDIDATE" dist/QiblaAstro-3.1.0-code3-unsigned.aab
+          unzip -t dist/QiblaAstro-3.1.0-code3-unsigned.aab >/dev/null
+          sha256sum dist/QiblaAstro-3.1.0-code3-unsigned.aab | tee dist/QiblaAstro-3.1.0-code3-unsigned.aab.sha256
+
+      - name: Upload unsigned AAB proof artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: QiblaAstro-3.1.0-code3-unsigned-AAB-proof
+          path: |
+            dist/QiblaAstro-3.1.0-code3-unsigned.aab
+            dist/QiblaAstro-3.1.0-code3-unsigned.aab.sha256
+          if-no-files-found: error
+          retention-days: 14

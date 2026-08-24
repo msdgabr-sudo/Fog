@@ -1,0 +1,51 @@
+name: Historical frozen-source provenance audit (read-only)
+
+# HISTORICAL SAFETY WORKFLOW
+# --------------------------
+# q-app-an now uses `main` as its single working/release branch.
+# This workflow MUST NOT materialize, replace, commit, or push `source/`.
+# The SHA below records the Mizan baseline from which q-app-an/source was
+# originally materialized. Current `main/source` intentionally contains
+# validated post-baseline fixes and is the source of truth.
+# Run this workflow manually only when auditing provenance.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: 6e49775df5742413371a4165ea985173c43f5f5e
+
+jobs:
+  provenance-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Verify historical baseline marker
+        run: |
+          set -euo pipefail
+          test -f source/.release-source-sha
+          ACTUAL="$(tr -d '\r\n' < source/.release-source-sha)"
+          test "$ACTUAL" = "$SOURCE_SHA"
+          echo "Historical Mizan baseline: $ACTUAL"
+          echo "Current main/source is authoritative and MUST NOT be overwritten from this baseline."
+
+      - name: Confirm repository contains no signing secrets
+        run: |
+          set -euo pipefail
+          if find source -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname '*.p12' -o -iname '*.pfx' -o -iname '*service-account*.json' \) -print -quit | grep -q .; then
+            echo 'ERROR: signing secret or service-account material exists in repository source.' >&2
+            exit 1
+          fi
+          test ! -e source/android-twa/keystore/qiblaastro-upload.jks
+
+      - name: Provenance audit complete
+        run: |
+          echo 'PASS: historical provenance marker is intact.'
+          echo 'READ-ONLY: no source files were materialized, replaced, committed, or pushed.'

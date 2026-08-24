@@ -1,0 +1,26 @@
+name: WMM2025 isolated gate
+on:
+  push:
+    branches: [A2]
+    paths:
+      - 'data/WMM2025.COF'
+      - 'js/geomag/wmm2025.js'
+      - 'js/engines/wmm2025-isolated.js'
+      - 'tests/wmm2025-official-gate.js'
+      - 'tests/wmm2025-reference-vectors.json'
+      - 'tests/wmm2025-test.js'
+      - 'tests/wmm2025-global-coverage.test.js'
+      - '.github/workflows/wmm2025-isolated-gate.yml'
+  workflow_dispatch:
+jobs:
+  reference-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Compare all WMM2025 field components with official reference values
+        run: node tests/wmm2025-official-gate.js
+      - name: Verify global WMM2025 numerical coverage remains isolated
+        run: node tests/wmm2025-global-coverage.test.js

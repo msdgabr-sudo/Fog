@@ -1,0 +1,65 @@
+name: PWA Readiness
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - 'manifest.json'
+      - 'site.webmanifest'
+      - 'service-worker.js'
+      - 'offline.html'
+      - 'browserconfig.xml'
+      - 'icons/**'
+      - 'css/home-action-layout-233.css'
+      - 'js/home-reference-finalizer.js'
+      - 'tests/pwa-standalone-readiness.test.js'
+      - '.github/workflows/pwa-readiness.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - 'manifest.json'
+      - 'site.webmanifest'
+      - 'service-worker.js'
+      - 'offline.html'
+      - 'browserconfig.xml'
+      - 'icons/**'
+      - 'css/home-action-layout-233.css'
+      - 'js/home-reference-finalizer.js'
+      - 'tests/pwa-standalone-readiness.test.js'
+      - '.github/workflows/pwa-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pwa-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify standalone PWA readiness
+        run: node tests/pwa-standalone-readiness.test.js
+
+      - name: Syntax check service worker
+        run: node --check service-worker.js
+
+      - name: Syntax check home freshness guard
+        run: node --check js/home-reference-finalizer.js

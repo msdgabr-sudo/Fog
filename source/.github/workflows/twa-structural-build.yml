@@ -1,0 +1,67 @@
+name: TWA Structural Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - pre
+    paths:
+      - 'android-twa/**'
+      - '.github/workflows/twa-structural-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-unsigned:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/googlechromelabs/bubblewrap:latest
+    defaults:
+      run:
+        working-directory: android-twa
+    steps:
+      - name: Checkout pre
+        uses: actions/checkout@v4
+        with:
+          ref: pre
+
+      - name: Validate TWA configuration
+        run: python3 check_twa_config.py
+
+      - name: Validate live HTTPS PWA
+        run: bubblewrap validate --url=https://app.qiblalabs.com/
+
+      - name: Generate Android project from frozen TWA manifest
+        run: bubblewrap update --skipVersionUpgrade --manifest=./twa-manifest.json
+
+      - name: Enforce Android 16 / API 36 target
+        run: python3 ensure_target_api_36.py
+
+      - name: Assert package and SDK identity before build
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'applicationId "com.qiblalabs.qiblaastro"' app/build.gradle
+          grep -F 'namespace "com.qiblalabs.qiblaastro"' app/build.gradle
+          grep -E 'compileSdkVersion[[:space:]]+36' app/build.gradle
+          grep -E 'targetSdkVersion[[:space:]]+36' app/build.gradle
+
+      - name: Merge release manifest with dependency manifests
+        run: ./gradlew :app:processReleaseMainManifest --no-daemon
+
+      - name: Validate merged release Android permissions
+        run: python3 check_generated_permissions.py
+
+      - name: Build unsigned APK and AAB
+        run: bubblewrap build --skipSigning --skipPwaValidation --manifest=./twa-manifest.json
+
+      - name: Collect unsigned structural artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qiblaastro-twa-unsigned-structural
+          path: |
+            android-twa/**/*.apk
+            android-twa/**/*.aab
+          if-no-files-found: error
+          retention-days: 7

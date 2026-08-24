@@ -1,0 +1,71 @@
+name: Localize adhan audio
+
+on:
+  push:
+    branches: [A2]
+    paths:
+      - '.github/workflows/localize-adhan-audio.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  localize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: A2
+      - name: Download pinned adhan assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p audio/adhan
+          curl -fL --retry 3 --retry-delay 2 \
+            'https://raw.githubusercontent.com/DBChoco/Salawat/0a173934434860e5c6c430615578e9b4c9f0db64/src/main/resources/io/github/dbchoco/Salawat/audio/Adhan%20-%20Mecca.mp3' \
+            -o audio/adhan/mecca.mp3
+          curl -fL --retry 3 --retry-delay 2 \
+            'https://raw.githubusercontent.com/DBChoco/Salawat/0a173934434860e5c6c430615578e9b4c9f0db64/src/main/resources/io/github/dbchoco/Salawat/audio/Adhan%20-%20Ahmed%20Al-Nufais.mp3' \
+            -o audio/adhan/ahmed-al-nufais.mp3
+          curl -fL --retry 3 --retry-delay 2 \
+            'https://raw.githubusercontent.com/HICalSoft/OpenAdhan/b028673080ae870a1367f83805f96bf52ddd49f2/docs/adhans/islam-sobhi-adhan.mp3' \
+            -o audio/adhan/islam-sobhi.mp3
+          curl -fL --retry 3 --retry-delay 2 \
+            'https://raw.githubusercontent.com/HICalSoft/OpenAdhan/b028673080ae870a1367f83805f96bf52ddd49f2/docs/adhans/Athan_1_alafasy_Fajr.mp3' \
+            -o audio/adhan/fajr-alafasy.mp3
+      - name: Verify exact pinned Git blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object audio/adhan/mecca.mp3)" = '92a8d148e72aec64c7eccfbe3a376b10ea5772a0'
+          test "$(git hash-object audio/adhan/ahmed-al-nufais.mp3)" = '6581b9629c5d03ca41605f9942fbdecad520984c'
+          test "$(git hash-object audio/adhan/islam-sobhi.mp3)" = '958d94d3ead3c97ee831b09dd19a2fd55714ecef'
+          test "$(git hash-object audio/adhan/fajr-alafasy.mp3)" = '4c322e241cb213a2658b46a7a8230c55496cc565'
+      - name: Add attribution
+        shell: bash
+        run: |
+          cat > audio/adhan/ATTRIBUTION.md <<'EOF'
+          # Adhan audio attribution
+
+          These audio assets are redistributed from pinned open-source repositories used by QiblaAstro.
+
+          - `mecca.mp3` — source: DBChoco/Salawat, commit `0a173934434860e5c6c430615578e9b4c9f0db64`, original `Adhan - Mecca.mp3`.
+          - `ahmed-al-nufais.mp3` — source: DBChoco/Salawat, same pinned commit, original `Adhan - Ahmed Al-Nufais.mp3`.
+          - `islam-sobhi.mp3` — source: HICalSoft/OpenAdhan, commit `b028673080ae870a1367f83805f96bf52ddd49f2`, original `docs/adhans/islam-sobhi-adhan.mp3`.
+          - `fajr-alafasy.mp3` — source: HICalSoft/OpenAdhan, same pinned commit, original `docs/adhans/Athan_1_alafasy_Fajr.mp3`.
+
+          Source repositories declare the MIT License. Preserve the source copyright and MIT license notices when redistributing these assets.
+          EOF
+      - name: Commit localized audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audio/adhan
+          if git diff --cached --quiet; then
+            echo 'No audio changes to commit.'
+            exit 0
+          fi
+          git commit -m 'assets(adhan): localize pinned muezzin audio'
+          git push origin HEAD:A2

@@ -1,0 +1,76 @@
+name: Astronomical Solver Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'js/**'
+      - 'tests/astronomical-*.test.js'
+      - 'tests/qibla-*.test.js'
+      - 'tests/compass-*.test.js'
+      - 'tests/record-contract-mismatch.test.js'
+      - 'tests/tracking-lock-removal.test.js'
+      - 'tests/retired-runtime-removal.test.js'
+      - 'tests/field-test-readiness.test.js'
+      - 'tests/celestial-azimuth-leak.test.js'
+      - '.github/workflows/astronomical-solver-tests.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'js/**'
+      - 'tests/astronomical-*.test.js'
+      - 'tests/qibla-*.test.js'
+      - 'tests/compass-*.test.js'
+      - 'tests/record-contract-mismatch.test.js'
+      - 'tests/tracking-lock-removal.test.js'
+      - 'tests/retired-runtime-removal.test.js'
+      - 'tests/field-test-readiness.test.js'
+      - 'tests/celestial-azimuth-leak.test.js'
+      - '.github/workflows/astronomical-solver-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astronomical-solver-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test recording contract
+        run: |
+          if [ -f tests/record-contract-mismatch.test.js ]; then
+            node tests/record-contract-mismatch.test.js
+          fi
+      - name: Run astronomical suite
+        run: |
+          node tests/astronomical-solver.integration.test.js
+          node tests/qibla-alignment-reticle.test.js
+          node tests/astronomical-trace.test.js
+          node tests/astronomical-observation-bridge.test.js
+          node tests/astronomical-observatory-ui.test.js
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-app-wiring.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+          node tests/tracking-lock-removal.test.js
+          node tests/retired-runtime-removal.test.js
+          node tests/field-test-readiness.test.js
+          node tests/celestial-azimuth-leak.test.js
+      - name: Check syntax
+        run: |
+          node --check js/astronomical-verification-session.js
+          node --check js/astronomical-verification-store.js
+          node --check js/compass-cards.js

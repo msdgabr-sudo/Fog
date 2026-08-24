@@ -1,0 +1,41 @@
+name: Protected Scientific Core Integrity
+
+on:
+  push:
+    branches: [new]
+  pull_request:
+    branches: [new]
+  workflow_dispatch:
+
+jobs:
+  protected-core:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify authoritative protected scientific core blobs
+        run: node scripts/check-protected-core.js
+
+      - name: Run authoritative PR3 astronomical regression suite
+        run: |
+          node tests/astronomical-solver.integration.test.js
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-observation-bridge.test.js
+          node tests/astronomical-qibla-semantic-mapping.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+          node tests/record-display-e2e.test.js
+          node tests/retired-runtime-removal.test.js
+          node tests/tracking-lock-removal.test.js
+
+      - name: Verify astronomical module boundary
+        run: node tests/astronomical/module-boundary.test.js
+
+      - name: Verify presentation cannot write scientific state
+        run: node tests/presentation/scientific-write-barrier.test.js

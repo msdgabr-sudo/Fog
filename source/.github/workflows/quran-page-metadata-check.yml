@@ -1,0 +1,30 @@
+name: Quran page metadata check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [quran-stable]
+    paths:
+      - 'js/quran-pages.js'
+      - 'scripts/verify-quran-pages.mjs'
+      - '.github/workflows/quran-page-metadata-check.yml'
+  pull_request:
+    paths:
+      - 'js/quran-pages.js'
+      - 'scripts/verify-quran-pages.mjs'
+      - '.github/workflows/quran-page-metadata-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify all 604 page boundaries
+        run: node scripts/verify-quran-pages.mjs

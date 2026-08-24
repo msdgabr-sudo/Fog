@@ -1,0 +1,46 @@
+name: Prayer UI Contract
+
+on:
+  push:
+    branches: [new]
+    paths:
+      - 'pages/prayer.html'
+      - 'css/presentation/prayer/**'
+      - 'js/presentation/prayer/**'
+      - 'js/02-adhan.js'
+      - 'js/11-prayer.js'
+      - 'js/qibla-card-runtime.js'
+      - 'service-worker.js'
+      - 'tests/presentation/prayer-*.test.js'
+      - '.github/workflows/prayer-ui-contract.yml'
+  pull_request:
+    paths:
+      - 'pages/prayer.html'
+      - 'css/presentation/prayer/**'
+      - 'js/presentation/prayer/**'
+      - 'js/02-adhan.js'
+      - 'js/11-prayer.js'
+      - 'js/qibla-card-runtime.js'
+      - 'service-worker.js'
+      - 'tests/presentation/prayer-*.test.js'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: External page contract
+        run: node tests/presentation/prayer-external-page.test.js
+      - name: Adhan interaction contract
+        run: node tests/presentation/prayer-adhan-contract.test.js
+      - name: Scientific write barrier
+        run: node tests/presentation/scientific-write-barrier.test.js

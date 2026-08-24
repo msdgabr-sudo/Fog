@@ -1,0 +1,195 @@
+name: A2 APK Release Candidate
+
+on:
+  push:
+    branches: [a2-release-prep]
+    paths:
+      - '.github/workflows/a2-apk-rc.yml'
+      - '.github/workflows/a2-pre-native-release-gate.yml'
+      - 'android-twa/**'
+      - 'tools/**'
+      - 'PRE_APK_ANDROID_IDENTITY.md'
+      - 'index.html'
+      - 'manifest.json'
+      - 'service-worker.js'
+      - 'pages/**'
+      - 'css/**'
+      - 'js/**'
+      - 'icons/**'
+      - 'assets/**'
+      - 'quran/**'
+      - 'tests/**'
+      - 'checkpoints/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
+
+jobs:
+  apk-rc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Repository Pre-APK release gate
+        run: python3 tools/pre_apk_check.py
+
+      - name: Android TWA configuration gate
+        run: python3 android-twa/check_twa_config.py
+
+      - name: Native localization and security gate
+        run: node tests/native-android-localization-security.test.js
+
+      - name: Verify fixed Android identity
+        run: |
+          python3 - <<'PY'
+          import json
+          m=json.load(open('android-twa/twa-manifest.json',encoding='utf-8'))
+          assert m['packageId']=='com.qiblalabs'
+          assert m['appVersion']=='3.1.0'
+          assert int(m['appVersionCode'])==3
+          assert int(m['minSdkVersion'])==23
+          assert m['signingKey']['path']=='./keystore/qiblaastro-upload.jks'
+          assert m['signingKey']['alias']=='qiblaastro'
+          print('PASS: Android identity/version/signing configuration preserved')
+          PY
+
+      - name: Pull pinned Bubblewrap build image
+        run: docker pull "$BUBBLEWRAP_IMAGE"
+
+      - name: Generate TWA Android project without version changes
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
+          sudo chown -R "$(id -u):$(id -g)" android-twa
+          test -f android-twa/app/src/main/AndroidManifest.xml
+          test -x android-twa/gradlew
+
+      - name: Enforce Android 16 / API 36
+        run: python3 android-twa/ensure_target_api_36.py
+
+      - name: Apply localized native Azkar reminders
+        shell: pwsh
+        run: ./android-twa/apply_native_azkar_reminders.ps1
+
+      - name: Apply authenticated prayer notifications and Widget
+        shell: pwsh
+        run: ./android-twa/apply_native_widget.ps1
+
+      - name: Verify release integration after native injection
+        run: |
+          python3 android-twa/check_release_integration.py
+          node tests/native-android-localization-security.test.js
+
+      - name: Verify authenticated native bridge manifest
+        shell: pwsh
+        run: |
+          $m=Get-Content -LiteralPath './android-twa/app/src/main/AndroidManifest.xml' -Raw
+          if($m -notmatch 'QiblaLauncherActivity'){throw 'Authenticated launcher missing'}
+          if($m -notmatch 'PrayerWidgetSyncActivity'){throw 'Prayer sync activity missing'}
+          if($m -notmatch 'QiblaWidgetProvider'){throw 'Widget provider missing'}
+          if($m -match 'WidgetDataActivity'){throw 'Legacy widget injection activity must remain absent'}
+          $s=Get-Content -LiteralPath './android-twa/app/src/main/java/com/qiblalabs/nativebridge/PrayerWidgetSyncActivity.java' -Raw
+          if($s -notmatch 'NativeBridgeToken\.valid'){throw 'Per-install token validation missing'}
+          Write-Host 'PASS: authenticated app-private prayer/widget bridge present.'
+
+      - name: Build debug APK RC
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash -v "$PWD/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
+            set -euo pipefail
+            CFG=/root/.bubblewrap/config.json
+            export JAVA_HOME=$(node -p "require(\"$CFG\").jdkPath")
+            export ANDROID_HOME=$(node -p "require(\"$CFG\").androidSdkPath")
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            SDKMANAGER=$(find "$ANDROID_HOME" -type f -name sdkmanager -perm -111 | head -1)
+            test -n "$SDKMANAGER"
+            export PATH="$JAVA_HOME/bin:$(dirname "$SDKMANAGER"):$ANDROID_HOME/platform-tools:$PATH"
+            yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+            "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;35.0.0"
+            ./gradlew --no-daemon assembleDebug
+          '
+          sudo chown -R "$(id -u):$(id -g)" android-twa
+
+      - name: Extract APK metadata with AAPT2
+        run: |
+          set -euo pipefail
+          APK=android-twa/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          docker run --rm --entrypoint bash -v "$PWD/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
+            set -euo pipefail
+            CFG=/root/.bubblewrap/config.json
+            export ANDROID_HOME=$(node -p "require(\"$CFG\").androidSdkPath")
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            SDKMANAGER=$(find "$ANDROID_HOME" -type f -name sdkmanager -perm -111 | head -1)
+            test -n "$SDKMANAGER"
+            yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+            "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "build-tools;35.0.0" >/dev/null
+            AAPT2=$(find "$ANDROID_HOME/build-tools" -type f -name aapt2 -perm -111 | sort -V | tail -1)
+            test -n "$AAPT2"
+            "$AAPT2" dump badging app/build/outputs/apk/debug/app-debug.apk > apk-badging.txt
+            "$AAPT2" dump permissions app/build/outputs/apk/debug/app-debug.apk > apk-permissions.txt
+          '
+          sudo chown "$(id -u):$(id -g)" android-twa/apk-badging.txt android-twa/apk-permissions.txt
+          cat android-twa/apk-badging.txt
+          cat android-twa/apk-permissions.txt
+
+      - name: Verify APK identity, SDK, permissions and release-sensitive components
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          badging=Path('android-twa/apk-badging.txt').read_text(encoding='utf-8')
+          perms=Path('android-twa/apk-permissions.txt').read_text(encoding='utf-8')
+
+          required={
+              'package':("package: name='com.qiblalabs'",badging),
+              'versionCode':("versionCode='3'",badging),
+              'versionName':("versionName='3.1.0'",badging),
+              'minSdk':("minSdkVersion:'23'",badging),
+              'targetSdk':("targetSdkVersion:'36'",badging),
+              'compileSdk':("compileSdkVersion='36'",badging),
+              'launchable-activity':("launchable-activity: name='com.qiblalabs.nativebridge.QiblaLauncherActivity'",badging),
+              'app-widget':("provides-component:'app-widget'",badging),
+              'notification-permission':('android.permission.POST_NOTIFICATIONS',perms),
+              'boot-permission':('android.permission.RECEIVE_BOOT_COMPLETED',perms),
+              'fine-location':('android.permission.ACCESS_FINE_LOCATION',perms),
+              'coarse-location':('android.permission.ACCESS_COARSE_LOCATION',perms),
+          }
+          forbidden={
+              'ad-id':'com.google.android.gms.permission.AD_ID',
+              'overlay':'android.permission.SYSTEM_ALERT_WINDOW',
+              'package-installer':'android.permission.REQUEST_INSTALL_PACKAGES',
+              'query-all-packages':'android.permission.QUERY_ALL_PACKAGES',
+              'schedule-exact-alarm':'android.permission.SCHEDULE_EXACT_ALARM',
+              'use-exact-alarm':'android.permission.USE_EXACT_ALARM',
+          }
+
+          for label,(needle,haystack) in required.items():
+              if needle not in haystack:
+                  raise SystemExit(f'ERROR: missing APK contract: {label} :: {needle}')
+              print(f'PASS: {label}')
+          for label,needle in forbidden.items():
+              if needle in perms:
+                  raise SystemExit(f'ERROR: forbidden APK contract present: {label} :: {needle}')
+              print(f'PASS: absent {label}')
+          PY
+          cp android-twa/app/build/outputs/apk/debug/app-debug.apk android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk
+          sha256sum android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk | tee android-twa/QiblaAstro-A2-3.1.0-RC-debug.sha256
+
+      - name: Upload APK RC artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: QiblaAstro-A2-3.1.0-APK-RC
+          path: |
+            android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk
+            android-twa/QiblaAstro-A2-3.1.0-RC-debug.sha256
+          if-no-files-found: error
+          retention-days: 14

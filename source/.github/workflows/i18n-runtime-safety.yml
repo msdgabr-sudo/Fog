@@ -1,0 +1,62 @@
+name: i18n Runtime Safety
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/i18n-rollout'
+    paths:
+      - 'index.html'
+      - 'service-worker.js'
+      - 'js/i18n/**'
+      - 'js/presentation/bootstrap.js'
+      - 'js/presentation/falaki/**'
+      - 'js/presentation/internal-screen-chrome.js'
+      - 'pages/prayer.html'
+      - 'pages/quran.html'
+      - 'pages/azkar.html'
+      - 'pages/serenity.html'
+      - 'pages/falaki.html'
+      - 'tests/i18n-runtime-isolation.test.js'
+      - 'tests/i18n-pack-audit.test.js'
+      - 'tests/internal-screen-i18n-audit.test.js'
+      - 'tests/i18n-pwa-integration.test.js'
+      - 'tests/i18n-production-smoke.html'
+      - '.github/workflows/i18n-runtime-safety.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'service-worker.js'
+      - 'js/i18n/**'
+      - 'js/presentation/bootstrap.js'
+      - 'js/presentation/falaki/**'
+      - 'js/presentation/internal-screen-chrome.js'
+      - 'pages/prayer.html'
+      - 'pages/quran.html'
+      - 'pages/azkar.html'
+      - 'pages/serenity.html'
+      - 'pages/falaki.html'
+      - 'tests/i18n-runtime-isolation.test.js'
+      - 'tests/i18n-pack-audit.test.js'
+      - 'tests/internal-screen-i18n-audit.test.js'
+      - 'tests/i18n-pwa-integration.test.js'
+      - 'tests/i18n-production-smoke.html'
+      - '.github/workflows/i18n-runtime-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Enforce i18n runtime isolation
+        run: node tests/i18n-runtime-isolation.test.js
+      - name: Enforce HTML and Service Worker i18n integration
+        run: node tests/i18n-pwa-integration.test.js

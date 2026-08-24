@@ -1,0 +1,49 @@
+name: A2 mobile layout gate
+
+on:
+  push:
+    branches: [A2, a2-release-prep]
+    paths:
+      - 'index.html'
+      - 'pages/**'
+      - 'css/**'
+      - 'js/presentation/**'
+      - 'js/prayer/**'
+      - 'js/runtime/**'
+      - 'js/i18n/**'
+      - 'js/analytics/**'
+      - 'service-worker.js'
+      - 'tests/mobile-layout-playwright.mjs'
+      - 'tests/reading-width-playwright.mjs'
+      - '.github/workflows/a2-mobile-layout-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-layout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.54.2
+          npx playwright install chromium
+      - name: Start static app server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/qibla-http.log 2>&1 &
+          echo $! > /tmp/qibla-http.pid
+          sleep 2
+      - name: Mobile layout acceptance
+        env:
+          QIBLA_TEST_URL: http://127.0.0.1:8765/index.html
+        run: node tests/mobile-layout-playwright.mjs
+      - name: Quran and Adhkar reading width acceptance
+        env:
+          QIBLA_TEST_URL: http://127.0.0.1:8765/index.html
+        run: node tests/reading-width-playwright.mjs

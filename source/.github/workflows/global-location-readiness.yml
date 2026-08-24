@@ -1,0 +1,33 @@
+name: Global location readiness
+
+on:
+  push:
+    branches: [A2]
+    paths:
+      - 'js/04-core.js'
+      - 'js/11-prayer.js'
+      - 'js/17-deviation.js'
+      - 'js/presentation/location-label.js'
+      - 'js/presentation/falaki/**'
+      - 'tests/prayer-location-deviation.test.js'
+      - 'tests/falaki-location-propagation.test.js'
+      - 'checkpoints/PRAYER_TIMEZONE_AUDIT_2026-08-14.md'
+      - '.github/workflows/global-location-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  location-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Prayer location cache and deviation gate
+        run: node tests/prayer-location-deviation.test.js
+      - name: Falaki location propagation gate
+        if: ${{ hashFiles('tests/falaki-location-propagation.test.js') != '' }}
+        run: node tests/falaki-location-propagation.test.js

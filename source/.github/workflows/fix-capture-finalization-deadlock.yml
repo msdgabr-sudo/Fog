@@ -1,0 +1,50 @@
+name: Repair Capture Finalization Deadlock
+
+on:
+  push:
+    branches:
+      - feature/astronomical-solver-foundation
+    paths:
+      - 'scripts/fix-capture-finalization-deadlock.js'
+      - 'tests/capture-finalization-deadlock.test.js'
+      - '.github/workflows/fix-capture-finalization-deadlock.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repair-capture-finalization-deadlock
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/astronomical-solver-foundation
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Apply capture finalization repair
+        run: node scripts/fix-capture-finalization-deadlock.js
+      - name: Run capture regression
+        run: node tests/capture-finalization-deadlock.test.js
+      - name: Run core astronomical tests
+        run: |
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-app-wiring.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+          node tests/field-test-readiness.test.js
+          node tests/celestial-azimuth-leak.test.js
+      - name: Commit capture finalization repair
+        run: |
+          rm -f scripts/fix-capture-finalization-deadlock.js
+          git config user.name 'QiblaAstro Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: complete capture recording after countdown'
+          git push origin HEAD:feature/astronomical-solver-foundation

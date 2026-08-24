@@ -1,0 +1,56 @@
+name: Repair Astronomical Qibla Semantic Mapping
+
+on:
+  pull_request:
+    branches:
+      - astro1
+    paths:
+      - 'scripts/fix-astronomical-qibla-semantic-mapping.js'
+      - 'tests/astronomical-qibla-semantic-mapping.test.js'
+      - '.github/workflows/fix-single-reticle-auto-capture.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repair-astronomical-qibla-semantic-mapping
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/astronomical-solver-foundation
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Repair semantic mapping
+        run: node scripts/fix-astronomical-qibla-semantic-mapping.js
+      - name: Test screenshot regression
+        run: node tests/astronomical-qibla-semantic-mapping.test.js
+      - name: Run full astronomical suite
+        run: |
+          node tests/astronomical-solver.integration.test.js
+          node tests/astronomical-trace.test.js
+          node tests/astronomical-observation-bridge.test.js
+          node tests/astronomical-observatory-ui.test.js
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-app-wiring.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+          node tests/tracking-lock-removal.test.js
+          node tests/retired-runtime-removal.test.js
+          node tests/field-test-readiness.test.js
+          node tests/celestial-azimuth-leak.test.js
+      - name: Commit semantic repair
+        run: |
+          rm -f scripts/fix-astronomical-qibla-semantic-mapping.js
+          git config user.name 'QiblaAstro Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: separate celestial heading from solved Qibla bearing'
+          git push origin HEAD:feature/astronomical-solver-foundation

@@ -1,0 +1,34 @@
+name: Test Isolated Live Celestial Compass
+
+on:
+  push:
+    branches:
+      - feature/astronomical-solver-foundation
+    paths:
+      - 'js/post-verification-live-compass.js'
+      - 'js/qibla-card-runtime.js'
+      - 'service-worker.js'
+      - 'tests/post-verification-live-compass-isolation.test.js'
+      - '.github/workflows/test-post-verification-live-compass.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/astronomical-solver-foundation
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Test isolation from raw astronomical equation
+        run: node tests/post-verification-live-compass-isolation.test.js
+      - name: JavaScript syntax checks
+        run: |
+          node --check js/post-verification-live-compass.js
+          node --check js/qibla-card-runtime.js
+          node --check service-worker.js

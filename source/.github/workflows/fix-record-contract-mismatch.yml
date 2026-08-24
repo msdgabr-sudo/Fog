@@ -1,0 +1,60 @@
+name: Fix Astronomical Record Contract
+
+on:
+  push:
+    branches:
+      - feature/astronomical-solver-foundation
+    paths:
+      - 'scripts/fix-record-contract-mismatch.js'
+      - 'tests/record-contract-mismatch.test.js'
+      - '.github/workflows/fix-record-contract-mismatch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/astronomical-solver-foundation
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Repair record contract
+        run: node scripts/fix-record-contract-mismatch.js
+      - name: Test record contract
+        run: node tests/record-contract-mismatch.test.js
+      - name: Run full astronomical suite
+        run: |
+          node tests/astronomical-solver.integration.test.js
+          node tests/qibla-alignment-reticle.test.js
+          node tests/astronomical-trace.test.js
+          node tests/astronomical-observation-bridge.test.js
+          node tests/astronomical-observatory-ui.test.js
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-app-wiring.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+          node tests/tracking-lock-removal.test.js
+          node tests/retired-runtime-removal.test.js
+          node tests/field-test-readiness.test.js
+          node tests/celestial-azimuth-leak.test.js
+      - name: Check syntax
+        run: |
+          node --check js/astronomical-verification-session.js
+          node --check js/astronomical-verification-store.js
+          node --check js/compass-cards.js
+      - name: Commit repair
+        run: |
+          rm -f scripts/fix-record-contract-mismatch.js
+          git config user.name 'QiblaAstro Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: align capture result with verification store contract'
+          git push origin HEAD:feature/astronomical-solver-foundation

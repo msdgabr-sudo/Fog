@@ -1,0 +1,47 @@
+name: Remove Legacy Astronomical Glue
+
+on:
+  push:
+    branches:
+      - feature/astronomical-solver-foundation
+    paths:
+      - scripts/remove-legacy-astronomical-glue.js
+      - .github/workflows/remove-legacy-astronomical-glue.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  clean-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/astronomical-solver-foundation
+          fetch-depth: 0
+
+      - name: Remove retired astronomical glue
+        run: node scripts/remove-legacy-astronomical-glue.js
+
+      - name: Validate retired paths are absent
+        run: |
+          ! grep -q "js/celestial-solver.js" index.html
+          ! grep -q "js/camera-engine.js" index.html
+          ! grep -q "window.CameraEngine" index.html
+          ! grep -q "window.CelestialSolver" index.html
+          ! grep -q "_qiblaShowInstructionsOverlay" index.html
+          ! grep -q "window._qiblaStartAstroVerification = function" index.html
+
+      - name: Commit cleaned index
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html already clean"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "refactor: remove legacy astronomical glue from index"
+          git push origin HEAD:feature/astronomical-solver-foundation

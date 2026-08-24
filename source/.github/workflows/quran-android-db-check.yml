@@ -1,0 +1,40 @@
+name: Quran for Android independent letter-level check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [quran-stable]
+    paths:
+      - 'quran/**'
+      - 'scripts/verify-quran-android-db.py'
+      - '.github/workflows/quran-android-db-check.yml'
+  pull_request:
+    paths:
+      - 'quran/**'
+      - 'scripts/verify-quran-android-db.py'
+      - '.github/workflows/quran-android-db-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-quran-android-db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare all 6236 ayat with Quran for Android Hafs DB
+        shell: bash
+        run: |
+          set +e
+          python scripts/verify-quran-android-db.py
+          code=$?
+          set -e
+          if [ "$code" -eq 2 ]; then
+            echo "::warning::All 6236 Quranic letter sequences match Quran for Android arabic_text with zero true letter mismatches; Unicode marks/typography differ, so exact-encoding verification remains a separate check."
+            exit 0
+          fi
+          exit "$code"

@@ -1,0 +1,28 @@
+name: Web release safety
+
+on:
+  push:
+    branches: [A2]
+    paths:
+      - 'js/i18n/**'
+      - 'js/astronomical-verification-store.js'
+      - 'tests/i18n-roundtrip-safety.test.js'
+      - 'tests/astronomical-verification-store-persistence.test.js'
+      - '.github/workflows/web-release-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web-release-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify five-language Web roundtrip safety
+        run: node tests/i18n-roundtrip-safety.test.js
+      - name: Verify persistent last accepted astronomical reading
+        run: node tests/astronomical-verification-store-persistence.test.js

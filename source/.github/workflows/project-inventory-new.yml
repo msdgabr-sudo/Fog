@@ -1,0 +1,37 @@
+name: Project inventory on new
+
+on:
+  push:
+    branches: [new]
+    paths:
+      - 'scripts/project-inventory.js'
+      - '.github/workflows/project-inventory-new.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: new
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate inventory
+        run: node scripts/project-inventory.js
+
+      - name: Commit inventory reports
+        run: |
+          git config user.name 'qiblaastro-inventory-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add reports/project-inventory.json reports/project-inventory.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'chore: update project inventory [new]'
+          git push origin HEAD:new

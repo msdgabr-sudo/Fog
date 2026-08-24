@@ -1,0 +1,71 @@
+name: Field Test Readiness
+
+on:
+  push:
+    branches:
+      - feature/astronomical-solver-foundation
+    paths:
+      - 'index.html'
+      - 'service-worker.js'
+      - 'js/astro-verification.js'
+      - 'js/compass-cards.js'
+      - 'js/qibla-card-runtime.js'
+      - 'js/astronomical-trace.js'
+      - 'js/position-provider.js'
+      - 'js/qibla-alignment-reticle.js'
+      - 'js/astronomical-observation-bridge.js'
+      - 'js/astronomical-observatory-ui.js'
+      - 'js/astronomical-verification-store.js'
+      - 'js/astronomical-verification-session.js'
+      - 'tests/qibla-axis-phone-test.html'
+      - 'tests/qibla-axis-phone-test.js'
+      - 'tests/field-test-readiness.test.js'
+      - 'tests/retired-runtime-removal.test.js'
+      - '.github/workflows/field-test-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    name: Verify production field-test path
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout experimental solver branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Enforce removed runtime boundaries
+        run: node tests/retired-runtime-removal.test.js
+
+      - name: Verify field-test readiness
+        run: node tests/field-test-readiness.test.js
+
+      - name: Verify canonical observation pipeline
+        run: |
+          node tests/astronomical-solver.integration.test.js
+          node tests/qibla-alignment-reticle.test.js
+          node tests/astronomical-verification-session.test.js
+          node tests/astronomical-app-wiring.test.js
+          node tests/compass-cards-canonical.test.js
+          node tests/qibla-card-runtime.test.js
+
+      - name: Check production and phone JavaScript syntax
+        run: |
+          node --check js/astro-verification.js
+          node --check js/compass-cards.js
+          node --check js/qibla-card-runtime.js
+          node --check js/astronomical-trace.js
+          node --check js/qibla-alignment-reticle.js
+          node --check js/astronomical-observation-bridge.js
+          node --check js/astronomical-observatory-ui.js
+          node --check js/astronomical-verification-store.js
+          node --check js/astronomical-verification-session.js
+          node --check tests/qibla-axis-phone-test.js

@@ -1,0 +1,30 @@
+name: Quran corpus provenance check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [quran-stable]
+    paths:
+      - 'quran/**'
+      - 'scripts/verify-quran-cloud-origin.mjs'
+      - '.github/workflows/quran-origin-check.yml'
+  pull_request:
+    paths:
+      - 'quran/**'
+      - 'scripts/verify-quran-cloud-origin.mjs'
+      - '.github/workflows/quran-origin-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Compare all 6236 verses with quran-cloud 1.0.0 wrapper
+        run: node scripts/verify-quran-cloud-origin.mjs

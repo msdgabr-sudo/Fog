@@ -1,0 +1,77 @@
+name: Deploy app.qiblalabs.com
+
+# Active release: QiblaAstro 3.1.0 / Android versionCode 3.
+# Revert deployment: removed the attempted GNSS position handoff and restored the prior code-3 state.
+# This deployment must not publish the later code-4 native Location bridge assets.
+# Location onboarding must stay independent from Adhan notification permission.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'source/**'
+      - '.github/workflows/deploy-app-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout release snapshot
+        uses: actions/checkout@v4
+
+      - name: Verify standalone web release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f source/index.html
+          test -f source/manifest.json
+          test -f source/service-worker.js
+          test -f source/CNAME
+          test -f source/.nojekyll
+          test -f source/.well-known/assetlinks.json
+          test "$(tr -d '\r\n' < source/CNAME)" = "app.qiblalabs.com"
+          test "$(tr -d '\r\n' < source/.release-source-sha)" = "6e49775df5742413371a4165ea985173c43f5f5e"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path("source/android-twa/twa-manifest.json").read_text(encoding="utf-8"))
+          assert cfg["appVersion"] == "3.1.0", cfg["appVersion"]
+          assert cfg["appVersionCode"] == 3, cfg["appVersionCode"]
+          PY
+          grep -Fq "VERSION='qiblaastro-3.1.0-code3-location-only-r1'" source/service-worker.js
+          grep -Fq "PERMISSIONS_RELEASE='code3-location-only-20260819-r1'" source/service-worker.js
+          grep -Fq "permissions-onboarding.js?v=20260819-code3-location-only1" source/js/presentation/bootstrap.js
+          grep -Fq "qiblaastro:permissions-onboarding:v3-location-only" source/js/presentation/permissions-onboarding.js
+          ! grep -Fq "prepareAdhanStage" source/js/presentation/permissions-onboarding.js
+          test ! -e source/js/presentation/location-service-control.js
+          ! grep -RIlE --exclude-dir='.git' 'BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|service_account|private_key_id' source >/dev/null
+          if find source -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname '*.p12' -o -iname '*.pfx' -o -iname '*.pem' \) -print -quit | grep -q .; then
+            echo 'ERROR: signing/private key material found in web release.' >&2
+            exit 1
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: source
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

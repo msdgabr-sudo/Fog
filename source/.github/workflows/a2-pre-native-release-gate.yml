@@ -1,0 +1,76 @@
+name: A2 pre-native release gate
+
+on:
+  push:
+    branches: [A2, a2-release-prep]
+    paths:
+      - '.github/workflows/a2-pre-native-release-gate.yml'
+      - '.github/workflows/a2-apk-rc.yml'
+      - 'PRE_APK_ANDROID_IDENTITY.md'
+      - 'index.html'
+      - 'manifest.json'
+      - 'service-worker.js'
+      - 'pages/**'
+      - 'css/**'
+      - 'js/**'
+      - 'icons/**'
+      - 'assets/**'
+      - 'quran/**'
+      - 'android-twa/**'
+      - 'tools/**'
+      - 'tests/**'
+      - 'checkpoints/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pre-native-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Repository Pre-APK gate
+        run: python3 tools/pre_apk_check.py
+      - name: Android TWA configuration gate
+        run: python3 android-twa/check_twa_config.py
+      - name: WMM2025 official reference gate
+        run: node tests/wmm2025-official-gate.js
+      - name: WMM2025 global coverage gate
+        run: node tests/wmm2025-global-coverage.test.js
+      - name: WMM2025 trusted runtime/protected hashes gate
+        run: node tests/wmm2025-runtime-integration.test.js
+      - name: Prayer global calculation profiles gate
+        run: node tests/prayer-global-methods.test.js
+      - name: Prayer manual location and 12-hour display gate
+        run: node tests/prayer-location-and-12h.test.js
+      - name: Prayer settings presentation gate
+        run: node tests/prayer-settings-presentation.test.js
+      - name: Prayer global runtime integration gate
+        run: node tests/prayer-global-runtime-integration.test.js
+      - name: Prayer location cache and deviation gate
+        run: node tests/prayer-location-deviation.test.js
+      - name: Local timezone and DST conversion gate
+        run: node tests/local-timezone-adapter.test.js
+      - name: Production timezone wiring gate
+        run: node tests/timezone-production-wiring.test.js
+      - name: Trusted GNSS prayer runtime sync gate
+        run: node tests/trusted-location-runtime-sync.test.js
+      - name: Prayer solar detail fields gate
+        run: node tests/prayer-detail-fields-runtime.test.js
+      - name: Falaki location propagation gate
+        run: node tests/falaki-location-propagation.test.js
+      - name: Five-language Web roundtrip safety gate
+        run: node tests/i18n-roundtrip-safety.test.js
+      - name: Phone UI regression gate
+        run: node tests/a2-phone-ui-regressions.test.js
+      - name: Last accepted astronomical reading persistence gate
+        run: node tests/astronomical-verification-store-persistence.test.js
+      - name: Native Android localization and widget security gate
+        run: node tests/native-android-localization-security.test.js
+      - name: Pre-native release structure gate
+        run: node tests/pre-native-release-readiness.test.js
