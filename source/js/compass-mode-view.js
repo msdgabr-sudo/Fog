@@ -22,6 +22,7 @@
     button.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M3.5 10.5 12 3l8.5 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-4.5v-6h-5v6H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>';
     button.style.position='fixed';
     button.style.right='12px';
+    button.style.left='auto';
     button.style.top='calc(env(safe-area-inset-top,0px) + 46px)';
     button.style.zIndex='321';
     button.style.width='40px';
@@ -31,8 +32,10 @@
     button.style.border='1px solid rgba(216,174,76,.78)';
     button.style.background='linear-gradient(145deg,rgba(31,25,13,.96),rgba(8,14,23,.98))';
     button.style.color='#D8AE4C';
+    button.style.boxShadow='0 7px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,226,150,.14)';
     button.style.display='grid';
     button.style.placeItems='center';
+    button.style.cursor='pointer';
     button.addEventListener('click',function(event){
       event.preventDefault();
       event.stopPropagation();
