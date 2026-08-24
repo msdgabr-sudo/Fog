@@ -36,35 +36,6 @@ function deactivateBubble(){
 }
 
 
-// ══ زر الرجوع في الهاتف ══
-var _pageHistory = ['home'];
-
-function _pushPage(id){
-  if(_pageHistory[_pageHistory.length-1] !== id){
-    _pageHistory.push(id);
-  }
-}
-
-window.addEventListener('popstate', function(){
-  // ارجع للصفحة السابقة
-  if(_pageHistory.length > 1){
-    _pageHistory.pop();
-    var prev = _pageHistory[_pageHistory.length-1];
-    GT(prev);
-  } else {
-    GT('home');
-  }
-});
-
-// push state عند كل انتقال
-var _origGT = GT;
-GT = function(id){
-  _origGT(id);
-  _pushPage(id);
-  try{ history.pushState({page:id}, '', location.pathname + '#' + id); }catch(e){}
-};
-
-
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(function(){});
 }

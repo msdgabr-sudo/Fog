@@ -43,14 +43,16 @@ assert(/typeof\s+root\.tryBrowserGPS===['\"]function['\"]/.test(permissions),'su
 // app-level navigation: internal screen -> Home -> Android/browser.
 const indexHtml=fs.readFileSync('index.html','utf8');
 const homeFinal=fs.readFileSync('js/home-final.js','utf8');
-assert(indexHtml.includes("var _pageHistory = ['home'];"),'expected historical inline Back wrapper not found; review navigation architecture before changing this gate');
-assert(indexHtml.includes('var _origGT = GT;'),'expected production inline GT wrapper not found; review navigation architecture before changing this gate');
+assert(!indexHtml.includes("var _pageHistory = ['home'];"),'obsolete inline Back stack must remain removed');
+assert(!indexHtml.includes('var _origGT = GT;'),'obsolete inline GT history wrapper must remain removed');
 assert(/Android\/TWA Back compatibility layer/.test(homeFinal),'production runtime Back compatibility layer must be present in home-final.js');
-assert(/var\s+renderPage=\(typeof\s+window\._origGT===['\"]function['\"]\)\?window\._origGT:window\.GT/.test(homeFinal),'runtime layer must bypass the legacy GT history wrapper and retain only its renderer');
+assert(/var\s+renderPage=window\.GT/.test(homeFinal),'runtime layer must capture the sole inline page renderer before taking ownership of GT');
+assert(/function\s+applyRouteClass\s*\(id\)[\s\S]*document\.body\.className=['\"]tab-['\"]\+id/.test(homeFinal),'runtime navigation must preserve the production tab-* body-class contract');
 assert(/history\.replaceState\(stateFor\('home'\)/.test(homeFinal),'startup must replace the current entry with Home rather than push a duplicate entry');
 assert(/if\(current===['\"]home['\"]\)history\.pushState\(stateFor\(id\)/.test(homeFinal),'opening a top-level internal screen from Home must create exactly one browser history entry');
 assert(/else\s+history\.replaceState\(stateFor\(id\)/.test(homeFinal),'internal-to-internal navigation must replace the single internal entry');
-assert(/window\.addEventListener\(['\"]popstate['\"],function\(event\)[\s\S]*stopImmediatePropagation\(\)/.test(homeFinal),'parent capture-phase popstate handler must neutralize the obsolete inline parent listener');
+assert(/window\.addEventListener\(['\"]popstate['\"],function\(event\)[\s\S]*renderHistoryState\(event\.state\)/.test(homeFinal),'parent popstate handler must render the browser-selected app-level state');
+assert(!homeFinal.includes('stopImmediatePropagation()'),'single-owner parent Back must not suppress unrelated popstate listeners');
 
 // The visible Quran screen is the modern same-origin iframe pages/quran.html.
 const quranHost=fs.readFileSync('js/presentation/quran/host.js','utf8');

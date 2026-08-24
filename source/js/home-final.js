@@ -113,16 +113,15 @@
 })();
 
 /* Android/TWA Back compatibility layer.
-   The production index.html still contains a legacy inline GT wrapper and popstate
-   listener. home-final.js is a guaranteed deferred entry point, so it runs after
-   those inline declarations. This layer becomes the single runtime owner of top-
-   level app history. Nested iframe screens own their own child history without
+   home-final.js is a guaranteed deferred entry point, so it captures the page
+   renderer declared by index.html and becomes the single runtime owner of top-level
+   app history. Nested iframe screens own their own child history without
    touching any calculation, sensor, astronomical, GNSS, prayer or verification engine. */
 (function(){
   'use strict';
   var KEY='qiblaastroNav';
   var VERSION=3;
-  var renderPage=(typeof window._origGT==='function')?window._origGT:window.GT;
+  var renderPage=window.GT;
   if(typeof renderPage!=='function')return;
 
   function valid(id){return !!(id&&document.getElementById('page-'+id));}
@@ -145,7 +144,8 @@
     }catch(_){ }
     return 'home';
   }
-  function render(id){try{renderPage(id);}catch(err){try{console.error('[nav] render failed',err);}catch(_){}}}
+  function applyRouteClass(id){if(document.body)document.body.className='tab-'+id+(id==='home'?' hide-topbar':'');}
+  function render(id){try{renderPage(id);applyRouteClass(id);}catch(err){try{console.error('[nav] render failed',err);}catch(_){}}}
   function renderHistoryState(state){
     var nav=navState(state);
     if(!nav)return;
@@ -179,13 +179,10 @@
     render(id);
   };
 
-  // Capture phase is intentional: it runs before the legacy inline bubble-phase
-  // popstate listener, then stops that obsolete handler from adding/replaying its
-  // private _pageHistory stack. The browser has already moved the history index;
-  // we render exactly the app-level state it selected. Iframe-local bridges own
-  // nested reader states and their popstate events remain inside each iframe.
+  // The browser has already moved the history index; render exactly the app-level
+  // state it selected. Iframe-local bridges own nested reader states and their
+  // popstate events remain inside each iframe.
   window.addEventListener('popstate',function(event){
-    try{event.stopImmediatePropagation();}catch(_){ }
     if(navState(event.state))renderHistoryState(event.state);
     // If the state is outside QiblaAstro, do nothing: Android/Chrome owns it.
   },true);
