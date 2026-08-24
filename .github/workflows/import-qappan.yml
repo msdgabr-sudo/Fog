@@ -1,0 +1,38 @@
+name: Import q-app-an snapshot
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.event.head_commit.message == 'chore: add one-time q-app-an importer'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Fog
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch the locked source snapshot
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/msdgabr-sudo/q-app-an.git /tmp/qapp-source
+          git -C /tmp/qapp-source checkout c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac
+
+      - name: Replace Fog contents with the source snapshot
+        run: |
+          rsync -a --delete --exclude='.git' /tmp/qapp-source/ ./
+          test ! -e .github/workflows/import-qappan.yml
+
+      - name: Verify and publish the imported snapshot
+        run: |
+          test "$(git -C /tmp/qapp-source rev-parse HEAD)" = "c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: import q-app-an snapshot c38eaf03"
+          git push origin HEAD:main
