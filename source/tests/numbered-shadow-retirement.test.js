@@ -58,8 +58,6 @@ retired.forEach(function (path) {
   'drawShadow(sp.az,sp.altApp,sunV);',
   'function drawPolarDrift(now)',
   'drawPolarDrift(now);',
-  'function drawMap()',
-  'drawMap();',
   "let eCache=null,eKey='';",
   'let _lastSp=null,_lastMp=null;',
   "document.addEventListener('touchstart'",
@@ -86,6 +84,10 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
 
 ['function shareApp()', 'function copyQibla()', 'share-feedback'].forEach(function (token) {
   assert(!index.includes(token), 'unreachable Help-only share runtime returned: ' + token);
+});
+
+['id="page-map"', 'id="mapCvs"', 'function drawMap()', 'drawMap();'].forEach(function (token) {
+  assert(!index.includes(token), 'unreachable fixed-Giza Map runtime returned: ' + token);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');

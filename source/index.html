@@ -474,59 +474,6 @@
 
 </div>
 
-<!-- [HTML-9] PAGE: MAP (الخريطة) -->
-<div class="page" id="page-map">
-
-  <div class="night-hero" style="border-top-color:var(--ok)">
-    <h2 style="color:var(--ok)">🗺️ اتجاه القبلة المرئي</h2>
-    <p>شعاع القبلة · المسافة · الانحراف البصري</p>
-  </div>
-
-  <!-- Visual Qibla Direction -->
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius);padding:14px;">
-    <div style="font-size:.58rem;color:var(--muted,var(--txt3));font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;">🕋 شعاع القبلة من الجيزة إلى مكة</div>
-    <canvas id="mapCvs" width="360" height="260" style="width:100%;height:auto;display:block;border-radius:8px;"></canvas>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;">
-      <div style="text-align:center"><div style="font-size:.56rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:2px">الاتجاه</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold);font-size:.9rem" id="map-bearing">136.2°</div></div>
-      <div style="text-align:center"><div style="font-size:.56rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:2px">المسافة</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ok);font-size:.9rem">1,296 كم</div></div>
-      <div style="text-align:center"><div style="font-size:.56rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:2px">الجهة</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold);font-size:.9rem">جنوب شرق</div></div>
-    </div>
-  </div>
-
-  <!-- Deviation Calculator -->
-  <div class="sec-hdr">📐 حاسبة الانحراف — الخطأ الزاوي وأثره</div>
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius);padding:13px;">
-    <div style="font-size:.6rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:9px;">حرّك الشريط لترى أثر الخطأ على الهدف</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-      <span style="font-size:.7rem;color:var(--txt3);width:30px">0°</span>
-      <input type="range" id="dev-slider-map" min="0" max="30" value="5" step="0.5"
-        style="flex:1;accent-color:var(--gold);height:4px;cursor:pointer;">
-      <span style="font-size:.7rem;color:var(--txt3);width:30px">30°</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <div style="background:var(--ink2);border-radius:8px;padding:9px;text-align:center;">
-        <div style="font-size:.56rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:3px;">الخطأ الزاوي</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.4rem;color:var(--warn)" id="dev-deg-map">5.0°</div>
-      </div>
-      <div style="background:var(--ink2);border-radius:8px;padding:9px;text-align:center;">
-        <div style="font-size:.56rem;color:var(--txt3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-bottom:3px;">الانحراف عن الكعبة</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.4rem;color:var(--err)" id="dev-km-map">113 كم</div>
-      </div>
-    </div>
-    <canvas id="devCvs-map" width="360" height="130" style="width:100%;height:auto;display:block;border-radius:7px;margin-top:10px;"></canvas>
-    <div style="font-size:.68rem;color:var(--txt2);line-height:1.8;margin-top:7px;text-align:center;" id="dev-txt-map">خطأ 5° من الجيزة = 113 كم انحراف عن الكعبة</div>
-  </div>
-
-  <!-- Great circle info -->
-  <div style="width:100%;background:var(--panel);border:1px solid var(--rim);border-right:3px solid var(--gold);border-radius:var(--radius);padding:13px;">
-    <div style="font-size:.58rem;color:var(--gold);font-family:'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;">🌐 الدائرة العظمى — الطريق الأقصر</div>
-    <div style="font-size:.74rem;line-height:1.85;color:var(--txt2);">
-      القبلة تُحسب على <strong style="color:var(--gold)">الدائرة العظمى</strong> (Great Circle) — أقصر مسار على سطح الكرة الأرضية. مسافة الجيزة إلى الكعبة = <strong style="color:var(--ok)">1,296 كم</strong>. الاتجاه يختلف عن الخط المستقيم على الخريطة المسطحة بسبب انحناء الأرض — هذا ما تحسبه خوارزمية الحصة اللوغاريتمية لفينسنتي.
-    </div>
-  </div>
-
-</div>
-
 <!-- [HTML-10] PAGE: SETTINGS (الإعدادات) -->
 <div class="page" id="page-settings">
 
@@ -1978,90 +1925,6 @@ function drawArrow(){
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// [JS-25] MAP CANVAS
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  MAP CANVAS — Qibla ray from Giza to Mecca
-// ════════════════════════════════════════════════
-function drawMap(){
-  const c=gel('mapCvs');if(!c)return;
-  const x=c.getContext('2d'),W=360,H=260;
-  x.clearRect(0,0,W,H);
-  x.fillStyle='#040810';x.fillRect(0,0,W,H);
-
-  // Grid lines (lat/lon)
-  x.strokeStyle='rgba(26,44,68,.35)';x.lineWidth=.6;
-  for(let i=0;i<W;i+=36){x.beginPath();x.moveTo(i,0);x.lineTo(i,H);x.stroke();}
-  for(let i=0;i<H;i+=26){x.beginPath();x.moveTo(0,i);x.lineTo(W,i);x.stroke();}
-
-  // Map bounds: lon 28-44E, lat 18-35N — covers Giza→Mecca
-  const lnMin=28,lnMax=44,ltMin=18,ltMax=35;
-  function proj(lat,lon){
-    return[(lon-lnMin)/(lnMax-lnMin)*W, H-(lat-ltMin)/(ltMax-ltMin)*H];
-  }
-
-  // Red Sea rough outline (simplified polygon)
-  const redSea=[[28.5,32],[29,33],[30,33.5],[31,34],[31.5,35],[32,36],[32.5,37],[33,38.5],[33,40],[32,41],[31,42],[30,42.5],[29,43],[28,43],[27,42],[27.5,41],[28,40],[28,39],[27.5,38],[27,37],[27.5,36],[28,35],[28,34],[28,32]];
-  x.beginPath();
-  redSea.forEach(([la,lo],i)=>{const[px,py]=proj(la,lo);i?x.lineTo(px,py):x.moveTo(px,py);});
-  x.closePath();x.fillStyle='rgba(30,60,100,.4)';x.fill();
-  x.strokeStyle='rgba(40,80,140,.3)';x.lineWidth=1;x.stroke();
-
-  // Saudi Arabia rough border
-  x.strokeStyle='rgba(80,60,20,.3)';x.lineWidth=.8;
-
-  // Giza position
-  const[gx,gy]=proj(30.03,30.96);
-  // Mecca position
-  const[mx,my]=proj(21.42,39.83);
-
-  // Great circle arc (bezier approximation)
-  const cpLat=(30.03+21.42)/2+3,cpLon=(30.96+39.83)/2;
-  const[cpx,cpy]=proj(cpLat,cpLon);
-  const grad=x.createLinearGradient(gx,gy,mx,my);
-  grad.addColorStop(0,'rgba(200,164,74,.9)');
-  grad.addColorStop(.5,'rgba(236,207,122,.7)');
-  grad.addColorStop(1,'rgba(200,164,74,.4)');
-  x.beginPath();x.moveTo(gx,gy);
-  x.quadraticCurveTo(cpx,cpy,mx,my);
-  x.strokeStyle=grad;x.lineWidth=2.5;x.setLineDash([6,4]);x.stroke();x.setLineDash([]);
-
-  // Giza dot
-  const gg=x.createRadialGradient(gx,gy,2,gx,gy,10);
-  gg.addColorStop(0,'rgba(200,164,74,.9)');gg.addColorStop(1,'rgba(200,164,74,0)');
-  x.beginPath();x.arc(gx,gy,10,0,Math.PI*2);x.fillStyle=gg;x.fill();
-  x.beginPath();x.arc(gx,gy,5,0,Math.PI*2);x.fillStyle='#C8A44A';x.fill();
-  x.font='bold 9px "JetBrains Mono",monospace';x.fillStyle='rgba(200,164,74,.85)';x.textAlign='right';x.textBaseline='middle';
-  x.fillText('الجيزة',gx-8,gy);
-
-  // Mecca dot
-  const mg=x.createRadialGradient(mx,my,2,mx,my,12);
-  mg.addColorStop(0,'rgba(64,184,112,.9)');mg.addColorStop(1,'rgba(64,184,112,0)');
-  x.beginPath();x.arc(mx,my,12,0,Math.PI*2);x.fillStyle=mg;x.fill();
-  x.beginPath();x.arc(mx,my,5,0,Math.PI*2);x.fillStyle='#40B870';x.fill();
-  x.font='11px serif';x.textAlign='center';x.textBaseline='bottom';
-  x.fillText('🕋',mx,my-6);
-  x.font='bold 9px "JetBrains Mono",monospace';x.fillStyle='rgba(64,184,112,.85)';x.textAlign='left';x.textBaseline='middle';
-  x.fillText('مكة',mx+8,my);
-
-  // Bearing arrow at Giza
-  const bearRad=(QT-90)*D2R;
-  const arLen=28;
-  const ax=gx+arLen*Math.cos(bearRad),ay=gy+arLen*Math.sin(bearRad);
-  x.beginPath();x.moveTo(gx,gy);x.lineTo(ax,ay);x.strokeStyle='rgba(200,164,74,.6)';x.lineWidth=2;x.stroke();
-
-  // Labels
-  x.font='8px "JetBrains Mono",monospace';x.fillStyle='rgba(90,112,144,.6)';
-  x.textAlign='left';x.textBaseline='top';x.fillText('المملكة العربية السعودية',proj(26,35.5)[0],proj(26,35.5)[1]);
-  x.fillText('مصر',proj(27,29)[0],proj(27,29)[1]);
-
-  // Scale
-  x.fillStyle='rgba(60,90,130,.6)';x.textAlign='right';x.textBaseline='bottom';
-  x.fillText('المسافة: 1,296 كم',W-4,H-4);
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 // [JS-26] DEVIATION CALCULATOR CANVAS
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -2437,8 +2300,6 @@ function loop(){
     }
   }
 
-  // ── BACKGROUND & MAP ──
-  drawMap();
   // drawDeviation تُستدعى من slider فقط
 
   // ── SKY BACKGROUND ──
