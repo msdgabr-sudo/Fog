@@ -45,6 +45,8 @@ Both Compass fragments mount into the parent document, so their real IDs and pub
 
 The disconnected eight-second sample collector and its empty permission wrapper were also retired after proving that all of their controls were absent. Live activation remains owned by `activateCompass`; digital/manual calibration remains owned by `resetCompassCalibration`, `showManualCal`, `hideManualCal`, and the shared `calOffset` controls.
 
+The now-unreferenced `updateCompassHeadingUI` and `seti` helpers were retired as final dependents of the removed presentation paths. Public activation, navigation, settings, Adhan, and manual-calibration entry points remain.
+
 ### Settings / Help
 Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 

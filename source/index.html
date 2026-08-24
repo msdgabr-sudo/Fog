@@ -1254,7 +1254,6 @@ function set(id,v){
     e.textContent=v;
   });
 }
-function seti(id,v){const e=gel(id);if(e)e.innerHTML=v;}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // [JS-21] POLAR DRIFT — Chandler wobble simulation
@@ -1840,28 +1839,6 @@ let compassAccuracy  = null;
 let calOffset        = 0;
 
 try{ calOffset = parseFloat(localStorage.getItem('qibla_calOffset')||'0')||0; }catch(e){}
-
-function updateCompassHeadingUI(){
-  if(deviceHeading === null) return;
-  set('device-heading',     deviceHeading.toFixed(1)+'°');
-  set('device-heading-dir', d8(deviceHeading));
-  set('device-raw', compassRaw !== null ? compassRaw.toFixed(1)+'°' : '--');
-  const qDiff = ((QT - deviceHeading) + 360) % 360;
-  set('device-qibla-diff', qDiff.toFixed(1)+'°');
-  try{if(window._celCheck)window._celCheck(qDiff);}catch(e){}
-  set('device-qibla-side',
-    qDiff < 180
-      ? `انحرف ${qDiff.toFixed(0)}° يساراً \u2190`
-      : `انحرف ${(360-qDiff).toFixed(0)}° يميناً \u2192`);
-  const accEl = gel('compass-accuracy');
-  if(accEl){
-    if(compassAccuracy === null){ accEl.textContent='جاري القياس...'; accEl.style.color='var(--muted)'; }
-    else if(compassAccuracy<=1){ accEl.textContent='●●●● ممتازة'; accEl.style.color='var(--ok)'; }
-    else if(compassAccuracy<=5){ accEl.textContent='●●●○ جيدة';   accEl.style.color='var(--gold)'; }
-    else if(compassAccuracy<=15){accEl.textContent='●●○○ مقبولة'; accEl.style.color='var(--warn)';}
-    else { accEl.textContent='●○○○ ضعيفة — يحتاج معايرة'; accEl.style.color='var(--err)'; }
-  }
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // [JS-33] INIT & START

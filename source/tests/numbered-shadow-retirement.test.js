@@ -51,7 +51,6 @@ retired.forEach(function (path) {
   'function phaseName(ill,elong)',
   'function gel(id)',
   'function set(id,v)',
-  'function seti(id,v)',
   'function loadCfg()',
   'function saveCfg()',
   'loadCfg();',
@@ -160,7 +159,9 @@ assert(index.includes('pCache=calcPrayers(evts)'), 'the main loop must continue 
   "gel('cal-progress-bar')",
   "gel('cal-result')",
   "gel('compass-perm-btn')",
-  "gel('compass-ring')"
+  "gel('compass-ring')",
+  'function seti(id,v)',
+  'function updateCompassHeadingUI()'
 ].forEach(function (token) {
   assert(!index.includes(token), 'retired parent Compass artifact returned: ' + token);
 });

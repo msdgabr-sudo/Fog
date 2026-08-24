@@ -371,6 +371,7 @@
 - حُذفت الدالتان وجامع العينات `calSamples/calMode/calTimer/CAL_DURATION`، كما حُذف غلاف الإذن القديم الذي كان ينتهي إلى `_requestCompassPermission()` فارغة وزر `compass-perm-btn` غير موجود.
 - بقي مدخل التفعيل الحي `activateCompass` الذي يستدعيه `qibla-card-runtime` والمحوّل الرقمي، وبقي `onDeviceOrientation` والتنعيم `0.15` وحالة `deviceHeading` دون تغيير.
 - بقيت المعايرة المستخدمة فعليًا: `resetCompassCalibration`, `showManualCal`, `hideManualCal`, `calOffset` وأزرار التصحيح اليدوي في شاشتي البوصلة.
+- بعد حذف المستهلك الوحيد، حُذفت `updateCompassHeadingUI`، كما حُذفت `seti` التي فقدت آخر مستهلكيها مع واجهتي Night/Calibration القديمتين.
 
 ## التعليقات والتنظيف الشكلي
 
