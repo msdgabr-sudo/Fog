@@ -1,0 +1,33 @@
+/* Digital Compass application shell bridge. Presentation only. */
+#page-compass.active.qa-digital-dashboard-active {
+  max-width: 420px;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  background: #020811 !important;
+}
+
+#page-compass.qa-digital-dashboard-active > :not(#qa-digital-compass-host) {
+  display: none !important;
+}
+
+#page-compass > #qa-digital-compass-host {
+  display: none;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#page-compass.qa-digital-dashboard-active > #qa-digital-compass-host:not([hidden]) {
+  display: block;
+}
+
+#page-compass.qa-astro-dashboard-active > #qa-digital-compass-host,
+#page-compass > #qa-digital-compass-host[hidden] {
+  display: none !important;
+}
+
+body[data-qa-active-page="compass"] #page-compass.qa-digital-dashboard-active {
+  align-self: center;
+}

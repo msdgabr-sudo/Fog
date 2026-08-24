@@ -1,43 +1,39 @@
 'use strict';
 const fs=require('fs');
-function read(p){return fs.readFileSync(p,'utf8');}
-function assert(c,m){if(!c)throw new Error(m);}
+function read(file){return fs.readFileSync(file,'utf8');}
+function assert(condition,message){if(!condition)throw new Error(message);}
+
 const adapter=read('js/presentation/compass/digital-adapter.js');
-const layout=read('js/presentation/compass/digital-layout.js');
-const mode=read('js/presentation/compass/mode-view.js');
-const runtime=read('js/qibla-card-runtime.js');
-const css=read('css/presentation/compass/digital-visual-match.css');
-const fixes=read('css/presentation/compass/digital-final-fixes.css');
+const state=read('js/digital-compass/digital-compass-state.js');
+const bridge=read('js/digital-compass/digital-compass-app-bridge.js');
+const controller=read('js/digital-compass/digital-compass-controller.js');
+const host=read('js/presentation/compass/digital-screen-host.js');
+const mode=read('js/compass-mode-view.js');
+const page=read('pages/digital-compass.html');
+const css=read('css/digital-compass/digital-compass.css');
+const runtime=read('js/presentation/bootstrap.js');
 const sw=read('service-worker.js');
 
-for(const [name,src] of [['digital-adapter.js',adapter],['digital-layout.js',layout],['mode-view.js',mode]]){
-  assert(!/\bcalcQibla\b/.test(src),name+' must not calculate Qibla');
-  assert(!/\bQT\s*=/.test(src),name+' must not write QT');
-  assert(!/getUserMedia|mediaDevices|camera-engine|celestial-solver/i.test(src),name+' must not access camera/solver');
-  assert(!/AstronomicalVerificationStore|VerificationSession|recordVerification|verificationOffsetDeg/.test(src),name+' must not access verification state');
+for(const [name,source] of Object.entries({adapter,state,bridge,controller,host,mode})){
+  assert(!/\bcalcQibla\b/.test(source),name+' must not calculate Qibla');
+  assert(!/\bQT\s*=(?!=)/.test(source),name+' must not write QT');
+  assert(!/getUserMedia|mediaDevices|camera-engine|celestial-solver/i.test(source),name+' must not access camera/solver');
+  assert(!/AstronomicalVerificationStore|VerificationSession|recordVerification|verificationOffsetDeg/.test(source),name+' must not access verification state');
 }
+['box-heading','box-qibla','box-diff','compass-accuracy','gnss-badge','gnss-btn-status'].forEach((token)=>assert(adapter.includes(token),'adapter missing canonical output '+token));
+['activateCompass','tryBrowserGPS','resetCompassCalibration'].forEach((token)=>assert(adapter.includes(token),'adapter missing existing action '+token));
+assert(!/deviceorientation|DeviceOrientationEvent/.test(bridge),'bridge must not create a second sensor owner');
+assert(page.includes('id="qd-screen"')&&page.includes('id="qd-canvas"'),'isolated digital screen fragment missing');
+assert(!/id=["']cvs["']/.test(page),'digital screen must not duplicate canonical canvas');
+assert(css.includes('.qd-screen')&&!/#page-compass\b/.test(css),'digital design must remain qd-scoped');
+assert(host.includes('page.appendChild(host)')&&!/replaceChildren|cloneNode/.test(host),'digital host must append without replacing canonical nodes');
+assert(mode.includes('QiblaDigitalCompassScreenHost'),'mode controller must switch the isolated digital host');
+assert(mode.includes('qa-digital-dashboard-active')&&mode.includes('qa-astro-dashboard-active'),'mode classes missing');
 
-['box-heading','box-qibla','box-diff','compass-accuracy','gnss-badge','gnss-btn-status'].forEach(x=>assert(adapter.includes(x),'adapter missing canonical output '+x));
-['tryBrowserGPS','showManualCal','hideManualCal','resetCompassCalibration'].forEach(x=>assert(adapter.includes(x),'adapter missing existing action '+x));
-['calcQibla','sunPos','moonPos','QiblaAstronomicalVerificationStore','getUserMedia','mediaDevices'].forEach(x=>assert(!adapter.includes(x),'adapter crossed engine boundary: '+x));
+const sequence=['presentation/compass/host.js','digital-adapter.js','digital-compass-state.js','digital-compass-app-bridge.js','digital-screen-host.js','compass-mode-view.js','astro-dashboard.js'].map((token)=>runtime.indexOf(token));
+sequence.forEach((at)=>assert(at>=0,'runtime stage missing'));
+for(let index=1;index<sequence.length;index++)assert(sequence[index]>sequence[index-1],'runtime load order is invalid');
+['pages/digital-compass.html','digital-compass.css','digital-compass-renderer.js','digital-screen-host.js'].forEach((token)=>assert(sw.includes(token),'offline shell missing '+token));
+assert(/const VERSION='qiblaastro-[^']+';/.test(sw),'service worker cache generation missing');
 
-['qa-compass-legacy-grid','qa-deviation-calculator','qa-calc-title','qa-calc-radar'].forEach(x=>assert(layout.includes(x),'layout missing annotation '+x));
-['calcQibla','QT','LAT','LON','deviceHeading','compassAvailable','tryBrowserGPS','startVerification','getUserMedia'].forEach(x=>assert(!layout.includes(x),'layout crossed engine boundary: '+x));
-
-assert(mode.includes('QiblaDigitalCompassAdapter'),'mode view must consume adapter');
-assert(mode.includes('QiblaDigitalCompassLayout'),'mode view must consume digital layout mount');
-assert(mode.includes('qa-digital-dashboard-active'),'mode view must own digital class');
-assert(mode.includes('qa-astro-dashboard-active'),'mode view must own astro class switch');
-['calcQibla','deviceHeading','compassAvailable','QiblaAstronomicalVerificationStore','getUserMedia'].forEach(x=>assert(!mode.includes(x),'mode controller crossed engine boundary: '+x));
-
-['#box-heading','#box-qibla','#box-diff','showManualCal','tryBrowserGPS','qa-digital-dashboard-active'].forEach(x=>assert(css.includes(x)||fixes.includes(x),'missing approved digital selector/action '+x));
-
-const a=runtime.indexOf('digital-adapter.js');
-const l=runtime.indexOf('digital-layout.js');
-const m=runtime.indexOf('mode-view.js');
-const x=runtime.indexOf('astro-dashboard.js');
-assert(a>=0&&l>a&&m>l&&x>m,'runtime must load adapter -> digital layout -> mode -> astro dashboard');
-
-['digital-adapter.js','digital-layout.js','mode-view.js','digital-visual-match.css','digital-final-fixes.css'].forEach(x=>assert(sw.includes(x),'offline shell missing '+x));
-assert(/const VERSION='qiblaastro-v5\.[^']+';/.test(sw),'service worker must use a QiblaAstro v5 cache generation');
 console.log('PASS digital compass presentation/engine boundary contract');

@@ -2,7 +2,7 @@
 const fs=require('fs');const assert=require('assert');
 const host=fs.readFileSync('js/presentation/compass/host.js','utf8');
 const page=fs.readFileSync('pages/compass.html','utf8');
-const runtime=fs.readFileSync('js/qibla-card-runtime.js','utf8');
+const runtime=fs.readFileSync('js/presentation/bootstrap.js','utf8');
 const sw=fs.readFileSync('service-worker.js','utf8');
 
 assert(host.includes("pages/compass.html"),'host must load external compass fragment');
@@ -24,9 +24,10 @@ assert(!page.includes('🔒 قفل'),'retired lock presentation debris must rema
 
 const ih=runtime.indexOf('presentation/compass/host.js');
 const ia=runtime.indexOf('digital-adapter.js');
-const il=runtime.indexOf('digital-layout.js');
-const im=runtime.indexOf('mode-view.js');
-assert(ih>=0&&ia>ih&&il>ia&&im>il,'runtime must mount host before digital presentation adapters');
+const is=runtime.indexOf('digital-compass-state.js');
+const id=runtime.indexOf('digital-screen-host.js');
+const im=runtime.indexOf('compass-mode-view.js');
+assert(ih>=0&&ia>ih&&is>ia&&id>is&&im>id,'runtime must mount the canonical host before the isolated digital screen');
 assert(sw.includes("'./pages/compass.html'"),'offline shell must cache compass fragment');
 assert(sw.includes("'./js/presentation/compass/host.js'"),'offline shell must cache compass host');
 console.log('COMPASS EXTERNAL HOST IDENTITY CONTRACT: PASS');

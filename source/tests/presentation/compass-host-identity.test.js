@@ -5,7 +5,7 @@ function read(p){return fs.readFileSync(p,'utf8');}
 const index=read('index.html');
 const fragment=read('pages/compass.html');
 const host=read('js/presentation/compass/host.js');
-const runtime=read('js/qibla-card-runtime.js');
+const runtime=read('js/presentation/bootstrap.js');
 const sw=read('service-worker.js');
 
 function count(src,token){return src.split(token).length-1;}
