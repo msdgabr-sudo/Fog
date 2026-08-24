@@ -805,35 +805,7 @@
 <div class="page" id="page-quran" data-external-page="quran" aria-label="القرآن الكريم"></div>
 
 <!-- ════ PAGE: SERENITY ════ -->
-<div class="page" id="page-serenity">
-  <canvas id="sk-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
-  <div style="position:relative;z-index:1;min-height:100vh;padding:0 0 80px">
-    <div style="text-align:center;padding:40px 20px 16px">
-      <div style="font-size:1.15rem;font-weight:700;color:#D4AF37;letter-spacing:.06em">🎵 راحة وسكينة</div>
-      <div style="font-size:.62rem;color:rgba(212,175,55,.45);margin-top:4px">قرآن كريم وأناشيد إسلامية</div>
-    </div>
-    <div id="sk-player" style="display:none;margin:0 16px 20px;background:rgba(0,0,0,.65);border:1px solid rgba(212,175,55,.3);border-radius:20px;padding:18px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
-      <div style="text-align:center;margin-bottom:14px">
-        <div id="sk-type" style="font-size:.58rem;color:rgba(212,175,55,.5);margin-bottom:3px">---</div>
-        <div id="sk-title" style="font-size:.95rem;font-weight:700;color:#F0EAD6;direction:rtl">---</div>
-      </div>
-      <div id="sk-bar" style="position:relative;height:4px;background:rgba(212,175,55,.12);border-radius:2px;margin-bottom:8px;cursor:pointer" onclick="skSeek(event)">
-        <div id="sk-progress" style="height:100%;background:linear-gradient(90deg,#8A6010,#D4AF37);border-radius:2px;width:0%;transition:width .2s linear"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:14px">
-        <span id="sk-cur" style="font-size:.55rem;color:rgba(212,175,55,.4);font-family:monospace">0:00</span>
-        <span id="sk-dur" style="font-size:.55rem;color:rgba(212,175,55,.4);font-family:monospace">0:00</span>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:18px">
-        <button onclick="skPrev()" style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:50%;width:42px;height:42px;color:#D4AF37;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9198;</button>
-        <button onclick="skToggle()" id="sk-play-btn" style="background:linear-gradient(135deg,#6A4A08,#D4AF37);border:none;border-radius:50%;width:56px;height:56px;color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(212,175,55,.35);display:flex;align-items:center;justify-content:center">&#9654;</button>
-        <button onclick="skNext()" style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:50%;width:42px;height:42px;color:#D4AF37;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9197;</button>
-      </div>
-    </div>
-    <div id="sk-list" style="padding:0 16px"></div>
-  </div>
-  <audio id="sk-audio" preload="none"></audio>
-</div>
+<div class="page" id="page-serenity" data-page-src="pages/serenity.html" aria-busy="true"></div>
 
 <nav class="nav" style="overflow-x:auto;scrollbar-width:none">
   <button class="nav-item active" onclick="GT('home')"><img class="nav-icon-img" src="icons/nav-home.png"><div class="nav-lbl">الرئيسية</div></button>
@@ -1412,15 +1384,6 @@ function GT(id){
   if((id==='compass'||id==='gnss')&&gnssHasTrustedFix){updateQiblaFromPosition();}
   if(id==='quran'){_qrActive=true;try{qrInit();}catch(e){}}
   else{try{qrDeactivate();}catch(e){}}
-  if(id==='serenity'){
-    _skActive=true;
-    setTimeout(function(){
-      try{skInit();}catch(e){console.error('skInit error:',e);}
-    },50);
-  } else {
-    _skActive=false;
-    try{skDeactivate();}catch(e){}
-  }
   var nav=document.querySelector('nav.nav,div.nav,.nav');
   if(nav)nav.style.display=id==='quran'?'none':'flex';
 }
@@ -3847,160 +3810,6 @@ function qrDeactivate(){
 // [KLIR] Obsolete inline Azkar visual enhancement removed; standalone Azkar owns its UI.
 
 
-
-// ═══ MODULE: SERENITY ═══
-var _skTracks=[
-  {title:"جئت بابك ساجداً",      type:"نشيد", file:"جئت بابك ساجدا.mp3"},
-  {title:"سبحت لله في العش",     type:"نشيد", file:"سبحت لله فى العش الطيور.mp3"},
-  {title:"تبارك — خالد الجليل",  type:"قرآن", file:"سورة تبارك خالد الجليل.mp3"},
-  {title:"تبارك — شعبان الصياد", type:"قرآن", file:"سورة تبارك شعبان الصياد.mp3"},
-  {title:"صلى على سيد الثقلين",  type:"نشيد", file:"صلى على سيد الثقلين.mp3"},
-  {title:"يا منقذي في شدتي",     type:"نشيد", file:"يامنقذى فى شدتى.mp3"}
-];
-var _skCurrent=0, _skPlaying=false, _skActive=false, _skRAF=null;
-
-function skInitCanvas(){
-  var c=document.getElementById('sk-canvas');
-  if(!c||c._sk)return; c._sk=true;
-  var ctx=c.getContext('2d');
-  c.width=window.innerWidth; c.height=window.innerHeight;
-  var pts=[];
-  for(var i=0;i<160;i++) pts.push({
-    x:Math.random()*c.width, y:Math.random()*c.height,
-    r:Math.random()*2+.4, vy:Math.random()*.5+.1,
-    vx:(Math.random()-.5)*.2, a:Math.random(),
-    tw:Math.random()*.012+.003, gold:Math.random()>.45
-  });
-  var ang=0;
-  function _skDraw(){
-    if(!_skActive){_skRAF=null;return;}
-    ang+=.003;
-    var g=ctx.createLinearGradient(0,0,c.width,c.height);
-    g.addColorStop(0,'rgba(3,6,18,1)');
-    g.addColorStop(.5,'rgba(7,4,20,1)');
-    g.addColorStop(1,'rgba(2,1,10,1)');
-    ctx.fillStyle=g; ctx.fillRect(0,0,c.width,c.height);
-    var gl=ctx.createRadialGradient(c.width/2,c.height*.35,0,c.width/2,c.height*.35,c.width*.55);
-    gl.addColorStop(0,'rgba(212,175,55,.06)'); gl.addColorStop(1,'transparent');
-    ctx.fillStyle=gl; ctx.fillRect(0,0,c.width,c.height);
-    pts.forEach(function(p){
-      p.y+=p.vy; p.x+=p.vx+Math.sin(ang+p.y*.007)*.15;
-      p.a+=p.tw; if(p.a>1||p.a<0)p.tw*=-1;
-      if(p.y>c.height+5)p.y=-5;
-      if(p.x<-5)p.x=c.width+5;
-      if(p.x>c.width+5)p.x=-5;
-      var al=Math.abs(Math.sin(p.a));
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.gold?'rgba(212,175,55,'+(al*.5).toFixed(2)+')'
-                          :'rgba(210,225,255,'+(al*.35).toFixed(2)+')';
-      ctx.fill();
-      if(p.gold&&al>.4){
-        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*2.2,0,Math.PI*2);
-        ctx.fillStyle='rgba(212,175,55,'+(al*.07).toFixed(2)+')'; ctx.fill();
-      }
-    });
-    _skRAF=requestAnimationFrame(_skDraw);
-  }
-  _skRAF=requestAnimationFrame(_skDraw);
-}
-
-function skInit(){
-  _skActive=true;
-  skRenderList();
-  skInitCanvas();
-}
-
-function skDeactivate(){
-  _skActive=false;
-  if(_skRAF){cancelAnimationFrame(_skRAF);_skRAF=null;}
-  var a=document.getElementById('sk-audio');
-  if(a&&!a.paused)a.pause();
-}
-
-function skRenderList(){
-  var el=document.getElementById('sk-list'); if(!el)return;
-  var htm='';
-  _skTracks.forEach(function(t,i){
-    htm+='<div onclick="skLoad('+i+',true)" id="sk-item-'+i+'" style="'+
-      'display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:8px;'+
-      'border-radius:16px;cursor:pointer;direction:rtl;'+
-      'background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.18);'+
-      'transition:all .2s">'+
-      '<div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;'+
-        'background:'+(t.type==='قرآن'?'rgba(212,175,55,.1)':'rgba(100,150,255,.08)')+';'+
-        'border:1px solid rgba(212,175,55,.2);display:flex;align-items:center;justify-content:center;font-size:1rem">'+
-        (t.type==='قرآن'?'📖':'🎵')+'</div>'+
-      '<div style="flex:1">'+
-        '<div style="font-size:.88rem;color:#F0EAD6;font-weight:600;direction:rtl">'+t.title+'</div>'+
-        '<div style="font-size:.6rem;color:rgba(212,175,55,.45);margin-top:2px">'+t.type+'</div>'+
-      '</div>'+
-      '<div id="sk-ind-'+i+'" style="color:#D4AF37;font-size:.75rem;opacity:0">&#9654;</div>'+
-    '</div>';
-  });
-  el.innerHTML=htm;
-}
-
-function skLoad(idx,play){
-  _skCurrent=idx;
-  var t=_skTracks[idx];
-  var a=document.getElementById('sk-audio'); if(!a)return;
-  var ti=document.getElementById('sk-title');
-  var ty=document.getElementById('sk-type');
-  var pl=document.getElementById('sk-player');
-  if(ti)ti.textContent=t.title;
-  if(ty)ty.textContent=t.type;
-  if(pl)pl.style.display='block';
-  _skTracks.forEach(function(_,i){
-    var it=document.getElementById('sk-item-'+i);
-    var ind=document.getElementById('sk-ind-'+i);
-    if(it){it.style.borderColor=i===idx?'rgba(212,175,55,.5)':'rgba(212,175,55,.18)';
-      it.style.background=i===idx?'rgba(212,175,55,.08)':'rgba(0,0,0,.45)';}
-    if(ind)ind.style.opacity=i===idx?'1':'0';
-  });
-  a.src='./audio/'+t.file;
-  a.load();
-  if(play){a.play().then(function(){_skPlaying=true;skUpdateBtn();}).catch(function(){_skPlaying=false;skUpdateBtn();});}
-}
-
-function skToggle(){
-  var a=document.getElementById('sk-audio'); if(!a)return;
-  if(!a.src||a.src===window.location.href){skLoad(_skCurrent,true);return;}
-  if(a.paused){a.play().then(function(){_skPlaying=true;skUpdateBtn();}).catch(function(){});}
-  else{a.pause();_skPlaying=false;skUpdateBtn();}
-}
-
-function skUpdateBtn(){
-  var b=document.getElementById('sk-play-btn');
-  if(b)b.innerHTML=_skPlaying?'&#9646;&#9646;':'&#9654;';
-}
-
-function skNext(){skLoad((_skCurrent+1)%_skTracks.length,_skPlaying);}
-function skPrev(){skLoad((_skCurrent-1+_skTracks.length)%_skTracks.length,_skPlaying);}
-
-function skSeek(e){
-  var a=document.getElementById('sk-audio'); if(!a||!a.duration)return;
-  a.currentTime=(e.offsetX/e.currentTarget.offsetWidth)*a.duration;
-}
-
-function _skFmt(s){s=Math.floor(s||0);return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);}
-
-document.addEventListener('DOMContentLoaded',function(){
-  var a=document.getElementById('sk-audio'); if(!a)return;
-  a.addEventListener('timeupdate',function(){
-    if(!a.duration)return;
-    var pr=document.getElementById('sk-progress');
-    var cu=document.getElementById('sk-cur');
-    if(pr)pr.style.width=(a.currentTime/a.duration*100).toFixed(1)+'%';
-    if(cu)cu.textContent=_skFmt(a.currentTime);
-  });
-  a.addEventListener('loadedmetadata',function(){
-    var d=document.getElementById('sk-dur');
-    if(d)d.textContent=_skFmt(a.duration);
-  });
-  a.addEventListener('ended',skNext);
-  a.addEventListener('play',function(){_skPlaying=true;skUpdateBtn();});
-  a.addEventListener('pause',function(){_skPlaying=false;skUpdateBtn();});
-});
 
 // ══ زر الرجوع في الهاتف ══
 var _pageHistory = ['home'];

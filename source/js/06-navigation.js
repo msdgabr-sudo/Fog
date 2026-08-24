@@ -78,14 +78,6 @@ function GT(id){
   if((id==='compass'||id==='gnss')&&gnssHasTrustedFix){updateQiblaFromPosition();}
   if(id==='quran'){_qrActive=true;try{qrInit();}catch(e){}}
   else{try{qrDeactivate();}catch(e){}}
-  if(id==='serenity'){
-    _skActive=true;
-    setTimeout(function(){try{skInit();}catch(e){console.error('skInit error:',e);}},50);
-  } else {
-    _skActive=false;
-    try{skDeactivate();}catch(e){}
-  }
-
   // Home is the navigation hub. Internal screens never retain the legacy tab/ad chrome.
   var nav=document.querySelector('nav.nav,div.nav,.nav');
   if(nav)nav.style.display='none';

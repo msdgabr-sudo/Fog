@@ -48,7 +48,7 @@
 | المساعدة | كامل HTML داخل `index.html` |
 | الأذكار | iframe خارجي لـ `pages/azkar.html` |
 | القرآن | iframe خارجي لـ `pages/quran.html` |
-| السكينة | ثلاث ملكيات متنافسة: HTML قديم مضمن، و`serenity-quran-stream.js`، و`pages/serenity.html` مع شاشة العرض الجديدة |
+| السكينة | بعد مرحلة توحيد الملكية: مضيف فارغ في `index.html` ومالك وحيد هو `pages/serenity.html` مع `js/presentation/serenity/screen.js` |
 
 النتيجة: ليست كل الشاشات منفصلة بعد. حذف HTML الشاشات الست المضمنة سيكسر التطبيق؛ يجب نقل كل شاشة إلى ملف مستقل واختبارها قبل حذف أصلها من `index.html`.
 
@@ -94,6 +94,19 @@
 - خمسة من ستة ملفات MP3 التي يشير إليها runtime القديم غير موجودة.
 - يوجد سباق فعلي بين `serenity-quran-stream.js` وشاشة `pages/serenity.html`؛ كلاهما يستبدل `#page-serenity` حسب توقيت التحميل.
 - التوصية: اعتماد `pages/serenity.html` و`js/presentation/serenity/screen.js` كمالك وحيد، ثم إزالة loader الخاص بالـstream والنسخة المضمنة في عملية واحدة مختبرة.
+
+#### نتيجة التنفيذ
+
+- نُفذت التوصية واعتمدت شاشة العرض الخارجية مالكًا وحيدًا.
+- استبدل HTML القديم بمضيف فارغ يحمل `data-page-src="pages/serenity.html"`.
+- حُذف runtime القديم من `index.html` ومن النسخة الظلية `js/22-init.js`.
+- حُذفت استدعاءات `skInit` و`skDeactivate` القديمة من نسختي التنقل.
+- حُذف loader المنافس من `home-final.js` وحُذف ملف `js/serenity-quran-stream.js` نفسه.
+- حُذف من ملفات الإنتاج في هذه المرحلة 434 سطرًا مقابل إضافة سطر المضيف الواحد؛ منها 192 سطرًا من `index.html`.
+- أصبح `index.html` بعد المرحلتين 4,240 سطرًا و244,599 بايت، بلا معرفات `id` مكررة.
+- أضيف اختبار `tests/presentation/serenity-single-owner.test.js` لإثبات عدم عودة أي مالك قديم.
+- أصبح خط الاختبارات 72 اختبارًا: 47 ناجحًا و25 فاشلًا موروثًا؛ قائمة الإخفاقات لم تتغير.
+- اجتازت جميع ملفات JavaScript الإنتاجية المتبقية، وعددها 141 مع Service Worker، فحص الصياغة.
 
 ### الخلفية الديناميكية القديمة
 

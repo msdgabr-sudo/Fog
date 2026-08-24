@@ -252,21 +252,6 @@
   window.__qiblaBackNavigation={version:VERSION,owner:'home-final',stateKey:KEY,quranReader:true};
 })();
 
-/* Serenity is intentionally isolated from Home/Compass engines. This loader only attaches
-   the Quran streaming presentation module after the document is available. */
-(function(){
-  'use strict';
-  function loadSerenity(){
-    if(document.querySelector('script[data-serenity-quran-stream]'))return;
-    var s=document.createElement('script');
-    s.src='js/serenity-quran-stream.js';
-    s.defer=true;
-    s.dataset.serenityQuranStream='1';
-    document.head.appendChild(s);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadSerenity,{once:true});else loadSerenity();
-})();
-
 /* PWA registration lives here because home-final.js is a guaranteed deferred script in
    index.html. This keeps Service Worker startup independent from the legacy inline PWA
    block and does not touch calculations, sensors, navigation or screen rendering. */
