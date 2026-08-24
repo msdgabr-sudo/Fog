@@ -30,14 +30,14 @@ The project contains two strictly separated engines and one additive presentatio
 - Additive presentation only; it must never calculate, overwrite, store, or mutate GNSS or astronomical results.
 - Existing live DOM values, IDs, click handlers, stores, active classes, and navigation contracts remain authoritative.
 - Existing home cards may be moved into presentation containers but are never cloned or replaced.
-- `js/99-misc.js` mounts the Horizon Hero, semantic dashboard grid, and approved-reference home composition using live DOM values only.
+- `index.html` owns the static Horizon Hero and semantic dashboard markup; `js/home-final.js` mirrors the live DOM values into that presentation.
 - `css/41-horizon-mega-phase4-final-polish.css` remains the authoritative home-screen correction layer.
 - `css/42-horizon-mega-phase5-cross-page-finish.css` is the authoritative cross-page visual identity layer.
 
 ## 3. Repository Structure
 Important paths:
 
-- `index.html` — main application shell and all page markup.
+- `index.html` — main application shell, embedded legacy pages, and hosts for the separated screens.
 - `PROJECT_CONTEXT.md` — official Single Source of Truth.
 - `css/01-variables.css` through `css/28-astronomical-observatory.css` — established application styles.
 - `css/29-horizon-design-system.css` — Horizon tokens, optical glass, Hero foundation, Earth, Kaaba, typography, and status semantics.
@@ -60,7 +60,7 @@ Important paths:
 - `js/05-gnss.js` — GNSS runtime.
 - `js/10-astronomy.js` — astronomical calculations and legacy geographic Qibla calculation.
 - `js/20-device-compass.js` — device compass runtime.
-- `js/99-misc.js` — initialization, Hero, dashboard mounting, approved-reference composition, and live-value mirroring.
+- `js/home-final.js` — Home live-value mirroring, top-level navigation ownership, and PWA registration ownership.
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.

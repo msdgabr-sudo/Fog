@@ -9,12 +9,14 @@ const worker = fs.readFileSync('service-worker.js', 'utf8');
 
 const retired = [
   'js/07-settings.js',
+  'js/08-share.js',
   'js/13-polaris.js',
   'js/14-shadow.js',
   'js/15-polar-drift.js',
   'js/16-map.js',
   'js/19-main-loop.js',
-  'js/22-init.js'
+  'js/22-init.js',
+  'js/99-misc.js'
 ];
 
 retired.forEach(function (path) {
@@ -27,6 +29,9 @@ retired.forEach(function (path) {
   'function loadCfg()',
   'function saveCfg()',
   'loadCfg();',
+  'function shareApp()',
+  'function copyQibla()',
+  "if(!MDECL_READY){set('share-feedback'",
   'function drawPolaris(maz,mvis,malt)',
   'drawPolaris(mp.az,moonV,mp.altApp);',
   'function drawShadow(saz,salt,vis)',
@@ -40,7 +45,11 @@ retired.forEach(function (path) {
   "document.addEventListener('touchstart'",
   "document.getElementById('sp-canvas')",
   "document.getElementById('qo-canvas')",
-  'window._celCheck = _celCheck;'
+  'window._celCheck = _celCheck;',
+  "const permBtn = gel('compass-perm-btn');",
+  "const calBtn = gel('cal-compass-btn');",
+  "const devSlider = gel('dev-slider');",
+  'loop();'
 ].forEach(function (token) {
   assert(index.includes(token), 'live inline owner or its call was lost: ' + token);
 });
@@ -51,4 +60,8 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
   assert(!index.includes(token), 'unreachable init-only feature leaked into the live inline owner: ' + token);
 });
 
-console.log('PASS seven unloaded numbered shadows stay retired while every live inline owner remains intact');
+['اتجاه القبلة من الجيزة', 'القبلة تقع جنوب شرق'].forEach(function (token) {
+  assert(!index.includes(token), 'stale fixed-location share copy leaked into the live owner: ' + token);
+});
+
+console.log('PASS nine unloaded numbered shadows stay retired while every live inline owner remains intact');
