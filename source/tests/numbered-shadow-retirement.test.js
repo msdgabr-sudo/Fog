@@ -8,6 +8,7 @@ const homeFinal = fs.readFileSync('js/home-final.js', 'utf8');
 const worker = fs.readFileSync('service-worker.js', 'utf8');
 
 const retired = [
+  'js/04-core.js',
   'js/07-settings.js',
   'js/08-share.js',
   'js/13-polaris.js',
@@ -26,6 +27,17 @@ retired.forEach(function (path) {
 });
 
 [
+  'const UTC_OFF=3;',
+  'const KLAT=21.42250833,KLON=39.82616667;',
+  'const R2D=180/Math.PI,D2R=Math.PI/180;',
+  "const D8=['شمال','شمال شرق','شرق'",
+  'function d8(az)',
+  'function hm(h)',
+  'function shms(s)',
+  'function phaseName(ill,elong)',
+  'function gel(id)',
+  'function set(id,v)',
+  'function seti(id,v)',
   'function loadCfg()',
   'function saveCfg()',
   'loadCfg();',
@@ -64,4 +76,7 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
   assert(!index.includes(token), 'stale fixed-location share copy leaked into the live owner: ' + token);
 });
 
-console.log('PASS nine unloaded numbered shadows stay retired while every live inline owner remains intact');
+assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');
+assert(!index.includes('G-QMRD6BZDRH'), 'the stale Analytics identity from the retired core shadow must not return');
+
+console.log('PASS ten unloaded numbered shadows stay retired while every live inline owner remains intact');

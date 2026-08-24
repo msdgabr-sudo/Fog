@@ -4,7 +4,7 @@ on:
   push:
     branches: [A2]
     paths:
-      - 'js/04-core.js'
+      - 'index.html'
       - 'js/11-prayer.js'
       - 'js/17-deviation.js'
       - 'js/presentation/location-label.js'

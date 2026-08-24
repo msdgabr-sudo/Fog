@@ -59,8 +59,8 @@ for(const deg of [0,0.5,1,2,5,10]){
 }
 assert(!/const\s+R\s*=\s*1296\b/.test(devSrc),'legacy fixed 1296 km distance must stay removed');
 
-const core=fs.readFileSync('js/04-core.js','utf8');
-assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(core),'time-zone audit expects the current fixed UTC+3 implementation to remain explicitly visible until separate migration');
+const productionShell=fs.readFileSync('index.html','utf8');
+assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(productionShell),'time-zone audit expects the current fixed UTC+3 implementation to remain explicitly visible in the production owner until separate migration');
 
 console.log('Prayer location/cache + deviation gate: PASS');
 console.log('Cairo cache:',cairoKey);

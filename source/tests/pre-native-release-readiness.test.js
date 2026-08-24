@@ -95,8 +95,7 @@ assert(serviceWorker.includes("'./js/presentation/azkar/host.js'"),'service work
 assert(serviceWorker.includes("'./js/presentation/azkar/back-history.js'"),'service worker must critical-cache the Azkar nested Back bridge');
 assert(/fetch\(r,\{cache:['\"]no-store['\"]\}\)/.test(serviceWorker),'service worker must network-refresh JS/CSS/HTML instead of pinning stale navigation code');
 
-const core=fs.readFileSync('js/04-core.js','utf8');
-assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(core),'legacy solar-event UTC+3 contract must remain explicit behind the isolated civil-time adapter');
+assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(indexHtml),'legacy solar-event UTC+3 contract must remain explicit in the production owner behind the isolated civil-time adapter');
 const timezoneAudit=fs.readFileSync('checkpoints/PRAYER_TIMEZONE_AUDIT_2026-08-14.md','utf8');
 assert(timezoneAudit.includes('original global time-zone release blocker is CLOSED'),'timezone audit must record the verified isolated migration');
 
