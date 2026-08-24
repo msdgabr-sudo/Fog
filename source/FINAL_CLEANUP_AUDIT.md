@@ -37,6 +37,9 @@ Retired with its fixed-Giza `drawMap()` renderer and per-loop call after proving
 ### Falaki / Night parent-document runtime
 The live owner is `pages/falaki.html`, mounted by `js/presentation/falaki/host.js` inside `#page-night`. The old parent-document writers and private canvas renderers were retired after proving that every target ID had disappeared. Shared calculation engines used by the live host remain intact.
 
+### Prayer parent-document presentation
+The live visible screen is `pages/prayer.html`, mounted through the guarded presentation loader and rendered by `js/presentation/prayer/screen.js`. The main loop still seeds the shared `pCache`, while its obsolete hidden list renderer, hidden compatibility nodes, and writers targeting nonexistent azimuth labels were retired. Prayer calculations, scheduling, Adhan playback, settings, and visible detail fields remain intact.
+
 ### Settings / Help
 Settings remains live. Help was retired with its private share handlers after proving that no route reaches it.
 

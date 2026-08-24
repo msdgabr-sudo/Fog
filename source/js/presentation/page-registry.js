@@ -12,8 +12,7 @@
       fragment: 'pages/prayer.html',
       requiredIds: Object.freeze([
         'page-prayer','prayer-location-label','qa-next-name','qa-next-time','qa-next-countdown',
-        'qa-prayer-table','qa-adhan-card','qa-prayer-details','pr-r','pr-s','pr-n','pr-h',
-        'p-cd','p-nn','p-prog','p-list'
+        'qa-prayer-table','qa-adhan-card','qa-prayer-details','pr-r','pr-s','pr-n','pr-h'
       ]),
       presentationCss: Object.freeze([
         'css/presentation/prayer/screen.css',

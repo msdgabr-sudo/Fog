@@ -12,6 +12,8 @@ const internalLanguageBridge = fs.readFileSync('js/i18n/internal-screen-language
 const presentationBootstrap = fs.readFileSync('js/presentation/bootstrap.js', 'utf8');
 const liveCompassMode = fs.readFileSync('js/compass-mode-view.js', 'utf8');
 const digitalCompassPage = fs.readFileSync('pages/digital-compass.html', 'utf8');
+const prayerPage = fs.readFileSync('pages/prayer.html', 'utf8');
+const pageRegistry = fs.readFileSync('js/presentation/page-registry.js', 'utf8');
 
 const retired = [
   'js/04-core.js',
@@ -110,6 +112,26 @@ assert(homeFinal.includes("s.src='js/i18n/english-rollout.js"), 'the live Englis
   'let ptick='
 ].forEach(function (token) {
   assert(!index.includes(token), 'retired parent-document Night presentation returned: ' + token);
+});
+
+assert(index.includes('function calcPrayers(evts)'), 'the live prayer calculation engine must remain');
+assert(index.includes('function updatePrayers(now,evts)'), 'the live prayer-cache updater must remain');
+assert(index.includes('pCache=calcPrayers(evts)'), 'the main loop must continue to seed the shared prayer cache');
+[
+  'const PICO=',
+  "set('p-cd'",
+  "gel('p-prog')",
+  "gel('p-list')",
+  "set('pr-raz'",
+  "set('pr-saz'"
+].forEach(function (token) {
+  assert(!index.includes(token), 'retired parent-document Prayer presentation returned: ' + token);
+});
+['qa-prayer-legacy-contract', 'id="p-cd"', 'id="p-nn"', 'id="p-prog"', 'id="p-list"'].forEach(function (token) {
+  assert(!prayerPage.includes(token), 'hidden legacy Prayer DOM contract returned: ' + token);
+});
+['\'p-cd\'', '\'p-nn\'', '\'p-prog\'', '\'p-list\''].forEach(function (token) {
+  assert(!pageRegistry.includes(token), 'retired Prayer ID returned to the page-loader contract: ' + token);
 });
 
 assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must remain in the live shell');

@@ -1227,7 +1227,6 @@ function moonRS(evts,mp){
 // ════════════════════════════════════════════════
 //  PRAYER TIMES — MWL method
 // ════════════════════════════════════════════════
-const PICO={'الفجر':'🌙','الشروق':'🌅','الظهر':'☀️','العصر':'🌤️','المغرب':'🌇','العشاء':'🌃'};
 function calcPrayers(evts){
   if(!evts)return null;
   const{rH,sH,nH,dec}=evts;
@@ -1339,20 +1338,6 @@ let pCache=null,pKey='';
 function updatePrayers(now,evts){
   const dk=now.toDateString();
   if(dk!==pKey){pCache=calcPrayers(evts);pKey=dk;}
-  const pr=pCache;if(!pr)return;
-  const lh=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
-  let ci=-1;for(let i=pr.length-1;i>=0;i--)if(lh>=pr[i].h){ci=i;break;}
-  const ni=(ci+1)%pr.length;
-  const np=pr[ni];let stn=(np.h-lh)*3600;if(stn<0)stn+=86400;
-  const ph=ci>=0?pr[ci].h:pr[pr.length-1].h-24;
-  let span=(np.h-ph)*3600;if(span<0)span+=86400;
-  set('p-cd',shms(stn));set('p-nn',np.n);
-  const pf=gel('p-prog');if(pf)pf.style.width=Math.max(0,Math.min(100,(span-stn)/span*100)).toFixed(1)+'%';
-  const pl=gel('p-list');
-  if(pl)pl.innerHTML=pr.map((p,i)=>{
-    const isN=i===ni,isPa=!isN&&ci>=0&&i<=ci;
-    return`<div class="p-row${isN?' curr':isPa?' past':''}"><div class="p-ico">${PICO[p.n]||'🕌'}</div><div class="p-name">${p.n}</div>${isN?'<div class="p-tag">قادمة</div>':''}<div class="p-time">${hm(p.h)}</div></div>`;
-  }).join('');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1879,8 +1864,8 @@ function loop(){
     const mb=gel('moonBall');if(mb){mb.style.left=mp2*100+'%';mb.style.bottom=(14+marc*(arcH-22)*.72)+'px';mb.className='sky-body sky-moon'+(moonV?'':' below');}
     const maxMA=90-Math.abs(LAT-mp.dec);const mf=gel('moonFill');if(mf)mf.style.width=Math.max(0,mp.altApp/maxMA*100).toFixed(1)+'%';
     // PRAYER
-    set('pr-r',hm(evts.rH));set('pr-raz','سمت '+evts.azR.toFixed(1)+'°');
-    set('pr-s',hm(evts.sH));set('pr-saz','سمت '+evts.azS.toFixed(1)+'°');
+    set('pr-r',hm(evts.rH));
+    set('pr-s',hm(evts.sH));
     set('pr-n',hm(evts.nH));
   }
 
