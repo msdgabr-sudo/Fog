@@ -681,13 +681,6 @@
 
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════════════════ -->
-<!-- [HTML-11] PAGE: HELP (المساعدة) -->
-<!-- ════════════════════════════════════════════════════════════════════════════ -->
-<!-- PAGE: HELP -->
-<!-- ════════════════════════════════════════════════════════════════════════════ -->
-<!-- [HTML-11] PAGE: HELP (المساعدة) -->
-<!-- ════════════════════════════════════════════════════════════════════════════ -->
 <!-- ════════════════════ PAGE: HELP ════════════════════ -->
 <div class="page" id="page-help">
 
@@ -715,12 +708,6 @@
       <div style="width:28px;height:28px;border-radius:50%;background:rgba(64,184,112,.2);color:var(--ok);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">٤</div>
       <div><div style="font-size:.82rem;font-weight:700;color:var(--txt);margin-bottom:2px;">🕌 الصلاة — مواقيت دقيقة</div><div style="font-size:.72rem;color:var(--txt2);line-height:1.7;">مواقيت محسوبة فلكياً بنفس دقة خوارزميات الشمس. العداد يحسب الوقت المتبقي للصلاة القادمة.</div></div>
     </div>
-  </div>
-
-  <!-- FAQ -->
-  <div class="sec-hdr">❓ أسئلة شائعة</div>
-  <div style="width:100%;display:flex;flex-direction:column;gap:7px;" id="faq-list">
-    <!-- filled by JS -->
   </div>
 
   <!-- Scientific references -->
@@ -1368,40 +1355,6 @@ function copyQibla(){
   if(!MDECL_READY){set('share-feedback','⚠ يلزم GPS/GNSS موثوق أولاً');return;}
   const txt=`اتجاه القبلة من موقعك الحالي:\n• حقيقي: ${QT.toFixed(2)}°\n• مغناطيسي معروض: ${QM.toFixed(2)}°\n• الاتجاه: ${typeof d8==='function'?d8(QT):''}\n© QiblaAstro — Mohamed Sayed Gabr Behairy`;
   navigator.clipboard?.writeText(txt).then(()=>{const f=gel('share-feedback');if(f){f.textContent='✓ تم نسخ اتجاه القبلة';setTimeout(()=>f.textContent='',2500);}});
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-9] FAQ BUILDER
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  FAQ BUILDER
-// ════════════════════════════════════════════════
-function buildFAQ(){
-  const el=gel('faq-list');if(!el)return;
-  const faqs=[
-    {q:'لماذا لا أستخدم بوصلة الهاتف فقط؟',a:'بوصلة الهاتف تعتمد على الحقل المغناطيسي الذي قد يتأثر بالمعادن والأجهزة القريبة، لذلك يمكن أن تنحرف القراءة. يستخدم التطبيق مراجع وحسابات مستقلة بحسب الوظيفة المعروضة.'},
-    {q:'ما هو الظهر الشمسي الحقيقي ولماذا يختلف عن 12:00؟',a:'الظهر الشمسي = لحظة وصول الشمس لأعلى نقطة. يتقدم أو يتأخر عن 12:00 بسبب معادلة الزمن وموقعك داخل المنطقة الزمنية، ويحسبه التطبيق حسب الموقع والتاريخ.'},
-    {q:'كيف أجد القبلة في الظلام الكامل؟',a:'نجم القطب (بولاريس) يبقى معلومة فلكية في صفحة فلكي، ويرتفع عن الأفق بحسب خط عرض الموقع. التحقق الفلكي بالكاميرا مستقل ويعتمد الشمس أو القمر فقط.'},
-    {q:'هل أثّر زلزال اليابان 2011 على اتجاه القبلة؟',a:'لا. تحرّك محور الكتلة 17 سم فقط (وليس محور الدوران الجغرافي). التأثير على القبلة = 0.000001° — يستحيل قياسه. راجع صفحة GNSS للتفاصيل العلمية الكاملة.'},
-    {q:'لماذا توجد قيمتان للقبلة (حقيقي ومغناطيسي)؟',a:MDECL_READY?`القبلة الحقيقية المعروضة من موقعك الحالي = ${QT.toFixed(2)}° من الشمال الجغرافي، والقيمة المغناطيسية المعروضة = ${QM.toFixed(2)}°.`:'تظهر القيمة المغناطيسية بعد الحصول على GPS/GNSS موثوق وحساب WMM2025.'},
-    {q:'ما دقة التطبيق؟',a:'الشمس VSOP87: ±0.01° (~0.2 كم). القمر ELP2000: ±0.1° (~2.3 كم). نجم القطب: ±0.02° (~0.4 كم). الانحراف المغناطيسي WMM2025: ±0.5°. هذه من أدق الخوارزميات المتاحة في تطبيقات الهاتف.'},
-  ];
-  el.innerHTML=faqs.map((f,i)=>`
-    <div style="background:var(--panel);border:1px solid var(--rim);border-radius:var(--radius-sm);overflow:hidden;">
-      <div onclick="toggleFAQ(${i})" style="padding:11px 13px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
-        <div style="font-size:.78rem;font-weight:600;color:var(--txt);flex:1;">${f.q}</div>
-        <div id="faq-icon-${i}" style="color:var(--gold);font-size:.9rem;margin-right:6px;flex-shrink:0;transition:transform .2s;">▸</div>
-      </div>
-      <div id="faq-body-${i}" style="display:none;padding:0 13px 12px;font-size:.72rem;color:var(--txt2);line-height:1.8;">${f.a}</div>
-    </div>`).join('');
-}
-function toggleFAQ(i){
-  const body=gel(`faq-body-${i}`),icon=gel(`faq-icon-${i}`);
-  if(!body)return;
-  const open=body.style.display==='none';
-  body.style.display=open?'block':'none';
-  if(icon)icon.style.transform=open?'rotate(90deg)':'';
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
