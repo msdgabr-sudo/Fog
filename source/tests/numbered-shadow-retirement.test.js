@@ -34,10 +34,41 @@ const retired = [
   'js/system-check.js'
 ];
 
+const retiredPresentationLayers = [
+  'css/29-horizon-design-system.css',
+  'css/30-horizon-compass-instruments.css',
+  'css/31-horizon-home-header.css',
+  'css/32-horizon-navigation.css',
+  'css/33-horizon-mega-interface.css',
+  'css/34-horizon-square-dashboard.css',
+  'css/35-horizon-dashboard-grid.css',
+  'css/36-horizon-dashboard-polish.css',
+  'css/36-horizon-reference-parity.css',
+  'css/37-horizon-hero-mega-phase1.css',
+  'css/37-horizon-reference-home.css',
+  'css/38-approved-reference-layout.css',
+  'css/39-horizon-mega-phase2-dashboard-nav.css',
+  'css/40-horizon-mega-phase3-identity-motion.css',
+  'css/41-horizon-mega-phase4-final-polish.css',
+  'css/42-horizon-mega-phase5-cross-page-finish.css',
+  'css/42-horizon-screenshot-correction.css',
+  'css/43-reference-match-stage1.css',
+  'css/44-reference-dashboard-stage2.css',
+  'css/45-reference-navigation-polish-stage3.css',
+  'css/47-phone-reference-final-stage5.css'
+];
+
 retired.forEach(function (path) {
   assert.strictEqual(fs.existsSync(path), false, 'unloaded numbered shadow must stay deleted: ' + path);
   assert(!index.includes(path), 'index must not reference a retired shadow: ' + path);
   assert(!worker.includes(path), 'Service Worker must not cache a retired shadow: ' + path);
+});
+
+retiredPresentationLayers.forEach(function (path) {
+  assert.strictEqual(fs.existsSync(path), false, 'unloaded presentation layer must stay deleted: ' + path);
+  assert(!index.includes(path), 'index must not load a retired presentation layer: ' + path);
+  assert(!worker.includes(path), 'Service Worker must not cache a retired presentation layer: ' + path);
+  assert(!referencePreview.includes(path), 'reference preview must not load a retired presentation layer: ' + path);
 });
 
 [
@@ -173,6 +204,8 @@ assert(index.includes('G-1D1GKVZB74'), 'the production Analytics identity must r
 assert(!index.includes('G-QMRD6BZDRH'), 'the stale Analytics identity from the retired core shadow must not return');
 assert.strictEqual(fs.existsSync('js/101-reference-home-rebuild-stage4.js'), true, 'the live reference-preview runtime must remain');
 assert(referencePreview.includes('js/101-reference-home-rebuild-stage4.js'), 'reference preview must keep loading its stage-4 runtime');
+assert.strictEqual(fs.existsSync('css/46-reference-home-rebuild-stage4.css'), true, 'the live reference-preview stylesheet must remain');
+assert(referencePreview.includes('css/46-reference-home-rebuild-stage4.css'), 'reference preview must keep loading its stage-4 stylesheet');
 assert(homeLanguagePicker.includes('function setDocDirection(l)'), 'the live Home language owner must retain document direction switching');
 assert(homeLanguagePicker.includes("(l==='ar'||l==='ur')?'rtl':'ltr'"), 'Arabic and Urdu must remain RTL in the live Home language owner');
 assert(internalLanguageBridge.includes('function direction(doc,lang)'), 'the live internal-screen language owner must retain frame direction switching');
@@ -187,4 +220,4 @@ assert(!liveCompassMode.includes('QiblaDigitalCompassLayout'), 'live mode coordi
 assert(digitalCompassPage.includes('id="qd-screen"'), 'isolated digital compass screen must remain available');
 assert(digitalCompassPage.includes('id="qd-heading-sub">اضغط للتفعيل'), 'digital compass activation prompt must remain intact');
 
-console.log('PASS fifteen unloaded runtime shadows stay retired while every live owner remains intact');
+console.log('PASS unloaded runtime and presentation shadows stay retired while every live owner remains intact');

@@ -49,6 +49,7 @@
   function falakiText(doc,id){
     try{var e=doc&&doc.getElementById(id),v=e&&e.textContent?e.textContent.trim():'';return v||''}catch(_){return ''}
   }
+  function homeActive(){var page=byId('page-home');return !!(page&&page.classList.contains('active'));}
   function syncFalakiCards(){
     var doc=falakiDocument();
     if(!doc)return false;
@@ -102,20 +103,29 @@
       if(button){if(button.dataset.compassMode)setCompassMode(button.dataset.compassMode);go(button.dataset.go)}
     });
     updateLangButton();loadKaaba();sync();
-    if(typeof MutationObserver!=='undefined') ['hm-qibla-deg','hm-date-greg','hm-date-hijri','hm-prayer-name','hm-prayer-time','hm-prayer-eta','hm-gps-src'].forEach(function(source){var e=byId(source);if(e)new MutationObserver(sync).observe(e,{childList:true,subtree:true,characterData:true})});
+    if(typeof MutationObserver!=='undefined'){
+      var mirrorSources=root.querySelector('[hidden][aria-hidden="true"]');
+      if(mirrorSources)new MutationObserver(function(){if(homeActive())sync();})
+        .observe(mirrorSources,{childList:true,subtree:true,characterData:true});
+    }
     window.addEventListener('qiblaastro:gnss-update',sync);
 
-    /* Falaki renders every 30 s; mirror it more frequently so Home reflects it promptly. */
-    setTimeout(sync,250);setTimeout(sync,1200);setInterval(syncFalakiCards,2000);
+    /* Falaki renders every 30 s. Poll only while Home is visible; navigation
+       performs an immediate sync when Home is opened again. */
+    window.addEventListener('qiblaastro:navigation-change',function(event){
+      if(event&&event.detail&&event.detail.page==='home')setTimeout(sync,0);
+    });
+    setTimeout(sync,250);setTimeout(sync,1200);
+    setInterval(function(){if(homeActive())syncFalakiCards();},2000);
     return true;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
 
 /* Android/TWA Back compatibility layer.
-   home-final.js is a guaranteed deferred entry point, so it captures the page
-   renderer declared by index.html and becomes the single runtime owner of top-level
-   app history. Nested iframe screens own their own child history without
+   home-final.js is a guaranteed deferred entry point, so it captures the sole
+   renderer loaded from js/06-navigation.js and owns top-level app history only.
+   Nested iframe screens own their own child history without
    touching any calculation, sensor, astronomical, GNSS, prayer or verification engine. */
 (function(){
   'use strict';
@@ -144,8 +154,7 @@
     }catch(_){ }
     return 'home';
   }
-  function applyRouteClass(id){if(document.body)document.body.className='tab-'+id+(id==='home'?' hide-topbar':'');}
-  function render(id){try{renderPage(id);applyRouteClass(id);}catch(err){try{console.error('[nav] render failed',err);}catch(_){}}}
+  function render(id){try{renderPage(id);}catch(err){try{console.error('[nav] render failed',err);}catch(_){}}}
   function renderHistoryState(state){
     var nav=navState(state);
     if(!nav)return;

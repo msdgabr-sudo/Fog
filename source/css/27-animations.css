@@ -1,32 +1,8 @@
 /* ══════════════════════════════════════════════════════════════════════════════
-   [CSS-Z] NAV FIXED - FINAL OVERRIDES
+   [CSS-Z] ACTIVE PAGE SCROLL + AMBIENT BACKGROUND
+   The retired fixed navigation shell has no selectors in this stylesheet.
    ══════════════════════════════════════════════════════════════════════════════ */
 
-/* ══ NAV FIXED - FINAL ══ */
-nav.nav, div
-.page.active {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding-bottom: 80px !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-
-
-nav.nav, div.nav, .nav {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 100% !important;
-  max-width: 420px !important;
-  z-index: 99999 !important;
-  background: rgba(6,10,20,.98) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border-top: 1px solid rgba(200,164,74,.15) !important;
-  display: flex !important;
-  padding-bottom: env(safe-area-inset-bottom) !important;
-}
 .page.active {
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -46,5 +22,4 @@ background:radial-gradient(ellipse at 50% 0%,rgba(74,0,128,.6) 0%,rgba(13,71,161
 animation:auroraMove 5s ease infinite reverse;
 -webkit-mask-image:linear-gradient(to bottom,black 0%,transparent 100%);
 mask-image:linear-gradient(to bottom,black 0%,transparent 100%);}
-
 

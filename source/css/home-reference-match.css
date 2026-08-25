@@ -54,7 +54,6 @@
 .qa-service-card strong{font-size:.56rem!important;line-height:1.12!important}
 .qa-service-card small{font-size:.36rem!important;line-height:1.15!important;margin-top:2px!important}
 .qa-status{display:none!important}
-body.qa-home-active .bottom-nav{display:none!important}
 
 @media(max-width:380px){
   .qa-hero{min-height:548px!important}

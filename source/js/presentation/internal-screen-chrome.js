@@ -84,7 +84,13 @@ function sync(){
   d.body.classList.toggle('qa-azkar-internal-screen',hideForAzkarInternal);
   var b=ensureHomeButton();b.hidden=!needsHome;b.style.display=needsHome?'grid':'none';
 }
-function boot(){sync();root.setInterval(syncHomeMansions,2000);if(typeof root.MutationObserver==='function'){var scheduled=false;var o=new root.MutationObserver(function(){if(scheduled)return;scheduled=true;root.setTimeout(function(){scheduled=false;sync();},0);});o.observe(d.documentElement,{subtree:true,attributes:true,attributeFilter:['class','style'],childList:true});}d.addEventListener('click',function(){root.setTimeout(sync,0);},true);root.addEventListener('hashchange',sync);}
+function boot(){
+  sync();
+  root.setInterval(function(){if(activePageId()==='home')syncHomeMansions();},2000);
+  root.addEventListener('qiblaastro:navigation-change',sync);
+  root.addEventListener('qiblaastro:presentation-page-mounted',function(){root.setTimeout(sync,0);});
+  root.addEventListener('hashchange',sync);
+}
 root.QiblaInternalScreenChrome=Object.freeze({sync:sync});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })(typeof globalThis!=='undefined'?globalThis:window);

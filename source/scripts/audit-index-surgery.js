@@ -44,11 +44,14 @@ while((stm=styleRe.exec(html))){
 const externalCss=matches(/<link\b[^>]*\brel\s*=\s*["']stylesheet["'][^>]*>/gi,html).map(x=>{
   const m=x[0].match(/\bhref\s*=\s*["']([^"']+)["']/i); return m?m[1]:null;
 }).filter(Boolean);
-const ids=matches(/\bid\s*=\s*["']([^"']+)["']/gi,html).map(x=>x[1]);
+// Static DOM metrics must not count JavaScript strings or assignments such as
+// `el.id = '...'` as markup that already exists in index.html.
+const staticMarkup=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'');
+const ids=matches(/\bid\s*=\s*["']([^"']+)["']/gi,staticMarkup).map(x=>x[1]);
 const idCounts={}; ids.forEach(id=>idCounts[id]=(idCounts[id]||0)+1);
 const duplicateIds=Object.entries(idCounts).filter(([,n])=>n>1).map(([id,count])=>({id,count}));
-const onclicks=matches(/\bonclick\s*=\s*["']([^"']+)["']/gi,html).map(x=>x[1]);
-const inlineHandlers=matches(/\bon(?:click|change|input|submit|load|error|touchstart|touchend)\s*=\s*["']([^"']+)["']/gi,html).map(x=>x[1]);
+const onclicks=matches(/\bonclick\s*=\s*["']([^"']+)["']/gi,staticMarkup).map(x=>x[1]);
+const inlineHandlers=matches(/\bon(?:click|change|input|submit|load|error|touchstart|touchend)\s*=\s*["']([^"']+)["']/gi,staticMarkup).map(x=>x[1]);
 const pageIds=ids.filter(id=>/^page-/.test(id));
 
 const protectedRefs=[];
@@ -83,7 +86,7 @@ md.push(`- Scripts: **${report.scripts.total}** total = ${report.scripts.externa
 md.push(`- Inline JavaScript bodies: **${(inlineScriptBytes/1024).toFixed(2)} KB**`);
 md.push(`- Inline style blocks: **${styles.length}**, **${(inlineStyleBytes/1024).toFixed(2)} KB**`);
 md.push(`- External stylesheets: **${externalCss.length}**`);
-md.push(`- DOM IDs: **${ids.length}** occurrences / **${uniq(ids).length}** unique`);
+md.push(`- Static DOM IDs: **${ids.length}** occurrences / **${uniq(ids).length}** unique`);
 md.push(`- Duplicate IDs: **${duplicateIds.length}**`);
 md.push(`- Inline event handlers: **${inlineHandlers.length}**`);
 md.push(`- Protected-core filenames referenced directly in index: **${protectedRefs.length}**`,'');

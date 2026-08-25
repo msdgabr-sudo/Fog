@@ -1,22 +1,62 @@
 {
-  "generatedAt": "2026-08-08T13:41:15.982Z",
+  "generatedAt": "2026-08-25T01:17:28.815Z",
   "index": {
-    "bytes": 352505,
-    "lines": 5429,
-    "sha256": "35ec32e28601931cb96cdde0b4a25cda1adf6c0512b54df61fd29543dcc86bc6"
+    "bytes": 113641,
+    "lines": 2081,
+    "sha256": "ff633bbd33a52347b1892dd953d535c35bad98919e2e5e355f9cd7e394c47769"
   },
   "scripts": {
-    "total": 6,
-    "external": 4,
-    "inline": 2,
-    "inlineBodyBytes": 191879,
+    "total": 11,
+    "external": 10,
+    "inline": 1,
+    "inlineBodyBytes": 78959,
     "items": [
       {
         "type": "external",
-        "src": "https://www.googletagmanager.com/gtag/js?id=G-QMRD6BZDRH",
-        "startLine": 247,
-        "endLine": 247,
+        "src": "https://www.googletagmanager.com/gtag/js?id=G-1D1GKVZB74",
+        "startLine": 154,
+        "endLine": 154,
         "bytes": 86,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "containsProtectedTokens": false
+      },
+      {
+        "type": "external",
+        "src": "js/home-final.js",
+        "startLine": 172,
+        "endLine": 172,
+        "bytes": 68,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "containsProtectedTokens": false
+      },
+      {
+        "type": "external",
+        "src": "js/home-reference-finalizer.js",
+        "startLine": 173,
+        "endLine": 173,
+        "bytes": 86,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "containsProtectedTokens": false
+      },
+      {
+        "type": "external",
+        "src": "js/geomag/wmm2025.js",
+        "startLine": 451,
+        "endLine": 451,
+        "bytes": 44,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "containsProtectedTokens": false
+      },
+      {
+        "type": "external",
+        "src": "js/geomag/wmm2025-runtime.js",
+        "startLine": 452,
+        "endLine": 452,
+        "bytes": 52,
         "bodyBytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "containsProtectedTokens": false
@@ -24,18 +64,28 @@
       {
         "type": "inline",
         "src": null,
-        "startLine": 1457,
-        "endLine": 5272,
-        "bytes": 189142,
-        "bodyBytes": 189125,
-        "sha256": "7bf1637eec0e74bb80330e699b0f929cd24f526ec41944e56814f3c1ac05b783",
+        "startLine": 453,
+        "endLine": 2054,
+        "bytes": 78976,
+        "bodyBytes": 78959,
+        "sha256": "a15cd61bd896c7bfcef1c40c0bd91ffca4cf8d4c02a4a89f4cdd016dd3cccb19",
         "containsProtectedTokens": true
       },
       {
         "type": "external",
+        "src": "js/06-navigation.js",
+        "startLine": 2057,
+        "endLine": 2057,
+        "bytes": 43,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "containsProtectedTokens": false
+      },
+      {
+        "type": "external",
         "src": "js/astro-verification.js",
-        "startLine": 5277,
-        "endLine": 5277,
+        "startLine": 2062,
+        "endLine": 2062,
         "bytes": 48,
         "bodyBytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -44,8 +94,8 @@
       {
         "type": "external",
         "src": "js/compass-cards.js",
-        "startLine": 5278,
-        "endLine": 5278,
+        "startLine": 2063,
+        "endLine": 2063,
         "bytes": 43,
         "bodyBytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -54,59 +104,40 @@
       {
         "type": "external",
         "src": "js/qibla-card-runtime.js",
-        "startLine": 5279,
-        "endLine": 5279,
+        "startLine": 2064,
+        "endLine": 2064,
         "bytes": 48,
         "bodyBytes": 0,
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "containsProtectedTokens": false
       },
       {
-        "type": "inline",
-        "src": null,
-        "startLine": 5295,
-        "endLine": 5422,
-        "bytes": 2771,
-        "bodyBytes": 2754,
-        "sha256": "aed129e3fa9bb381bf2dec4ce89f159ffa7c0e133ba6c37d0f481f298ca869b6",
+        "type": "external",
+        "src": "js/presentation/location-label.js",
+        "startLine": 2078,
+        "endLine": 2078,
+        "bytes": 57,
+        "bodyBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "containsProtectedTokens": false
       }
     ]
   },
   "styles": {
-    "inline": 2,
-    "inlineBodyBytes": 1790,
-    "items": [
-      {
-        "startLine": 62,
-        "endLine": 70,
-        "bytes": 203,
-        "bodyBytes": 188,
-        "sha256": "c3a3930447cb3647e0bf7e179f91890f6c80d4607f37b75ee4d4ee9804914e93"
-      },
-      {
-        "startLine": 283,
-        "endLine": 296,
-        "bytes": 1617,
-        "bodyBytes": 1602,
-        "sha256": "4da22e57371f1a425e028389611cdcc93623f855625367e20ad8d5072ba5b8b0"
-      }
-    ],
+    "inline": 0,
+    "inlineBodyBytes": 0,
+    "items": [],
     "externalCss": [
       "css/01-variables.css",
       "css/02-sky-backgrounds.css",
       "css/03-reset-base.css",
-      "css/04-splash.css",
-      "css/05-topbar.css",
-      "css/06-navigation.css",
+      "css/04-splash.css?v=20260810-premium-splash",
       "css/07-pages.css",
       "css/08-compass-canvas.css",
       "css/09-qibla-hero.css",
       "css/10-stat-grid.css",
       "css/11-section-headers.css",
       "css/12-sky-track.css",
-      "css/13-prayer-times.css",
-      "css/14-night-page.css",
       "css/15-device-compass.css",
       "css/16-qibla-instructions.css",
       "css/17-calibration.css",
@@ -114,196 +145,110 @@
       "css/19-gnss.css",
       "css/20-settings.css",
       "css/21-utility.css",
-      "css/22-azkar.css",
       "css/24-gemini-compass.css",
-      "css/27-animations.css"
+      "css/27-animations.css",
+      "css/home-final.css",
+      "css/home-hero-photo.css",
+      "css/home-reference-match.css",
+      "css/home-single-screen-cards.css",
+      "css/home-premium-polish.css",
+      "css/home-motion-design.css",
+      "css/home-4k-background.css",
+      "css/home-card-final-cleanup.css",
+      "css/home-hero-final-match.css",
+      "css/home-final-polish.css",
+      "css/home-pixel-perfect.css",
+      "css/home-premium-finish.css",
+      "css/home-action-layout-233.css",
+      "css/home-header-controls.css"
     ]
   },
   "dom": {
-    "ids": 235,
-    "uniqueIds": 235,
+    "ids": 54,
+    "uniqueIds": 54,
     "duplicateIds": [],
     "pageIds": [
       "page-home",
       "page-compass",
       "page-night",
-      "page-cal",
       "page-prayer",
       "page-gnss",
-      "page-map",
       "page-settings",
-      "page-help",
       "page-azkar",
       "page-quran",
       "page-serenity"
     ],
-    "onclickCount": 138,
-    "inlineHandlerCount": 140
+    "onclickCount": 3,
+    "inlineHandlerCount": 4
   },
   "protectedRefs": [
     "astro-verification"
   ],
   "markers": [
     {
-      "line": 242,
-      "text": "<!-- SECTION Q: ALL HTML PAGES                                                  -->"
+      "line": 156,
+      "text": "<!-- QiblaAstro approved static Home — first-paint assets -->"
     },
     {
-      "line": 274,
-      "text": "<!-- [HTML-3] PAGE: HOME (الرئيسية) -->"
+      "line": 174,
+      "text": "<!-- /QiblaAstro approved static Home -->"
     },
     {
-      "line": 276,
-      "text": "<!-- PAGE: COMPASS -->"
-    },
-    {
-      "line": 278,
+      "line": 186,
       "text": "<!-- [HTML-4] PAGE: COMPASS (البوصلة) -->"
     },
     {
-      "line": 280,
-      "text": "<!-- ════════════════════ PAGE: COMPASS ════════════════════ -->"
-    },
-    {
-      "line": 646,
-      "text": "<!-- [HTML-6] PAGE: CALIBRATION (المعايرة) -->"
-    },
-    {
-      "line": 648,
-      "text": "<!-- PAGE: CAL -->"
-    },
-    {
-      "line": 650,
-      "text": "<!-- [HTML-6] PAGE: CALIBRATE (المعايرة) -->"
-    },
-    {
-      "line": 652,
-      "text": "<!-- ════════════════════ PAGE: CALIBRATE ════════════════════ -->"
-    },
-    {
-      "line": 778,
+      "line": 255,
       "text": "<!-- [HTML-7] PAGE: PRAYER (الصلاة) -->"
     },
     {
-      "line": 780,
-      "text": "<!-- PAGE: PRAYER -->"
+      "line": 256,
+      "text": "<!-- PAGE: PRAYER — EXTERNAL PRESENTATION MODULE -->"
     },
     {
-      "line": 782,
-      "text": "<!-- [HTML-7] PAGE: PRAYER (الصلاة) -->"
+      "line": 257,
+      "text": "<!-- Full screen source: pages/prayer.html -->"
     },
     {
-      "line": 784,
-      "text": "<!-- ════════════════════ PAGE: PRAYER ════════════════════ -->"
-    },
-    {
-      "line": 863,
+      "line": 260,
       "text": "<!-- [HTML-8] PAGE: GNSS -->"
     },
     {
-      "line": 865,
-      "text": "<!-- PAGE: GNSS -->"
-    },
-    {
-      "line": 867,
-      "text": "<!-- [HTML-8] PAGE: GNSS -->"
-    },
-    {
-      "line": 869,
-      "text": "<!-- ════════════════════ PAGE: GNSS ════════════════════ -->"
-    },
-    {
-      "line": 952,
-      "text": "<!-- [HTML-9] PAGE: MAP (الخريطة) -->"
-    },
-    {
-      "line": 954,
-      "text": "<!-- PAGE: MAP -->"
-    },
-    {
-      "line": 956,
-      "text": "<!-- [HTML-9] PAGE: MAP (الخريطة) -->"
-    },
-    {
-      "line": 958,
-      "text": "<!-- ════════════════════ PAGE: MAP ════════════════════ -->"
-    },
-    {
-      "line": 966,
-      "text": "<!-- Visual Qibla Direction -->"
-    },
-    {
-      "line": 1012,
+      "line": 342,
       "text": "<!-- [HTML-10] PAGE: SETTINGS (الإعدادات) -->"
     },
     {
-      "line": 1014,
-      "text": "<!-- PAGE: SETTINGS -->"
-    },
-    {
-      "line": 1016,
-      "text": "<!-- [HTML-10] PAGE: SETTINGS (الإعدادات) -->"
-    },
-    {
-      "line": 1018,
-      "text": "<!-- ════════════════════ PAGE: SETTINGS ════════════════════ -->"
-    },
-    {
-      "line": 1119,
-      "text": "<!-- [HTML-11] PAGE: HELP (المساعدة) -->"
-    },
-    {
-      "line": 1121,
-      "text": "<!-- PAGE: HELP -->"
-    },
-    {
-      "line": 1123,
-      "text": "<!-- [HTML-11] PAGE: HELP (المساعدة) -->"
-    },
-    {
-      "line": 1125,
-      "text": "<!-- ════════════════════ PAGE: HELP ════════════════════ -->"
-    },
-    {
-      "line": 1186,
+      "line": 442,
       "text": "<!-- [HTML-12] PAGE: AZKAR (الأذكار) -->"
     },
     {
-      "line": 1188,
+      "line": 443,
       "text": "<!-- PAGE: AZKAR -->"
     },
     {
-      "line": 1410,
+      "line": 448,
       "text": "<!-- ════ PAGE: SERENITY ════ -->"
     },
     {
-      "line": 1454,
-      "text": "<!-- SECTION R-ZZ: ALL JAVASCRIPT                                               -->"
+      "line": 2056,
+      "text": "<!-- Sole page renderer. History ownership is added by deferred home-final.js. -->"
     },
     {
-      "line": 5275,
+      "line": 2060,
       "text": "<!-- QIBLA MULTI-REFERENCE VERIFICATION SYSTEM — الأنظمة الستة الجديدة            -->"
     },
     {
-      "line": 5281,
+      "line": 2066,
       "text": "<!-- END QIBLA MULTI-REFERENCE VERIFICATION SYSTEM                                -->"
-    },
-    {
-      "line": 5293,
-      "text": "<!-- SERVICE WORKER REGISTRATION                                                  -->"
-    },
-    {
-      "line": 5424,
-      "text": "<!-- END SERVICE WORKER REGISTRATION                                              -->"
     }
   ],
   "risk": {
     "inlineScriptsTouchingProtectedTokens": [
       {
-        "startLine": 1457,
-        "endLine": 5272,
-        "bytes": 189125,
-        "sha256": "7bf1637eec0e74bb80330e699b0f929cd24f526ec41944e56814f3c1ac05b783"
+        "startLine": 453,
+        "endLine": 2054,
+        "bytes": 78959,
+        "sha256": "a15cd61bd896c7bfcef1c40c0bd91ffca4cf8d4c02a4a89f4cdd016dd3cccb19"
       }
     ],
     "duplicateIdCount": 0

@@ -1,26 +1,21 @@
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-6] NAVIGATION SYSTEM
-// ══════════════════════════════════════════════════════════════════════════════
+/* QiblaAstro — sole top-level page renderer.
+ * History/Back ownership is layered by home-final.js after this classic script
+ * loads. Internal Home controls remain owned by internal-screen-chrome.js.
+ * No calculation, sensor or astronomical-verification code lives here.
+ */
+'use strict';
 
-const TABS=['home','compass','prayer','azkar','night','quran','settings','serenity'];
+function _qaApplyRouteState(id){
+  var body=document.body;
+  if(!body)return;
+  Array.prototype.slice.call(body.classList).forEach(function(name){
+    if(/^tab-/.test(name))body.classList.remove(name);
+  });
+  body.classList.add('tab-'+id);
+  body.setAttribute('data-qa-active-page',id);
 
-function _qaEnsureInternalHome(page,id){
-  if(!page || id==='home') return;
-  // Reuse a screen-owned Home control when one already exists; never duplicate it.
-  var owned=page.querySelector('[data-go="home"],.qa-internal-home');
-  if(owned){
-    owned.classList.add('qa-internal-home');
-    owned.setAttribute('aria-label','العودة إلى الرئيسية');
-    return;
-  }
-  var b=document.createElement('button');
-  b.type='button';
-  b.className='qa-internal-home';
-  b.setAttribute('aria-label','العودة إلى الرئيسية');
-  b.setAttribute('title','الرئيسية');
-  b.innerHTML='<span aria-hidden="true">⌂</span>';
-  b.addEventListener('click',function(){GT('home');});
-  page.appendChild(b);
+  // Compass-only fullscreen state must never leak into another screen.
+  if(id!=='compass')body.classList.remove('qa-astro-fullscreen-mode');
 }
 
 function _qaResetPageScroll(page){
@@ -48,23 +43,12 @@ function _qaFinalizeNavigation(id,page){
 
 function GT(id){
   if(!id)id='home';
-  document.body.classList.toggle('qa-internal-screen',id!=='home');
-  document.body.classList.toggle('tab-home',id==='home');
-  document.body.classList.toggle('hide-topbar',true);
-  document.body.setAttribute('data-qa-active-page',id);
-
-  // Compass-only fullscreen presentation state must never leak into Home or any
-  // other screen while its own observer is settling.
-  if(id!=='compass') document.body.classList.remove('qa-astro-fullscreen-mode');
-
-  document.querySelectorAll('.nav-item').forEach(function(el,i){
-    el.classList.toggle('active',TABS[i]===id);
-  });
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   var page=document.getElementById('page-'+id);
   if(!page){console.error('Missing page:','page-'+id);return;}
+
+  _qaApplyRouteState(id);
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   page.classList.add('active');
-  _qaEnsureInternalHome(page,id);
   _qaResetPageScroll(page);
 
   if(id!=='compass'&&window._gnssWatchId!=null){
@@ -76,11 +60,14 @@ function GT(id){
   if(id==='compass'){setTimeout(function(){var ds=gel('dev-slider');if(ds)ds.dispatchEvent(new Event('input'));},500);}
   if(id==='gnss'){setTimeout(function(){if(!gnssHasTrustedFix)tryBrowserGPS();},300);}
   if((id==='compass'||id==='gnss')&&gnssHasTrustedFix){updateQiblaFromPosition();}
-  // Home is the navigation hub. Internal screens never retain the legacy tab/ad chrome.
-  var nav=document.querySelector('nav.nav,div.nav,.nav');
-  if(nav)nav.style.display='none';
-  var ad=document.querySelector('.ad-slot');
-  if(ad)ad.style.display='none';
+
+  // Keep the single shared Home control synchronized in the same turn whenever
+  // its presentation controller is already available.
+  try{
+    if(window.QiblaInternalScreenChrome&&typeof window.QiblaInternalScreenChrome.sync==='function'){
+      window.QiblaInternalScreenChrome.sync();
+    }
+  }catch(e){}
 
   _qaFinalizeNavigation(id,page);
 }

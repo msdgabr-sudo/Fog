@@ -43,11 +43,16 @@ assert(/typeof\s+root\.tryBrowserGPS===['\"]function['\"]/.test(permissions),'su
 // app-level navigation: internal screen -> Home -> Android/browser.
 const indexHtml=fs.readFileSync('index.html','utf8');
 const homeFinal=fs.readFileSync('js/home-final.js','utf8');
+const navigation=fs.readFileSync('js/06-navigation.js','utf8');
 assert(!indexHtml.includes("var _pageHistory = ['home'];"),'obsolete inline Back stack must remain removed');
 assert(!indexHtml.includes('var _origGT = GT;'),'obsolete inline GT history wrapper must remain removed');
+assert(!/function\s+GT\s*\(id\)/.test(indexHtml),'index.html must not retain a second inline page renderer');
+assert(indexHtml.includes('<script src="js/06-navigation.js"></script>'),'index.html must load the sole external page renderer');
 assert(/Android\/TWA Back compatibility layer/.test(homeFinal),'production runtime Back compatibility layer must be present in home-final.js');
-assert(/var\s+renderPage=window\.GT/.test(homeFinal),'runtime layer must capture the sole inline page renderer before taking ownership of GT');
-assert(/function\s+applyRouteClass\s*\(id\)[\s\S]*document\.body\.className=['\"]tab-['\"]\+id/.test(homeFinal),'runtime navigation must preserve the production tab-* body-class contract');
+assert(/var\s+renderPage=window\.GT/.test(homeFinal),'runtime layer must capture the sole external page renderer before taking ownership of GT');
+assert(!homeFinal.includes('document.body.className='),'history ownership must not overwrite renderer-owned body state');
+assert(/function\s+_qaApplyRouteState\s*\(id\)/.test(navigation),'external renderer must own the route-state contract');
+assert(navigation.includes("body.classList.add('tab-'+id)")&&navigation.includes("body.setAttribute('data-qa-active-page',id)"),'external renderer must preserve both tab-* and active-page contracts');
 assert(/history\.replaceState\(stateFor\('home'\)/.test(homeFinal),'startup must replace the current entry with Home rather than push a duplicate entry');
 assert(/if\(current===['\"]home['\"]\)history\.pushState\(stateFor\(id\)/.test(homeFinal),'opening a top-level internal screen from Home must create exactly one browser history entry');
 assert(/else\s+history\.replaceState\(stateFor\(id\)/.test(homeFinal),'internal-to-internal navigation must replace the single internal entry');

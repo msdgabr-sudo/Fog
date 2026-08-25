@@ -116,10 +116,6 @@
 
 <link rel="stylesheet" href="css/04-splash.css?v=20260810-premium-splash">
 
-<link rel="stylesheet" href="css/05-topbar.css">
-
-<link rel="stylesheet" href="css/06-navigation.css">
-
 <link rel="stylesheet" href="css/07-pages.css">
 
 <link rel="stylesheet" href="css/08-compass-canvas.css">
@@ -177,7 +173,7 @@
 <script defer src="js/home-reference-finalizer.js" data-qibla-home-finalizer></script>
 <!-- /QiblaAstro approved static Home -->
 </head>
-<body class="hide-topbar tab-home" onclick="_unlockAudio&&_unlockAudio()" ontouchstart="_unlockAudio&&_unlockAudio()">
+<body class="tab-home" data-qa-active-page="home" onclick="_unlockAudio&&_unlockAudio()" ontouchstart="_unlockAudio&&_unlockAudio()">
 <!-- [HTML-1] SPLASH SCREEN -->
 <div id="splash"><canvas id="sp-canvas"></canvas>
   <div id="splash-glow"></div>
@@ -185,12 +181,6 @@
   <h1>QiblaAstro</h1>
   <p>بوصلة القبلة الفلكية</p>
   <p id="splash-tagline">VSOP87 · ELP2000 · WMM2025</p>
-</div>
-
-<!-- [HTML-2] TOP BAR -->
-<div class="topbar">
-  <div class="app-name"><img src="./images/1784590231216.png" style="height:40px;width:40px;object-fit:contain;vertical-align:middle;margin-left:8px">QiblaAstro</div>
-  <div class="live-badge"><div class="live-dot"></div><span id="top-time">--:--:--</span></div>
 </div>
 
 <!-- [HTML-4] PAGE: COMPASS (البوصلة) -->
@@ -457,17 +447,6 @@
 
 <!-- ════ PAGE: SERENITY ════ -->
 <div class="page" id="page-serenity" data-page-src="pages/serenity.html" aria-busy="true"></div>
-
-<nav class="nav" style="overflow-x:auto;scrollbar-width:none">
-  <button class="nav-item active" onclick="GT('home')"><img class="nav-icon-img" src="icons/nav-home.png"><div class="nav-lbl">الرئيسية</div></button>
-  <button class="nav-item" onclick="GT('compass')"><img class="nav-icon-img" src="icons/hm-compass.png"><div class="nav-lbl">البوصلة</div></button>
-  <button class="nav-item" onclick="GT('prayer')"><img class="nav-icon-img" src="icons/hm-prayer.png"><div class="nav-lbl">الصلاة</div></button>
-  <button class="nav-item" onclick="GT('azkar')"><img class="nav-icon-img" src="icons/hm-azkar.png"><div class="nav-lbl">الأذكار</div></button>
-  <button class="nav-item" onclick="GT('night')"><img class="nav-icon-img" src="icons/hm-astronomy.png"><div class="nav-lbl">فلكي</div></button>
-  <button class="nav-item" onclick="GT('quran')"><img class="nav-icon-img" src="icons/hm-quran.png"><div class="nav-lbl">قرآن</div></button>
-  <button class="nav-item" onclick="GT('settings')"><img class="nav-icon-img" src="icons/nav-settings.png"><div class="nav-lbl">إعدادات</div></button>
-</nav>
-  <div class="ad-slot"><span>© 2026 Mohamed Sayed Gabr Behairy — جميع الحقوق محفوظة</span></div>
 
 <script src="js/geomag/wmm2025.js"></script>
 <script src="js/geomag/wmm2025-runtime.js"></script>
@@ -978,38 +957,6 @@ window.tryIPGeo      = tryIPGeo;
 
 // Start GNSS on load
 // GPS يُستدعى في activateCompass بعد تفاعل المستخدم
-
-// ══════════════════════════════════════════════════════════════════════════════
-// [JS-6] NAVIGATION SYSTEM
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════
-//  NAVIGATION
-// ════════════════════════════════════════════════
-const TABS=['home','compass','prayer','azkar','night','quran','settings','serenity'];
-function GT(id){
-  if(!id)id='home';
-  document.querySelectorAll('.nav-item').forEach(function(el,i){
-    el.classList.toggle('active',TABS[i]===id);
-  });
-  document.querySelectorAll('.page').forEach(function(p){
-    p.classList.remove('active');
-  });
-  var page=document.getElementById('page-'+id);
-  if(!page){console.error('Missing page:','page-'+id);return;}
-  page.classList.add('active');
-  document.body.classList.toggle('hide-topbar', id==='home');
-  console.log('OPEN PAGE:',page.id);
-  if(id!=='compass'&&window._gnssWatchId!=null){
-    try{navigator.geolocation.clearWatch(window._gnssWatchId);window._gnssWatchId=null;}catch(e){}
-  }
-  if(id==='compass'&&!gnssHasTrustedFix){setTimeout(function(){tryBrowserGPS();},400);}
-  if(id==='compass'){setTimeout(function(){var ds=gel('dev-slider');if(ds)ds.dispatchEvent(new Event('input'));},500);}
-  if(id==='gnss'){setTimeout(function(){if(!gnssHasTrustedFix)tryBrowserGPS();},300);}
-  if((id==='compass'||id==='gnss')&&gnssHasTrustedFix){updateQiblaFromPosition();}
-  var nav=document.querySelector('nav.nav,div.nav,.nav');
-  if(nav)nav.style.display=id==='quran'?'none':'flex';
-}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // [JS-7] SETTINGS PERSISTENCE
@@ -1753,11 +1700,6 @@ function loop(){
   _lastSp = sp;
   _lastMp = mp;
   const sunV=sp.altApp>-1,moonV=mp.altApp>-1;
-  const tmStr=now.toLocaleTimeString('ar-EG');
-
-  // TOP BAR
-  set('top-time',tmStr);
-
   // ── COMPASS PAGE ──
   set('q-deg',QT.toFixed(2)+'°');
   set('q-sub',MDECL_READY?`حقيقي · مغناطيسي ${qmDisplay(1)} · WMM2025`:'حقيقي · WMM2025 بانتظار GPS/GNSS');
@@ -2110,6 +2052,9 @@ document.addEventListener('touchstart',function(){try{var el=document.documentEl
 })();
 // ════ END MODULE 3 ════
 </script>
+
+<!-- Sole page renderer. History ownership is added by deferred home-final.js. -->
+<script src="js/06-navigation.js"></script>
 
 <!-- ════════════════════════════════════════════════════════════════════════════ -->
 <!-- QIBLA MULTI-REFERENCE VERIFICATION SYSTEM — الأنظمة الستة الجديدة            -->

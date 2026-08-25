@@ -151,17 +151,6 @@
   margin-top:2px!important;
 }
 
-/* Hide navigation only on the active home page. */
-body.qa-home-active [data-qa-hidden-on-home="1"],
-body.qa-home-active .bottom-nav,
-body.qa-home-active #bottom-nav,
-body.qa-home-active .bottom-navigation,
-body.qa-home-active .nav-bottom{
-  display:none!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-
 @media (max-width:380px){
   #page-home .qa-hero{min-height:500px!important}
   #page-home .qa-top{height:63px!important;min-height:63px!important}

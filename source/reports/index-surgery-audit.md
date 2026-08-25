@@ -1,27 +1,32 @@
 # QiblaAstro index.html Surgical Audit
 
-Generated: 2026-08-08T13:41:15.982Z
+Generated: 2026-08-25T01:17:28.815Z
 
-- index.html: **344.24 KB**, **5429 lines**
-- Scripts: **6** total = 4 external + 2 inline
-- Inline JavaScript bodies: **187.38 KB**
-- Inline style blocks: **2**, **1.75 KB**
-- External stylesheets: **24**
-- DOM IDs: **235** occurrences / **235** unique
+- index.html: **110.98 KB**, **2081 lines**
+- Scripts: **11** total = 10 external + 1 inline
+- Inline JavaScript bodies: **77.11 KB**
+- Inline style blocks: **0**, **0.00 KB**
+- External stylesheets: **33**
+- Static DOM IDs: **54** occurrences / **54** unique
 - Duplicate IDs: **0**
-- Inline event handlers: **140**
+- Inline event handlers: **4**
 - Protected-core filenames referenced directly in index: **1**
 
 ## Script order
 
 | # | Type | Lines | Body size | Protected-token risk | Source |
 |---:|---|---:|---:|---|---|
-| 1 | external | 247-247 | 0.00 KB | no | https://www.googletagmanager.com/gtag/js?id=G-QMRD6BZDRH |
-| 2 | inline | 1457-5272 | 184.69 KB | YES | inline |
-| 3 | external | 5277-5277 | 0.00 KB | no | js/astro-verification.js |
-| 4 | external | 5278-5278 | 0.00 KB | no | js/compass-cards.js |
-| 5 | external | 5279-5279 | 0.00 KB | no | js/qibla-card-runtime.js |
-| 6 | inline | 5295-5422 | 2.69 KB | no | inline |
+| 1 | external | 154-154 | 0.00 KB | no | https://www.googletagmanager.com/gtag/js?id=G-1D1GKVZB74 |
+| 2 | external | 172-172 | 0.00 KB | no | js/home-final.js |
+| 3 | external | 173-173 | 0.00 KB | no | js/home-reference-finalizer.js |
+| 4 | external | 451-451 | 0.00 KB | no | js/geomag/wmm2025.js |
+| 5 | external | 452-452 | 0.00 KB | no | js/geomag/wmm2025-runtime.js |
+| 6 | inline | 453-2054 | 77.11 KB | YES | inline |
+| 7 | external | 2057-2057 | 0.00 KB | no | js/06-navigation.js |
+| 8 | external | 2062-2062 | 0.00 KB | no | js/astro-verification.js |
+| 9 | external | 2063-2063 | 0.00 KB | no | js/compass-cards.js |
+| 10 | external | 2064-2064 | 0.00 KB | no | js/qibla-card-runtime.js |
+| 11 | external | 2078-2078 | 0.00 KB | no | js/presentation/location-label.js |
 
 ## Duplicate IDs
 
@@ -32,12 +37,9 @@ Generated: 2026-08-08T13:41:15.982Z
 - `page-home`
 - `page-compass`
 - `page-night`
-- `page-cal`
 - `page-prayer`
 - `page-gnss`
-- `page-map`
 - `page-settings`
-- `page-help`
 - `page-azkar`
 - `page-quran`
 - `page-serenity`

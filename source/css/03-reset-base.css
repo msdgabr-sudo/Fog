@@ -18,11 +18,8 @@ body{
   font-family:'Noto Naskh Arabic',serif;
   min-height:100vh;min-height:100dvh;
   display:flex;flex-direction:column;align-items:center;
-  padding:0 0 80px;overflow-x:hidden;
+  padding:0;overflow-x:hidden;
   overscroll-behavior:none;
   overscroll-behavior-y:none;
   overscroll-behavior-x:none;
 }
-
-/* استثناء: الشاشة الرئيسية عندها padding-bottom كافي جواها بالفعل (page-home) */
-body.tab-home{padding-bottom:0}

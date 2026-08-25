@@ -10,7 +10,3 @@
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 
 #page-home{padding-top:0}
-.nav{overflow-x:auto;scrollbar-width:none}
-.nav::-webkit-scrollbar{display:none}
-.nav .nav-item{flex:0 0 auto;min-width:56px}
-

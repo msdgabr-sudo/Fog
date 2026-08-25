@@ -1,13 +1,6 @@
-/* QiblaAstro — internal fullscreen navigation shell
- * Presentation only. Legacy top/bottom chrome stays in DOM but is hidden on internal screens.
+/* QiblaAstro — internal fullscreen Home control
+ * Presentation only. The retired global top/bottom chrome no longer exists.
  * © 2026 محمد سيد جبر بحيرى — Mohamed SG Behairy. All Rights Reserved. */
-body.qa-internal-chromeless .topbar,
-body.qa-internal-chromeless .nav,
-body.qa-internal-chromeless .bottom-nav,
-body.qa-internal-chromeless .ad-slot{
-  display:none!important;
-}
-
 #qa-internal-home-button{
   position:fixed!important;
   top:calc(env(safe-area-inset-top,0px) + 12px)!important;

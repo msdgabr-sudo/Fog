@@ -5,7 +5,6 @@ function fail(msg){throw new Error(msg);}
 const html=read('index.html');
 const homeJs=read('js/home-final.js');
 const sw=read('service-worker.js');
-const nav=read('css/06-navigation.css');
 
 const must=[
   'id="page-home"','id="qa-home"',
@@ -24,10 +23,13 @@ for(const id of ['page-home','qa-home','page-compass','page-night','cvs','dev-sl
 if(/createElement\(['"]main['"]\)/.test(homeJs)||homeJs.includes('page.insertBefore(root')||homeJs.includes('root.innerHTML')){
   fail('home-final.js must bind static Home, not generate it');
 }
-if(!nav.includes('body.tab-home .nav')||!nav.includes('body.tab-home .bottom-nav')) fail('First-paint legacy navigation suppression missing');
+if(fs.existsSync('css/05-topbar.css')||fs.existsSync('css/06-navigation.css')) fail('Retired global shell styles must stay deleted');
+if(html.includes('<nav class="nav"')||html.includes('class="ad-slot"')||html.includes('class="topbar"')) fail('Retired global shell markup must stay absent');
+if(!/<body\s+class="tab-home"\s+data-qa-active-page="home"/.test(html)) fail('Home route state must be complete on first paint');
+if(!html.includes('<script src="js/06-navigation.js"></script>')) fail('The sole external renderer must be loaded');
 for(const asset of [
-  './css/home-final.css','./css/home-header-controls.css','./js/home-final.js',
-  './js/home-reference-finalizer.js','./images/home/qibla-bg-4k.webp','./images/home/kaaba-reference.data-uri.txt'
+  './css/home-final.css','./css/home-header-controls.css','./css/home-button-icons-polish.css','./js/home-final.js',
+  './js/home-reference-finalizer.js','./images/home/qibla-bg-4k.webp','./images/home/qibla-bg-embedded.svg','./images/home/kaaba-reference.data-uri.txt'
 ]) if(!sw.includes(asset)) fail('Home offline asset missing: '+asset);
-if(!sw.includes("qiblaastro-v5.56-static-home-integrated")) fail('Expected Home-integrated cache version');
+if(!/const VERSION='qiblaastro-3\.1\.0-code3-location-only-r5-fog-[^']+'/.test(sw)) fail('Expected current Fog cache generation');
 console.log('Static Home transfer contract: PASS');

@@ -10,7 +10,6 @@
   scrollbar-width:none;overflow:hidden!important;overscroll-behavior:none;box-sizing:border-box;
 }
 #page-compass.qa-astro-dashboard-active::-webkit-scrollbar{display:none}
-body.qa-astro-fullscreen-mode .nav,body.qa-astro-fullscreen-mode .ad-slot{display:none!important;visibility:hidden!important;pointer-events:none!important}
 body.qa-astro-fullscreen-mode{padding-bottom:0!important;overflow:hidden!important;overscroll-behavior:none}
 #page-compass.qa-astro-dashboard-active>.qa-astro-compass-canvas{
   width:min(99vw,58vh,520px)!important;max-width:none!important;height:auto!important;margin:-10px auto -12px!important;
