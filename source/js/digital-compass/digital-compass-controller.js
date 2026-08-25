@@ -7,6 +7,7 @@
   var headingSamples=[];
   var actionCleanups=[];
   var screenRoot=null;
+  var activationRequested=false;
   var COMPASS_COPY=Object.freeze({
     PRESS_TO_ACTIVATE:'اضغط للتفعيل',
     LIVE_COMPASS_LABEL:'البوصلة الحية'
@@ -25,12 +26,21 @@
   function finite(value){return typeof value==='number'&&Number.isFinite(value);}
   function fmt(value,digits){return finite(value)?value.toFixed(digits==null?1:digits)+'°':'---°';}
 
+  function presentationState(state){
+    if(activationRequested)return state;
+    return Object.assign({},state,{
+      heading:null,
+      deviation:null,
+      compassAvailable:false
+    });
+  }
+
   function render(){
     raf=0;
     if(!lastState)return;
     var canvas=byId('qd-canvas');
     if(canvas&&root.QiblaDigitalCompassRenderer){
-      root.QiblaDigitalCompassRenderer.render(canvas,lastState);
+      root.QiblaDigitalCompassRenderer.render(canvas,presentationState(lastState));
     }
   }
 
@@ -38,8 +48,8 @@
     if(!raf)raf=root.requestAnimationFrame(render);
   }
 
-  function sensorMessage(state){
-    return finite(state.heading)?COMPASS_COPY.LIVE_COMPASS_LABEL:COMPASS_COPY.PRESS_TO_ACTIVATE;
+  function sensorMessage(){
+    return activationRequested?COMPASS_COPY.LIVE_COMPASS_LABEL:COMPASS_COPY.PRESS_TO_ACTIVATE;
   }
 
   function updateConfidence(state){
@@ -106,6 +116,7 @@
 
   function updateUI(state){
     lastState=state;
+    var visibleState=presentationState(state);
     var heading=byId('qd-heading');
     var qibla=byId('qd-qibla');
     var deviation=byId('qd-diff');
@@ -114,19 +125,19 @@
     var gpsLabel=byId('qd-gps-label');
     var direction=byId('qd-dir');
     var activate=byId('qd-activate');
-    if(heading)heading.textContent=fmt(state.heading,1);
+    if(heading)heading.textContent=fmt(visibleState.heading,1);
     if(qibla)qibla.textContent=fmt(state.qibla,1);
-    if(deviation)deviation.textContent=finite(state.deviation)?Math.abs(state.deviation).toFixed(1)+'°':'---°';
-    if(headingSub)headingSub.textContent=sensorMessage(state);
+    if(deviation)deviation.textContent=finite(visibleState.deviation)?Math.abs(visibleState.deviation).toFixed(1)+'°':'---°';
+    if(headingSub)headingSub.textContent=sensorMessage();
     if(gnss)gnss.textContent=state.gnssTrusted?'GPS '+(finite(state.gnssAccuracy)?Math.round(state.gnssAccuracy)+'م±':'GNSS'):'بانتظار GNSS';
     if(gpsLabel&&state.gnssTrusted)gpsLabel.textContent='✓ GPS '+(finite(state.gnssAccuracy)?Math.round(state.gnssAccuracy)+'م':'GNSS');
     if(direction){
-      direction.textContent=!finite(state.deviation)?'فعّل البوصلة':
-        Math.abs(state.deviation)<.5?'✅ دقيق':
-        (state.deviation>0?'← يسار':'يمين →');
+      direction.textContent=!finite(visibleState.deviation)?'فعّل البوصلة':
+        Math.abs(visibleState.deviation)<.5?'✅ دقيق':
+        (visibleState.deviation>0?'← يسار':'يمين →');
     }
-    if(activate)activate.setAttribute('aria-pressed',finite(state.heading)?'true':'false');
-    updateConfidence(state);
+    if(activate)activate.setAttribute('aria-pressed',activationRequested?'true':'false');
+    updateConfidence(visibleState);
     updateDeviationPreview();
     schedule();
   }
@@ -169,6 +180,8 @@
   function activateCompass(){
     var sensor=root.QiblaDigitalCompassSensor;
     var button=byId('qd-activate');
+    activationRequested=true;
+    if(lastState)updateUI(lastState);
     if(button)button.setAttribute('aria-busy','true');
     if(!sensor){if(button&&typeof button.removeAttribute==='function')button.removeAttribute('aria-busy');return;}
     Promise.resolve(sensor.startFromGesture()).finally(function(){if(button&&typeof button.removeAttribute==='function')button.removeAttribute('aria-busy');});
@@ -209,6 +222,7 @@
       throw new Error('Digital compass screen root missing');
     }
     mounted=true;
+    activationRequested=false;
     try{
       bindActions();
       unsub=root.QiblaDigitalCompassState.subscribe(updateUI);
@@ -231,6 +245,7 @@
     if(root.QiblaDigitalCompassSensor)root.QiblaDigitalCompassSensor.stop();
     if(raf){root.cancelAnimationFrame(raf);raf=0;}
     headingSamples.length=0;
+    activationRequested=false;
     lastState=null;
     screenRoot=null;
   }

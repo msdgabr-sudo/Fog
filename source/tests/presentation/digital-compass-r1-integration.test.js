@@ -54,6 +54,8 @@ assert(css.includes('isolation: isolate;'));
 assert(css.includes('contain: layout paint style;'));
 assert(!/#page-compass\b|#cvs\b/.test(css),'reference stylesheet must remain independently scoped');
 assert(integrationCss.includes('> :not(#qa-digital-compass-host)'),'application bridge must hide the legacy digital composition without deleting it');
+assert(integrationCss.includes('body:has(#page-compass.active.qa-digital-dashboard-active)'),'application bridge must apply the qappan no-scroll compass shell');
+assert(integrationCss.includes('height: 100svh;')&&integrationCss.includes('overflow: hidden !important;'),'digital shell must fill the visible viewport without a layout-shifting document scrollbar');
 
 for(const [name,source] of Object.entries({adapter,stateSource,bridge,renderer,deviation,controller,host,mode})){
   assert(!/\bQT\s*=(?!=)/.test(source),name+' must not write QT');
@@ -74,6 +76,8 @@ assert(adapter.includes('box-heading')&&adapter.includes('box-qibla')&&adapter.i
 assert(adapter.includes('activateCompass')&&adapter.includes('tryBrowserGPS')&&adapter.includes('resetCompassCalibration'),'actions must delegate to existing application APIs');
 assert(controller.includes("PRESS_TO_ACTIVATE:'اضغط للتفعيل'"),'idle compass copy must retain the qappan contract');
 assert(controller.includes("LIVE_COMPASS_LABEL:'البوصلة الحية'"),'active compass copy must retain the qappan contract');
+assert(controller.includes('var activationRequested=false;'),'a local user-activation gate must prevent cached headings from skipping the prompt');
+assert(controller.includes('activationRequested=true;'),'the activation card must explicitly open the live state');
 assert(host.includes("page.appendChild(host)"),'digital screen must be appended without replacing the canonical fragment');
 assert(host.includes("classList.contains('active')"),'digital controller must be gated by the active compass route');
 assert(!/replaceChildren|replaceWith|cloneNode/.test(host),'digital host must not replace or clone astronomical engine nodes');

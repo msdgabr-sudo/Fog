@@ -1,5 +1,8 @@
 /* Digital Compass application shell bridge. Presentation only. */
 #page-compass.active.qa-digital-dashboard-active {
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
   max-width: 420px;
   padding: 0 !important;
   gap: 0 !important;
@@ -14,6 +17,7 @@
 #page-compass > #qa-digital-compass-host {
   display: none;
   width: 100%;
+  height: 100%;
   min-height: 100%;
   margin: 0;
   padding: 0;
@@ -23,6 +27,11 @@
   display: block;
 }
 
+#page-compass.active.qa-digital-dashboard-active .qd-screen {
+  min-height: 100%;
+  padding-bottom: 0;
+}
+
 #page-compass.qa-astro-dashboard-active > #qa-digital-compass-host,
 #page-compass > #qa-digital-compass-host[hidden] {
   display: none !important;
@@ -30,4 +39,20 @@
 
 body[data-qa-active-page="compass"] #page-compass.qa-digital-dashboard-active {
   align-self: center;
+}
+
+/* Match qappan's compass shell: removing the document scrollbar keeps the
+   420px screen and the fixed Home control on the same horizontal axis. */
+body:has(#page-compass.active.qa-digital-dashboard-active) {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  padding-bottom: 0 !important;
+}
+
+body:has(#page-compass.active.qa-digital-dashboard-active) .nav,
+body:has(#page-compass.active.qa-digital-dashboard-active) .bottom-nav,
+body:has(#page-compass.active.qa-digital-dashboard-active) .ad-slot {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }

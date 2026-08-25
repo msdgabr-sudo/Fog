@@ -115,14 +115,17 @@ vm.runInNewContext(source,sandbox,{filename:'digital-compass-controller.js'});
   assert.strictEqual(elements['qd-dev-km'].textContent,'112 كم','trusted GNSS must unlock the location-derived distance');
   assert.strictEqual(elements['qd-dev-slider'].disabled,false);
 
-  elements['qd-activate'].dispatch('click');
-  assert.strictEqual(gestureStarts,1,'the live card click must start the sensor from a user gesture');
-  assert.strictEqual(elements['qd-heading-sub'].textContent,'اضغط للتفعيل','the idle label must remain stable until a heading is available');
   stateListener(Object.assign({},snapshot,{
     heading:117.2,qibla:136.2,deviation:19,compassAccuracy:2.4,
     sensorState:'running',permissionState:'granted',gnssTrusted:true,latitude:30.0444,longitude:31.2357
   }));
-  assert.strictEqual(elements['qd-heading-sub'].textContent,'البوصلة الحية','a successful activation must use the qappan live-compass label');
+  assert.strictEqual(elements['qd-heading-sub'].textContent,'اضغط للتفعيل','a cached host heading must not bypass the visible activation gate');
+  assert.strictEqual(elements['qd-heading'].textContent,'---°','a cached host heading must remain hidden before the user presses the card');
+  assert.strictEqual(elements['qd-activate'].getAttribute('aria-pressed'),'false');
+
+  elements['qd-activate'].dispatch('click');
+  assert.strictEqual(gestureStarts,1,'the live card click must start the sensor from a user gesture');
+  assert.strictEqual(elements['qd-heading-sub'].textContent,'البوصلة الحية','the visible instruction must become the live-compass label immediately after the press');
   assert.strictEqual(elements['qd-heading'].textContent,'117.2°');
   assert.strictEqual(elements['qd-activate'].getAttribute('aria-pressed'),'true');
   elements['qd-calibrate'].dispatch('click');

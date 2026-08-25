@@ -31,5 +31,5 @@ for(const asset of [
   './css/home-final.css','./css/home-header-controls.css','./css/home-button-icons-polish.css','./js/home-final.js',
   './js/home-reference-finalizer.js','./images/home/qibla-bg-4k.webp','./images/home/qibla-bg-embedded.svg','./images/home/kaaba-reference.data-uri.txt'
 ]) if(!sw.includes(asset)) fail('Home offline asset missing: '+asset);
-if(!sw.includes("const VERSION='qiblaastro-3.1.0-code3-location-only-r7-live-label1'")) fail('Expected current Fog digital-compass cache generation');
+if(!sw.includes("const VERSION='qiblaastro-3.1.0-code3-location-only-r8-activation-layout2'")) fail('Expected current Fog digital-compass cache generation');
 console.log('Static Home transfer contract: PASS');

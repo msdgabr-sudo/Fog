@@ -51,7 +51,7 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — PWA caching/runtime, currently `qiblaastro-3.1.0-code3-location-only-r6-gnss-global1`.
+- `service-worker.js` — PWA caching/runtime, currently `qiblaastro-3.1.0-code3-location-only-r8-activation-layout2`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features
@@ -106,7 +106,7 @@ Priority order:
 Harden the `fog` digital-compass activation affordance and verify that trusted GNSS drives computational Qibla, prayer times, and location-based deviation internationally, while preserving the astronomical-verification equations and cycle unchanged.
 
 Current checks:
-- keep `اضغط للتفعيل` as visible button content and as the idle controller state, then show `البوصلة الحية` after a finite sensor heading is available;
+- keep `اضغط للتفعيل` as visible button content until the user explicitly presses the compass card, even if the canonical adapter already holds a heading, then show `البوصلة الحية` immediately after that press;
 - accept only finite, in-range trusted device coordinates;
 - keep true Qibla available if magnetic WMM publication is unavailable, without fabricating a magnetic value;
 - calculate deviation kilometres from the live location-to-Kaaba distance and publish no fallback distance before GNSS;
@@ -122,9 +122,11 @@ Current checks:
 - Removed the fabricated 1,300 km deviation fallback; the calculator now waits for a trusted GNSS fix and derives each distance from the current location.
 - Hardened GNSS coordinate-range validation and decoupled true-Qibla publication from magnetic WMM availability.
 - Added executable international coverage for Qibla, prayer civil time/regional method selection, and deviation distance. The full suite is now `81 = 59 pass + 22 classified inherited failures`, with no new failure.
-- Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` while no heading exists and `البوصلة الحية` after successful activation.
+- Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` before the explicit card press and `البوصلة الحية` immediately after it.
 - Re-audited the qappan/Fog canvas radius, smoothing, responsive canvas sizes, card-row heights, and deviation-panel heights. The source geometry is identical; the apparent vertical shift in the supplied pair comes from comparing standalone display mode with a browser viewport reduced by its toolbar.
-- Bumped the digital-screen asset queries and Service Worker generation so phones cannot retain the previous active label from cache.
+- Added a controller-local activation gate: an existing/cached host heading can no longer skip `اضغط للتفعيل`; the displayed heading, deviation, confidence, and dial remain idle until the card is pressed.
+- Matched the qappan active-screen shell by locking the digital route to `100svh` and suppressing the document scrollbar. A same-viewport browser measurement had shown the Fog screen/Home control shifted 15 px by that scrollbar even though the compass and card dimensions themselves matched.
+- Bumped the digital-screen asset queries to `20260825-activation-layout2` and the Service Worker to `r8-activation-layout2` so the fixed controller and shell cannot be masked by the previous cache generation.
 - No astronomical solver, verification session, verification store, raw equation, or verification-cycle file was changed.
 
 ## 8. Important Decisions
@@ -160,7 +162,7 @@ Current checks:
 - Update this file after every task or architectural change.
 
 ## 10. Known Issues
-- Real-device screenshot validation remains required because a Chromium runtime is not available in the current workspace.
+- Real-device screenshot validation remains required; cloud Chromium comparison is available and useful for DOM geometry, but it cannot reproduce Android browser chrome, physical sensor permissions, or every device pixel ratio.
 - Older high-specificity and inline styles may still cause local cascade conflicts.
 - Long Arabic labels may need device-specific final tuning.
 - GNSS remains split between `js/05-gnss.js` and `js/position-provider.js`.
@@ -168,7 +170,7 @@ Current checks:
 - The inherited full test suite still contains separately classified legacy-contract, offline-shell, and protected astronomical-behavior failures.
 
 ## 11. Next Step
-Run real-phone visual/sensor regression with location permission in several countries, then decide separately whether stale test contracts or PWA offline-shell gaps should be repaired without changing protected astronomical behavior.
+Run the new commit-pinned Fog link on the phone in the same display mode as qappan, verify the idle-to-live label transition and centered full-height screen, then continue multi-country location/sensor regression without changing protected astronomical behavior.
 
 ## 12. Session Handoff
-The trusted GNSS path now validates global coordinates, publishes true Qibla independently of WMM availability, and supplies the digital deviation calculator only after a real fix. Prayer calculations retain regional methods and device/manual civil-time conversion. The astronomical solver, equations, store, and verification cycle remain untouched. Production Home stays static in `index.html`; independent screens retain their own hosts and assets. Continue with real-device validation and classified test/PWA work without touching astronomical-verification behavior.
+The trusted GNSS path validates global coordinates, publishes true Qibla independently of WMM availability, and supplies the digital deviation calculator only after a real fix. The isolated digital screen now owns an explicit user-activation gate and a qappan-matched no-scroll viewport shell. Prayer calculations retain regional methods and device/manual civil-time conversion. The astronomical solver, equations, store, and verification cycle remain untouched. Production Home stays static in `index.html`; independent screens retain their own hosts and assets. Continue with real-device validation and classified test/PWA work without touching astronomical-verification behavior.
