@@ -836,11 +836,19 @@ function updateQiblaFromPosition(){
     showGnssUnavailable();
     return;
   }
-  if(!refreshMdeclFromTrustedGnss(new Date())){
-    set('mag-d',MDECL_STATUS==='blackout'?'⚠ مجال مغناطيسي ضعيف':'---');
+  QT=calcQibla(LAT,LON);
+  if(!Number.isFinite(QT)){
+    showGnssUnavailable('إحداثيات الموقع غير صالحة — أعد محاولة تحديد الموقع');
     return;
   }
-  QT=calcQibla(LAT,LON); QM=((QT-MDECL)+360)%360;
+  var magneticReady=false;
+  try{magneticReady=refreshMdeclFromTrustedGnss(new Date());}
+  catch(_){
+    MDECL_READY=false;
+    MDECL_STATUS='unavailable';
+    MDECL_FIELD=null;
+  }
+  QM=magneticReady?((QT-MDECL)+360)%360:QT;
   var dirs=['شمال','شمال شرق','شرق','جنوب شرق','جنوب','جنوب غرب','غرب','شمال غرب'];
   var qDir=dirs[Math.round(((QT%360)+360)/45)%8];
   var acc=gnssAccuracy?Math.round(gnssAccuracy):0;
@@ -852,7 +860,11 @@ function updateQiblaFromPosition(){
   set('gnss-badge',srcBadge);
   set('gnss-btn-status','✓ GPS '+acc+'م');
   set('compass-status-msg',srcBadge+' · '+QT.toFixed(1)+'° '+qDir);
-  set('mag-d',(MDECL>=0?'+':'')+MDECL.toFixed(2)+'°');
+  set('mag-d',magneticReady?(MDECL>=0?'+':'')+MDECL.toFixed(2)+'°':MDECL_STATUS==='blackout'?'⚠ مجال مغناطيسي ضعيف':'---');
+  set('q-mag',magneticReady?QM.toFixed(2)+'°':'---');
+  set('cfg-qm',magneticReady?QM.toFixed(2)+'°':'---');
+  set('cfg-md',magneticReady?(MDECL>=0?'+':'')+MDECL.toFixed(2)+'°':'---');
+  set('mag-decl-inline',magneticReady?MDECL.toFixed(2):'---');
   set('hm-qibla-deg',QT.toFixed(1)+'°');
   set('hm-gps-src',srcBadge);
   var _el;
@@ -903,12 +915,14 @@ function tryBrowserGPS(){
     navigator.geolocation.getCurrentPosition(
       function(pos){
         try{
-          if(!pos||!pos.coords||!Number.isFinite(pos.coords.latitude)||!Number.isFinite(pos.coords.longitude)){
+          var lat=pos&&pos.coords?Number(pos.coords.latitude):Number.NaN;
+          var lon=pos&&pos.coords?Number(pos.coords.longitude):Number.NaN;
+          if(!Number.isFinite(lat)||lat < -90||lat > 90||!Number.isFinite(lon)||lon < -180||lon > 180){
             showGnssUnavailable();
             return;
           }
-          LAT=pos.coords.latitude;
-          LON=pos.coords.longitude;
+          LAT=lat;
+          LON=lon;
           gnssAccuracy=pos.coords.accuracy;
           gnssAltitudeMeters=Number.isFinite(pos.coords.altitude)?pos.coords.altitude:0;
           gnssSource='gps';
@@ -919,9 +933,11 @@ function tryBrowserGPS(){
             window._gnssWatchId = navigator.geolocation.watchPosition(
               function(p2){
                 try{
-                  if(p2&&p2.coords&&Number.isFinite(p2.coords.latitude)&&Number.isFinite(p2.coords.longitude)&&p2.coords.accuracy<(gnssAccuracy||9999)){
-                    LAT=p2.coords.latitude;
-                    LON=p2.coords.longitude;
+                  var nextLat=p2&&p2.coords?Number(p2.coords.latitude):Number.NaN;
+                  var nextLon=p2&&p2.coords?Number(p2.coords.longitude):Number.NaN;
+                  if(Number.isFinite(nextLat)&&nextLat >= -90&&nextLat <= 90&&Number.isFinite(nextLon)&&nextLon >= -180&&nextLon <= 180&&p2.coords.accuracy<(gnssAccuracy||9999)){
+                    LAT=nextLat;
+                    LON=nextLon;
                     gnssAccuracy=p2.coords.accuracy;
                     gnssAltitudeMeters=Number.isFinite(p2.coords.altitude)?p2.coords.altitude:0;
                     gnssSource='gps';

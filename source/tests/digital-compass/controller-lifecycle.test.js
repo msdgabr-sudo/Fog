@@ -49,6 +49,7 @@ screen.querySelector=(selector)=>elements[selector.slice(1)]||null;
 
 let subscribeCount=0;
 let unsubscribeCount=0;
+let stateListener=null;
 let gestureStarts=0;
 let sensorStops=0;
 let renderCount=0;
@@ -68,7 +69,7 @@ const sandbox={
   requestAnimationFrame(callback){const id=nextRaf++;rafCallbacks.set(id,callback);return id;},
   cancelAnimationFrame(id){rafCallbacks.delete(id);},
   QiblaDigitalCompassState:{
-    subscribe(callback){subscribeCount++;callback(snapshot);return()=>{unsubscribeCount++;};},
+    subscribe(callback){subscribeCount++;stateListener=callback;callback(snapshot);return()=>{unsubscribeCount++;stateListener=null;};},
     readHost(){},
     angleDiff(target,current){return ((target-current+540)%360)-180;}
   },
@@ -82,8 +83,8 @@ const sandbox={
   },
   QiblaDigitalCompassRenderer:{render(){renderCount++;return true;}},
   QiblaDigitalCompassDeviation:{
-    draw(){deviationDraws++;return 113;},
-    distanceKm(){return 113;}
+    draw(canvas,angle,state){deviationDraws++;return state&&state.gnssTrusted?112:null;},
+    distanceKm(angle,state){return state&&state.gnssTrusted?112:null;}
   }
 };
 sandbox.globalThis=sandbox;
@@ -105,8 +106,14 @@ vm.runInNewContext(source,sandbox,{filename:'digital-compass-controller.js'});
   assert.strictEqual(elements['qd-heading-sub'].textContent,'اضغط للتفعيل');
   assert.strictEqual(elements['qd-qibla'].textContent,'136.2°');
   assert.strictEqual(elements['qd-diff'].textContent,'---°','missing deviation must remain unavailable');
-  assert.strictEqual(elements['qd-dev-km'].textContent,'113 كم');
+  assert.strictEqual(elements['qd-dev-km'].textContent,'--- كم','distance must not use a fabricated location before GNSS');
+  assert.strictEqual(elements['qd-dev-result'].textContent,'بانتظار GNSS لحساب المسافة من موقعك');
+  assert.strictEqual(elements['qd-dev-slider'].disabled,true,'distance slider must wait for trusted GNSS');
   assert.strictEqual(foreignElements['qd-qibla'].textContent,'','controller must not update a matching node outside the screen root');
+
+  stateListener(Object.assign({},snapshot,{gnssTrusted:true,latitude:30.0444,longitude:31.2357}));
+  assert.strictEqual(elements['qd-dev-km'].textContent,'112 كم','trusted GNSS must unlock the location-derived distance');
+  assert.strictEqual(elements['qd-dev-slider'].disabled,false);
 
   elements['qd-activate'].dispatch('click');
   assert.strictEqual(gestureStarts,1,'the live card click must start the sensor from a user gesture');

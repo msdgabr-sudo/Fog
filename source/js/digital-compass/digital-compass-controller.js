@@ -89,12 +89,19 @@
     var slider=byId('qd-dev-slider');
     if(!slider||!root.QiblaDigitalCompassDeviation)return;
     var angle=Number(slider.value)||0;
+    var hasTrustedLocation=!!(lastState&&lastState.gnssTrusted===true&&finite(lastState.latitude)&&finite(lastState.longitude));
+    slider.disabled=!hasTrustedLocation;
     var km=root.QiblaDigitalCompassDeviation.draw(byId('qd-dev-canvas'),angle,lastState);
     if(km===null)km=root.QiblaDigitalCompassDeviation.distanceKm(angle,lastState);
     var deg=byId('qd-dev-deg');
     var distance=byId('qd-dev-km');
     var result=byId('qd-dev-result');
     if(deg)deg.textContent=angle.toFixed(1)+'°';
+    if(!hasTrustedLocation||km===null){
+      if(distance)distance.textContent='--- كم';
+      if(result)result.textContent='بانتظار GNSS لحساب المسافة من موقعك';
+      return;
+    }
     if(distance)distance.textContent=km<1?'دقيق جداً ✅':km+' كم';
     if(result)result.textContent='خطأ '+angle.toFixed(1)+'° = '+(km<1?'دقيق جداً':km+' كم انحراف');
   }

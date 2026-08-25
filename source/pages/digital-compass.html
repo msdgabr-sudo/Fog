@@ -3,11 +3,11 @@
   <canvas id="qd-canvas" class="qd-canvas" width="660" height="660" aria-label="رسم البوصلة الرقمية"></canvas>
 
   <div class="qd-metrics">
-    <button class="qd-card qd-card-live" id="qd-activate" type="button" aria-label="تفعيل البوصلة الرقمية" aria-pressed="false" title="اضغط لتفعيل البوصلة">
+    <button class="qd-card qd-card-live" id="qd-activate" type="button" aria-label="تفعيل البوصلة الرقمية" aria-describedby="qd-heading-sub" aria-pressed="false" title="اضغط للتفعيل">
       <img class="qd-card-icon" src="icons/hm-compass.png" alt="">
       <span class="qd-card-title">البوصلة الرقمية</span>
       <strong class="qd-card-value" id="qd-heading">---°</strong>
-      <small class="qd-card-sub" id="qd-heading-sub">اضغط للتفعيل</small>
+      <small class="qd-card-sub" id="qd-heading-sub" data-compass-activation-label>اضغط للتفعيل</small>
     </button>
     <article class="qd-card">
       <img class="qd-card-icon" src="icons/icon-kaaba.png" alt="">
@@ -40,12 +40,12 @@
     <div class="qd-dev-title">📐 الانحراف عن القبلة</div>
     <div class="qd-dev-stats">
       <div class="qd-dev-stat"><span>الخطأ الزاوي</span><strong id="qd-dev-deg">5.0°</strong></div>
-      <div class="qd-dev-stat"><span>الانحراف عن الكعبة</span><strong id="qd-dev-km">113 كم</strong></div>
+      <div class="qd-dev-stat"><span>الانحراف عن الكعبة</span><strong id="qd-dev-km">--- كم</strong></div>
     </div>
     <div class="qd-dev-hint">حرّك الشريط لترى أثر الخطأ على الهدف</div>
-    <div class="qd-dev-slider"><span>0°</span><input id="qd-dev-slider" type="range" min="0" max="30" step="0.5" value="5" aria-label="الخطأ الزاوي"><span>30°</span></div>
+    <div class="qd-dev-slider"><span>0°</span><input id="qd-dev-slider" type="range" min="0" max="30" step="0.5" value="5" aria-label="الخطأ الزاوي" disabled><span>30°</span></div>
     <canvas class="qd-dev-radar" id="qd-dev-canvas" width="360" height="190" aria-label="رسم أثر الانحراف"></canvas>
-    <div class="qd-dev-result" id="qd-dev-result">خطأ 5.0° = 113 كم انحراف</div>
+    <div class="qd-dev-result" id="qd-dev-result">بانتظار GNSS لحساب المسافة من موقعك</div>
   </section>
 
   <section class="qd-calibration" id="qd-calibration" hidden aria-label="معايرة البوصلة يدوياً">

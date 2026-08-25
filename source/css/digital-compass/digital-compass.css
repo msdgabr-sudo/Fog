@@ -191,6 +191,17 @@
   white-space: normal;
 }
 
+/* The activation instruction is a visible control label, not tooltip-only copy. */
+.qd-screen #qd-activate #qd-heading-sub {
+  position: relative;
+  z-index: 1;
+  display: block !important;
+  min-height: 1.15em;
+  color: var(--qd-cyan) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 .qd-screen .qd-action,
 .qd-screen .qd-confidence {
   display: flex;
@@ -392,6 +403,11 @@
   width: 100%;
   height: 3px;
   accent-color: #62a9d8;
+}
+
+.qd-screen .qd-dev-slider input:disabled {
+  cursor: not-allowed;
+  opacity: .42;
 }
 
 .qd-screen .qd-dev-radar {

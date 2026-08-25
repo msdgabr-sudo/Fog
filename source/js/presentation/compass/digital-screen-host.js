@@ -37,7 +37,7 @@
     var page=byId('page-compass');
     if(!d)return Promise.resolve(false);
     if(!page)return Promise.reject(new Error('[DigitalCompassScreenHost] Missing #page-compass'));
-    mounting=root.fetch('pages/digital-compass.html?v=20260825-fog-parity1',{cache:'no-store'}).then(function(response){
+    mounting=root.fetch('pages/digital-compass.html?v=20260825-gnss-global1',{cache:'no-store'}).then(function(response){
       if(!response||!response.ok)fail('Failed to load digital compass fragment ('+(response&&response.status)+')');
       return response.text();
     }).then(function(html){

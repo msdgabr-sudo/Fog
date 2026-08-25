@@ -7,7 +7,8 @@
   function finite(value){return typeof value==='number'&&Number.isFinite(value);}
 
   function baseDistanceKm(state){
-    if(!state||!finite(state.latitude)||!finite(state.longitude))return 1300;
+    if(!state||state.gnssTrusted!==true||!finite(state.latitude)||!finite(state.longitude))return null;
+    if(state.latitude < -90||state.latitude > 90||state.longitude < -180||state.longitude > 180)return null;
     var earthR=6371.0088;
     var f1=state.latitude*D2R;
     var f2=KAABA_LAT*D2R;
@@ -18,7 +19,9 @@
   }
 
   function distanceKm(angleDeg,state){
-    return Math.round(2*baseDistanceKm(state)*Math.sin(Math.abs(angleDeg)/2*D2R));
+    var base=baseDistanceKm(state);
+    if(!finite(base)||!finite(angleDeg))return null;
+    return Math.round(2*base*Math.sin(Math.abs(angleDeg)/2*D2R));
   }
 
   function draw(canvas,angleDeg,state){
@@ -38,6 +41,14 @@
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle='#040810';
     ctx.fillRect(0,0,W,H);
+    if(km===null){
+      ctx.fillStyle='rgba(145,168,186,.9)';
+      ctx.font='bold 12px "Noto Naskh Arabic",serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText('بانتظار GNSS',W/2,H/2);
+      return null;
+    }
     ctx.font='14px serif';
     ctx.textAlign='center';
     ctx.textBaseline='middle';

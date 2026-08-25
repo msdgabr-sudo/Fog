@@ -218,6 +218,6 @@ assert(liveCompassMode.includes('QiblaDigitalCompassScreenHost'), 'live mode coo
 assert(liveCompassMode.includes('QiblaCompassViewMode=Object.freeze'), 'live compass mode API must remain available');
 assert(!liveCompassMode.includes('QiblaDigitalCompassLayout'), 'live mode coordinator must not depend on the retired legacy layout annotator');
 assert(digitalCompassPage.includes('id="qd-screen"'), 'isolated digital compass screen must remain available');
-assert(digitalCompassPage.includes('id="qd-heading-sub">اضغط للتفعيل'), 'digital compass activation prompt must remain intact');
+assert(/id="qd-heading-sub"[^>]*>اضغط للتفعيل<\/small>/.test(digitalCompassPage), 'digital compass activation prompt must remain intact');
 
 console.log('PASS unloaded runtime and presentation shadows stay retired while every live owner remains intact');

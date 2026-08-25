@@ -9,7 +9,7 @@ Guiding principles: scientific accuracy, user trust, privacy, educational value,
 The project contains two strictly separated engines and one additive presentation layer.
 
 ### A. GNSS / Computational Qibla System
-- Receives latitude and longitude through browser geolocation with network/manual fallbacks.
+- Receives computational-Qibla latitude and longitude only from a trusted browser/device Geolocation fix; prayer-only manual locations remain isolated from this path.
 - Calculates geographic Qibla bearing from the user to the Kaaba.
 - Updates GNSS and computational-Qibla UI values.
 - Main runtime: `js/05-gnss.js`.
@@ -51,13 +51,14 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — PWA caching/runtime, currently `qiblaastro-3.1.0-code3-location-only-r5-fog-nav-owner1`.
+- `service-worker.js` — PWA caching/runtime, currently `qiblaastro-3.1.0-code3-location-only-r6-gnss-global1`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features
 ### Core and product features
 - Stable Arabic RTL PWA shell with offline support.
 - GNSS/computational Qibla calculation and UI.
+- Digital-compass deviation distance is derived only from a trusted, in-range GNSS fix; no fabricated fallback distance is published before location is available.
 - Prayer times, Quran, Azkar, settings, navigation, serenity/audio, astronomy, calibration, help, and about modules.
 - Camera-based Sun/Moon astronomical verification.
 - Celestial detection and tracking.
@@ -102,23 +103,29 @@ Priority order:
 7. Complete real-device regression validation of astronomical capture, record, live compass, and deviation.
 
 ## 6. Current Working Task
-Clean the `fog` repository without pushing: remove only proven-unloaded code, classify inherited test failures, and preserve the astronomical-verification equations and cycle unchanged.
+Harden the `fog` digital-compass activation affordance and verify that trusted GNSS drives computational Qibla, prayer times, and location-based deviation internationally, while preserving the astronomical-verification equations and cycle unchanged.
 
 Current checks:
-- prove every deleted file has no production, preview, Service Worker, import, test, script, or tool loader;
-- preserve the qappan-matched Home, digital-compass, and astronomical-verification presentation;
-- verify every original handler, live value, page route, store, and engine remains functional;
-- preserve all calculation and verification contracts.
+- keep `اضغط للتفعيل` as visible button content and as the idle controller state;
+- accept only finite, in-range trusted device coordinates;
+- keep true Qibla available if magnetic WMM publication is unavailable, without fabricating a magnetic value;
+- calculate deviation kilometres from the live location-to-Kaaba distance and publish no fallback distance before GNSS;
+- verify regional prayer methods and civil-time conversion across representative global time zones;
+- preserve all astronomical calculation and verification contracts.
 
 ## 7. Last Changes
 - Retired the unloaded CSS experiment chain `29`–`45` plus `47` after reading all 21 files and proving that no production or preview loader references them.
 - Preserved `css/46-reference-home-rebuild-stage4.css` and `js/101-reference-home-rebuild-stage4.js` because `reference-preview.html` actively loads them.
 - Added a regression contract that prevents the retired runtime and presentation shadows from returning.
 - Kept the static Home, independent digital-compass screen, screen hosts, and Service Worker critical presentation set intact.
-- No GNSS, astronomical, solver, verification, store, compass calculation, or raw equation file was changed.
+- Made the digital-compass activation instruction explicit and cascade-resistant.
+- Removed the fabricated 1,300 km deviation fallback; the calculator now waits for a trusted GNSS fix and derives each distance from the current location.
+- Hardened GNSS coordinate-range validation and decoupled true-Qibla publication from magnetic WMM availability.
+- Added executable international coverage for Qibla, prayer civil time/regional method selection, and deviation distance. The full suite is now `81 = 59 pass + 22 classified inherited failures`, with no new failure.
+- No astronomical solver, verification session, verification store, raw equation, or verification-cycle file was changed.
 
 ## 8. Important Decisions
-1. Work only in the `fog` repository; do not push and do not modify the qappan reference repository.
+1. Work and publish only from the `fog` repository; keep the qappan reference repository read-only.
 2. GNSS/computational Qibla and astronomical verification remain independent.
 3. Raw astronomical results are protected from UI writes.
 4. Celestial heading is not Qibla bearing.
@@ -137,7 +144,7 @@ Current checks:
 17. Mega Phase 5 establishes one shared visual language across the product without modifying application logic.
 
 ## 9. Constraints
-- Do not work on `astro1`, `main`, or any other branch.
+- Do not modify or publish any repository other than the dedicated `fog` working repository.
 - Do not modify the raw astronomical equation through UI code.
 - Do not allow GNSS and astronomical values to overwrite each other.
 - Do not reintroduce retired camera, celestial-solver, or tracking-lock logic.
@@ -158,7 +165,7 @@ Current checks:
 - The inherited full test suite still contains separately classified legacy-contract, offline-shell, and protected astronomical-behavior failures.
 
 ## 11. Next Step
-Review the inherited-test classification, decide separately whether stale test contracts or PWA offline-shell gaps should be repaired, then run real-phone visual regression without changing protected astronomical behavior.
+Run real-phone visual/sensor regression with location permission in several countries, then decide separately whether stale test contracts or PWA offline-shell gaps should be repaired without changing protected astronomical behavior.
 
 ## 12. Session Handoff
-The GNSS and astronomical engines remain unchanged and protected. Production Home is static in `index.html` with live binding in `js/home-final.js`; independent screens retain their own hosts and assets. The old numbered Horizon CSS chain is deleted and guarded against reintroduction. Continue with classified test-contract/PWA work and real-device validation only; do not touch calculation engines or the astronomical-verification cycle.
+The trusted GNSS path now validates global coordinates, publishes true Qibla independently of WMM availability, and supplies the digital deviation calculator only after a real fix. Prayer calculations retain regional methods and device/manual civil-time conversion. The astronomical solver, equations, store, and verification cycle remain untouched. Production Home stays static in `index.html`; independent screens retain their own hosts and assets. Continue with real-device validation and classified test/PWA work without touching astronomical-verification behavior.

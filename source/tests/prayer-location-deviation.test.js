@@ -61,9 +61,12 @@ assert(!/const\s+R\s*=\s*1296\b/.test(devSrc),'legacy fixed 1296 km distance mus
 
 const productionShell=fs.readFileSync('index.html','utf8');
 assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(productionShell),'time-zone audit expects the current fixed UTC+3 implementation to remain explicitly visible in the production owner until separate migration');
+const timezoneAdapter=fs.readFileSync('js/runtime/local-timezone-adapter.js','utf8');
+assert(timezoneAdapter.includes('LEGACY_ENGINE_UTC_OFFSET_HOURS=3'),'the UTC+3 scientific engine basis must be explicit in the adapter');
+assert(timezoneAdapter.includes('offsetHours(date)-LEGACY_ENGINE_UTC_OFFSET_HOURS'),'runtime prayer hours must be converted from the legacy basis to the device civil timezone');
 
 console.log('Prayer location/cache + deviation gate: PASS');
 console.log('Cairo cache:',cairoKey);
 console.log('London cache:',londonKey);
 console.log('Distances to Kaaba (km):',Object.fromEntries(Object.entries(cities).map(([k,v])=>[k,Number(v.toFixed(1))])));
-console.log('Time-zone status: FIXED UTC_OFF=3 detected — separate migration required before global release.');
+console.log('Time-zone status: legacy UTC+3 engine basis is converted at runtime by the local civil-time adapter.');
