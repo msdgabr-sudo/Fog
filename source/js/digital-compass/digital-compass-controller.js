@@ -7,6 +7,10 @@
   var headingSamples=[];
   var actionCleanups=[];
   var screenRoot=null;
+  var COMPASS_COPY=Object.freeze({
+    PRESS_TO_ACTIVATE:'اضغط للتفعيل',
+    LIVE_COMPASS_LABEL:'البوصلة الحية'
+  });
 
   function findScreenRoot(){
     return root.document&&root.document.getElementById('qd-screen');
@@ -35,13 +39,7 @@
   }
 
   function sensorMessage(state){
-    if(finite(state.heading))return 'اتجاه الهاتف الآن';
-    if(state.sensorState==='starting')return 'جاري تشغيل البوصلة…';
-    if(state.sensorState==='permission-required')return 'اضغط للسماح بالمستشعر';
-    if(state.sensorState==='denied')return 'تم رفض الإذن — اضغط للمحاولة';
-    if(state.sensorState==='unavailable'&&state.permissionState==='insecure-context')return 'يلزم فتح الصفحة عبر HTTPS';
-    if(state.sensorState==='unavailable')return 'المستشعر غير متاح — اضغط للمحاولة';
-    return 'اضغط للتفعيل';
+    return finite(state.heading)?COMPASS_COPY.LIVE_COMPASS_LABEL:COMPASS_COPY.PRESS_TO_ACTIVATE;
   }
 
   function updateConfidence(state){

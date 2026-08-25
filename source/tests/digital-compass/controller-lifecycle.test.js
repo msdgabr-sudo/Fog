@@ -117,6 +117,14 @@ vm.runInNewContext(source,sandbox,{filename:'digital-compass-controller.js'});
 
   elements['qd-activate'].dispatch('click');
   assert.strictEqual(gestureStarts,1,'the live card click must start the sensor from a user gesture');
+  assert.strictEqual(elements['qd-heading-sub'].textContent,'اضغط للتفعيل','the idle label must remain stable until a heading is available');
+  stateListener(Object.assign({},snapshot,{
+    heading:117.2,qibla:136.2,deviation:19,compassAccuracy:2.4,
+    sensorState:'running',permissionState:'granted',gnssTrusted:true,latitude:30.0444,longitude:31.2357
+  }));
+  assert.strictEqual(elements['qd-heading-sub'].textContent,'البوصلة الحية','a successful activation must use the qappan live-compass label');
+  assert.strictEqual(elements['qd-heading'].textContent,'117.2°');
+  assert.strictEqual(elements['qd-activate'].getAttribute('aria-pressed'),'true');
   elements['qd-calibrate'].dispatch('click');
   assert.strictEqual(elements['qd-calibration'].hidden,false,'manual calibration must open from its approved card');
   elements['qd-calibration-close'].dispatch('click');

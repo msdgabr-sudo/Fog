@@ -35,6 +35,19 @@ assert(!page.includes('id="qd-home"'),'the digital fragment must use the same gl
 assert(css.includes('padding: 48px 12px max(8px, env(safe-area-inset-bottom))'));
 assert(css.includes('width: min(97vw, 55vh, 500px)'));
 assert(css.includes('margin: -7px auto 3px'));
+for(const token of [
+  'width: min(96vw, 46vh, 415px)',
+  'width: min(95vw, 40vh, 355px)',
+  'width: min(93vw, 35vh, 305px)',
+  'grid-auto-rows: 82px',
+  'grid-auto-rows: 78px',
+  'grid-auto-rows: 70px',
+  'grid-auto-rows: 62px',
+  'max-height: 170px',
+  'max-height: 150px',
+  'max-height: 132px',
+  'max-height: 114px'
+])assert(css.includes(token),'missing qappan vertical visual contract: '+token);
 assert(css.includes('rgba(185, 229, 255, .45)'));
 assert(css.includes('@media (max-height: 540px)'));
 assert(css.includes('isolation: isolate;'));
@@ -59,6 +72,8 @@ for(const font of ['500 7.5px "JetBrains Mono",monospace','700 14px "JetBrains M
 }
 assert(adapter.includes('box-heading')&&adapter.includes('box-qibla')&&adapter.includes('box-diff'),'adapter must retain canonical DOM fallbacks');
 assert(adapter.includes('activateCompass')&&adapter.includes('tryBrowserGPS')&&adapter.includes('resetCompassCalibration'),'actions must delegate to existing application APIs');
+assert(controller.includes("PRESS_TO_ACTIVATE:'اضغط للتفعيل'"),'idle compass copy must retain the qappan contract');
+assert(controller.includes("LIVE_COMPASS_LABEL:'البوصلة الحية'"),'active compass copy must retain the qappan contract');
 assert(host.includes("page.appendChild(host)"),'digital screen must be appended without replacing the canonical fragment');
 assert(host.includes("classList.contains('active')"),'digital controller must be gated by the active compass route');
 assert(!/replaceChildren|replaceWith|cloneNode/.test(host),'digital host must not replace or clone astronomical engine nodes');

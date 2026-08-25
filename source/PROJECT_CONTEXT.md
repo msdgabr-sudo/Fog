@@ -106,7 +106,7 @@ Priority order:
 Harden the `fog` digital-compass activation affordance and verify that trusted GNSS drives computational Qibla, prayer times, and location-based deviation internationally, while preserving the astronomical-verification equations and cycle unchanged.
 
 Current checks:
-- keep `اضغط للتفعيل` as visible button content and as the idle controller state;
+- keep `اضغط للتفعيل` as visible button content and as the idle controller state, then show `البوصلة الحية` after a finite sensor heading is available;
 - accept only finite, in-range trusted device coordinates;
 - keep true Qibla available if magnetic WMM publication is unavailable, without fabricating a magnetic value;
 - calculate deviation kilometres from the live location-to-Kaaba distance and publish no fallback distance before GNSS;
@@ -122,6 +122,9 @@ Current checks:
 - Removed the fabricated 1,300 km deviation fallback; the calculator now waits for a trusted GNSS fix and derives each distance from the current location.
 - Hardened GNSS coordinate-range validation and decoupled true-Qibla publication from magnetic WMM availability.
 - Added executable international coverage for Qibla, prayer civil time/regional method selection, and deviation distance. The full suite is now `81 = 59 pass + 22 classified inherited failures`, with no new failure.
+- Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` while no heading exists and `البوصلة الحية` after successful activation.
+- Re-audited the qappan/Fog canvas radius, smoothing, responsive canvas sizes, card-row heights, and deviation-panel heights. The source geometry is identical; the apparent vertical shift in the supplied pair comes from comparing standalone display mode with a browser viewport reduced by its toolbar.
+- Bumped the digital-screen asset queries and Service Worker generation so phones cannot retain the previous active label from cache.
 - No astronomical solver, verification session, verification store, raw equation, or verification-cycle file was changed.
 
 ## 8. Important Decisions
