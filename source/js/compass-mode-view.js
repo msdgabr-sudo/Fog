@@ -24,7 +24,7 @@
     show(actionWrapper('tryBrowserGPS'),visible);
   }
 
-  function ensureAstroHomeButton(){
+  function ensureCompassHomeButton(){
     if(!root.document)return null;
     var button=byId('qa-compass-home-button');
     if(button)return button;
@@ -62,19 +62,26 @@
   }
   function syncHomeButton(){
     var page=byId('page-compass');
-    var button=ensureAstroHomeButton();
+    var button=ensureCompassHomeButton();
     if(!button)return;
-    var visible=!!(page&&page.classList.contains('active')&&currentMode==='astro');
+    var visible=!!(page&&page.classList.contains('active'));
     button.hidden=!visible;
     button.style.display=visible?'grid':'none';
+  }
+  function pageIsActive(){
+    var page=byId('page-compass');
+    return !!(page&&page.classList&&page.classList.contains('active'));
+  }
+  function syncDigitalLifecycle(){
+    var host=root.QiblaDigitalCompassScreenHost;
+    if(host&&typeof host.setActive==='function')host.setActive(currentMode==='digital'&&pageIsActive());
   }
   function syncClasses(){
     var page=byId('page-compass');
     if(!page)return;
     page.classList.toggle('qa-digital-dashboard-active',currentMode==='digital');
     page.classList.toggle('qa-astro-dashboard-active',currentMode==='astro');
-    var host=root.QiblaDigitalCompassScreenHost;
-    if(host&&typeof host.setActive==='function')host.setActive(currentMode==='digital');
+    syncDigitalLifecycle();
     syncLegacyDigitalActions();
     syncHomeButton();
   }
@@ -92,13 +99,14 @@
   function watchPage(){
     var page=byId('page-compass');
     if(!page||observer||typeof root.MutationObserver!=='function')return;
-    observer=new root.MutationObserver(syncHomeButton);
+    observer=new root.MutationObserver(function(){syncDigitalLifecycle();syncHomeButton();});
     observer.observe(page,{attributes:true,attributeFilter:['class']});
   }
-  function boot(){restore();watchPage();syncHomeButton();}
+  function boot(){restore();watchPage();syncDigitalLifecycle();syncHomeButton();}
 
   root.QiblaCompassViewMode=Object.freeze({set:apply,apply:apply,restore:restore,get:function(){return currentMode;}});
   root.addEventListener('qiblaastro:compass-view-mode',function(event){apply(event&&event.detail?event.detail.mode:'digital');});
+  root.addEventListener('qiblaastro:navigation-change',function(){syncDigitalLifecycle();syncHomeButton();});
   if(root.document){
     if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',boot,{once:true});
     else boot();

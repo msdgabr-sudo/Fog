@@ -35,7 +35,7 @@ function element(value){
 
 const ids=[
   'qd-canvas','qd-dev-canvas','qd-heading','qd-qibla','qd-diff','qd-heading-sub','qd-gnss',
-  'qd-dir','qd-confidence-label','qd-confidence-bar','qd-gps','qd-gps-label','qd-activate','qd-home',
+  'qd-dir','qd-confidence-label','qd-confidence-bar','qd-gps','qd-gps-label','qd-activate',
   'qd-calibrate','qd-calibration','qd-calibration-close','qd-calibration-reset','qd-offset-minus',
   'qd-offset-plus','qd-offset-value','qd-dev-slider','qd-dev-deg','qd-dev-result','qd-dev-km'
 ];
@@ -129,4 +129,3 @@ vm.runInNewContext(source,sandbox,{filename:'digital-compass-controller.js'});
 
   console.log('PASS fog qdev R1 controller lifecycle and press-to-activate behavior');
 })().catch((error)=>{console.error(error);process.exitCode=1;});
-

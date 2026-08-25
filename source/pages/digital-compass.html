@@ -1,15 +1,9 @@
 <!-- QiblaAstro R1 — isolated Digital Compass presentation fragment. -->
 <section class="qd-screen" id="qd-screen" aria-label="البوصلة الرقمية">
-  <button class="qd-home" id="qd-home" type="button" aria-label="العودة إلى الشاشة الرئيسية" title="الرئيسية">
-    <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true">
-      <path d="M3.5 10.5 12 3l8.5 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-4.5v-6h-5v6H5a1.5 1.5 0 0 1-1.5-1.5z"></path>
-    </svg>
-  </button>
-
   <canvas id="qd-canvas" class="qd-canvas" width="660" height="660" aria-label="رسم البوصلة الرقمية"></canvas>
 
   <div class="qd-metrics">
-    <button class="qd-card qd-card-live" id="qd-activate" type="button" aria-label="تفعيل البوصلة الرقمية">
+    <button class="qd-card qd-card-live" id="qd-activate" type="button" aria-label="تفعيل البوصلة الرقمية" aria-pressed="false" title="اضغط لتفعيل البوصلة">
       <img class="qd-card-icon" src="icons/hm-compass.png" alt="">
       <span class="qd-card-title">البوصلة الرقمية</span>
       <strong class="qd-card-value" id="qd-heading">---°</strong>

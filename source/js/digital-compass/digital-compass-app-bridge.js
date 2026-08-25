@@ -6,19 +6,35 @@
 (function(root){'use strict';
   var timer=0;
   var retryTimer=0;
+  var observer=null;
+  var refreshTimer=0;
 
   function state(){return root.QiblaDigitalCompassState||null;}
   function adapter(){return root.QiblaDigitalCompassAdapter||null;}
   function refresh(){var current=state();if(current&&typeof current.readHost==='function')current.readHost();}
+  function queueRefresh(){
+    if(refreshTimer)return;
+    refreshTimer=root.setTimeout(function(){refreshTimer=0;refresh();},0);
+  }
   function observe(){
-    if(timer)return true;
+    if(timer||observer)return true;
     refresh();
-    timer=root.setInterval(refresh,50);
+    var d=root.document;
+    if(d&&typeof root.MutationObserver==='function'){
+      observer=new root.MutationObserver(queueRefresh);
+      ['box-heading','box-qibla','box-diff','box-dir','compass-accuracy','gnss-badge','gnss-btn-status','gnss-lat','gnss-lon'].forEach(function(id){
+        var node=d.getElementById(id);
+        if(node)observer.observe(node,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['style']});
+      });
+    }
+    timer=root.setInterval(refresh,250);
     return true;
   }
   function stop(){
     if(timer){root.clearInterval(timer);timer=0;}
     if(retryTimer){root.clearTimeout(retryTimer);retryTimer=0;}
+    if(refreshTimer){root.clearTimeout(refreshTimer);refreshTimer=0;}
+    if(observer){observer.disconnect();observer=null;}
   }
   function startFromGesture(){
     var current=state();

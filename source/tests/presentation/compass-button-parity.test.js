@@ -16,9 +16,10 @@ assert(
   'digital controls must use the qappan reference gold edge color'
 );
 assert(
-  digitalCss.includes('rgba(255, 226, 150, .38)'),
-  'digital controls must use the qappan reference gold top highlight'
+  digitalCss.includes('rgba(185, 229, 255, .45)'),
+  'digital controls must use the qappan reference silver-blue top highlight'
 );
+assert(digitalCss.includes('@media (max-height: 540px)'), 'qappan short-screen breakpoint must remain present');
 assert(
   digitalCss.includes('border-color: rgba(238, 199, 98, .96);'),
   'digital active controls must use the qappan reference pressed gold edge'
@@ -36,6 +37,7 @@ assert(
 assert(modeView.includes("actionWrapper('showManualCal')"), 'manual calibration wrapper must be mode-controlled');
 assert(modeView.includes("actionWrapper('tryBrowserGPS')"), 'GNSS wrapper must be mode-controlled');
 assert(modeView.includes("var visible=currentMode==='digital';"), 'legacy digital actions must be hidden in astronomical mode');
+assert(modeView.includes("currentMode==='digital'&&pageIsActive()"), 'digital controller must run only on the active compass route');
 
 const manualWrapper = { style: {}, setAttribute(name, value) { this[name] = value; } };
 const gnssWrapper = { style: {}, setAttribute(name, value) { this[name] = value; } };

@@ -18,6 +18,7 @@ const deviation=read('js/digital-compass/digital-compass-deviation.js');
 const controller=read('js/digital-compass/digital-compass-controller.js');
 const host=read('js/presentation/compass/digital-screen-host.js');
 const mode=read('js/compass-mode-view.js');
+const premium=read('js/compass-premium-render.js');
 const bootstrap=read('js/presentation/bootstrap.js');
 const sw=read('service-worker.js');
 
@@ -28,12 +29,14 @@ assert.strictEqual((page.match(/id="qd-dev-canvas"/g)||[]).length,1,'the deviati
 assert(!/id=["']cvs["']/.test(page),'the isolated screen must not duplicate the canonical engine canvas');
 assert(!/<(?:script|style|link)\b/i.test(page),'screen fragment must contain markup only');
 assert(!/\b(?:style|on[a-z]+)=["']/i.test(page),'screen fragment must not contain inline design or handlers');
-for(const token of ['id="qd-home"','id="qd-activate"','اضغط للتفعيل','البوصلة الرقمية','القبلة الحسابية','درجة الانحراف','GNSS &amp; GPS','معايرة البوصلة يدوياً'])assert(page.includes(token),'missing reference token: '+token);
+for(const token of ['id="qd-activate"','اضغط للتفعيل','البوصلة الرقمية','القبلة الحسابية','درجة الانحراف','GNSS &amp; GPS','معايرة البوصلة يدوياً'])assert(page.includes(token),'missing reference token: '+token);
+assert(!page.includes('id="qd-home"'),'the digital fragment must use the same global Home control as qappan');
 
 assert(css.includes('padding: 48px 12px max(8px, env(safe-area-inset-bottom))'));
-assert(css.includes('top: calc(env(safe-area-inset-top, 0px) + 46px)'));
 assert(css.includes('width: min(97vw, 55vh, 500px)'));
 assert(css.includes('margin: -7px auto 3px'));
+assert(css.includes('rgba(185, 229, 255, .45)'));
+assert(css.includes('@media (max-height: 540px)'));
 assert(css.includes('isolation: isolate;'));
 assert(css.includes('contain: layout paint style;'));
 assert(!/#page-compass\b|#cvs\b/.test(css),'reference stylesheet must remain independently scoped');
@@ -46,10 +49,21 @@ for(const [name,source] of Object.entries({adapter,stateSource,bridge,renderer,d
   assert(!/AstronomicalVerificationStore|VerificationSession|recordVerification|verificationOffsetDeg/.test(source),name+' crossed astronomical verification state');
 }
 assert(!/deviceorientation|DeviceOrientationEvent/.test(bridge),'application bridge must not own a second sensor listener');
+assert(bridge.includes('setInterval(refresh,250)'),'the hidden-state fallback poll must remain throttled');
+assert(bridge.includes('MutationObserver'),'canonical value changes should drive refreshes without hot polling');
+assert(renderer.includes('delta*.22'),'pointer smoothing must retain the qappan sensitivity coefficient');
+assert(renderer.includes('R=Math.min(W,H)*.442'),'dial geometry must retain the qappan radius ratio');
+assert(renderer.includes('len=R*.690'),'pointer geometry must retain the qappan length ratio');
+for(const font of ['500 7.5px "JetBrains Mono",monospace','700 14px "JetBrains Mono",monospace','700 21px "JetBrains Mono",monospace']){
+  assert(renderer.includes(font),'scale typography must retain the qappan renderer value: '+font);
+}
 assert(adapter.includes('box-heading')&&adapter.includes('box-qibla')&&adapter.includes('box-diff'),'adapter must retain canonical DOM fallbacks');
 assert(adapter.includes('activateCompass')&&adapter.includes('tryBrowserGPS')&&adapter.includes('resetCompassCalibration'),'actions must delegate to existing application APIs');
 assert(host.includes("page.appendChild(host)"),'digital screen must be appended without replacing the canonical fragment');
+assert(host.includes("classList.contains('active')"),'digital controller must be gated by the active compass route');
 assert(!/replaceChildren|replaceWith|cloneNode/.test(host),'digital host must not replace or clone astronomical engine nodes');
+assert(premium.includes("!page.classList.contains('active')"),'the canonical canvas must not render while the compass route is hidden');
+assert(premium.includes("getElementById('qa-digital-compass-host')"),'the canonical canvas must not render behind the isolated digital screen');
 
 const order=[
   'presentation/compass/host.js',

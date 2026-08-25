@@ -7,7 +7,13 @@ const vm=require('vm');
 const source=fs.readFileSync(path.resolve(__dirname,'../../js/presentation/compass/digital-screen-host.js'),'utf8');
 const screen={id:'qd-screen'};
 const canonical={id:'cvs'};
-const page={id:'page-compass',children:[canonical],appendChild(node){this.children.push(node);nodes.set(node.id,node);if(node.child===screen)nodes.set('qd-screen',screen);return node;}};
+const pageClasses=new Set();
+const page={
+  id:'page-compass',
+  children:[canonical],
+  classList:{contains(name){return pageClasses.has(name);}},
+  appendChild(node){this.children.push(node);nodes.set(node.id,node);if(node.child===screen)nodes.set('qd-screen',screen);return node;}
+};
 const nodes=new Map([['page-compass',page],['cvs',canonical]]);
 
 function createElement(name){
@@ -40,15 +46,21 @@ vm.runInNewContext(source,sandbox,{filename:'digital-screen-host.js'});
   const host=sandbox.QiblaDigitalCompassScreenHost;
   await host.mount();
   assert.strictEqual(host.isMounted(),true);
-  assert.strictEqual(host.isActive(),true);
+  assert.strictEqual(host.isActive(),false,'preloaded screen must remain inactive away from the compass route');
   assert.strictEqual(page.children[0],canonical,'canonical canvas must retain its node and position');
   assert.strictEqual(page.children.length,2,'digital host must append as one sibling');
   assert.strictEqual(nodes.get('qa-digital-compass-host').child,screen);
-  assert.strictEqual(mounts,1);
+  assert.strictEqual(mounts,0,'preloading must not start the digital controller off-route');
   assert(events.includes('qiblaastro:digital-compass-mounted'));
-  host.setActive(false);
+  pageClasses.add('active');
+  host.setActive(true);
+  assert.strictEqual(host.isActive(),true);
+  assert.strictEqual(mounts,1,'entering the active compass route must start the controller once');
+  pageClasses.delete('active');
+  host.setActive(true);
   assert.strictEqual(nodes.get('qa-digital-compass-host').hidden,true);
   assert.strictEqual(unmounts,1);
+  pageClasses.add('active');
   host.setActive(true);
   assert.strictEqual(nodes.get('qa-digital-compass-host').hidden,false);
   assert.strictEqual(mounts,2);

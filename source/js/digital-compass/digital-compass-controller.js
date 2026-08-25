@@ -163,19 +163,14 @@
 
   function activateCompass(){
     var sensor=root.QiblaDigitalCompassSensor;
-    if(sensor)sensor.startFromGesture();
-  }
-
-  function goHome(){
-    try{
-      if(typeof root.GT==='function')root.GT('home');
-      else if(root.history&&root.history.length>1)root.history.back();
-    }catch(_){}
+    var button=byId('qd-activate');
+    if(button)button.setAttribute('aria-busy','true');
+    if(!sensor){if(button&&typeof button.removeAttribute==='function')button.removeAttribute('aria-busy');return;}
+    Promise.resolve(sensor.startFromGesture()).finally(function(){if(button&&typeof button.removeAttribute==='function')button.removeAttribute('aria-busy');});
   }
 
   function bindActions(){
     listen(byId('qd-activate'),'click',activateCompass);
-    listen(byId('qd-home'),'click',goHome);
     listen(byId('qd-gps'),'click',function(){
       var label=byId('qd-gps-label');
       if(label)label.textContent='⏳ جاري التحديث…';

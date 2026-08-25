@@ -74,36 +74,6 @@
   font-family: inherit;
 }
 
-.qd-screen .qd-home {
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 46px);
-  right: 12px;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid rgba(216, 174, 76, .78);
-  border-radius: 12px;
-  color: #d8ae4c;
-  cursor: pointer;
-  background: linear-gradient(145deg, rgba(31, 25, 13, .96), rgba(8, 14, 23, .98));
-  box-shadow: 0 7px 18px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 226, 150, .14);
-}
-
-.qd-screen .qd-home path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.qd-screen .qd-home:active {
-  transform: scale(.96);
-}
-
 .qd-screen .qd-canvas {
   display: block;
   flex: 0 0 auto;
@@ -165,7 +135,7 @@
   height: 1px;
   border-radius: 999px;
   pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255, 226, 150, .38), transparent);
+  background: linear-gradient(90deg, transparent, rgba(185, 229, 255, .45), transparent);
 }
 
 .qd-screen .qd-card {
@@ -275,6 +245,11 @@
   white-space: normal;
 }
 
+.qd-screen .qd-confidence b {
+  font-size: .66rem;
+  line-height: 1.1;
+}
+
 .qd-screen .qd-action small,
 .qd-screen .qd-confidence small {
   display: block;
@@ -288,6 +263,12 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.qd-screen .qd-confidence small {
+  font-size: .50rem;
+  line-height: 1.12;
+  white-space: normal;
 }
 
 .qd-screen .qd-confidence-icon {
@@ -703,6 +684,23 @@
     width: 72px;
     height: 66px;
     margin: -3px 0;
+  }
+}
+
+@media (max-height: 540px) {
+  .qd-screen .qd-card {
+    min-height: 64px;
+  }
+
+  .qd-screen .qd-card-icon {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+  }
+
+  .qd-screen .qd-dev-hint,
+  .qd-screen .qd-dev-result {
+    display: none;
   }
 }
 

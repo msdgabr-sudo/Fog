@@ -14,27 +14,27 @@ function loadSafeI18n(){loadScript('js/i18n/english-rollout.js?v=20260812-safe-i
 function loadCompass(){
   if(compassRequested)return;
   compassRequested=true;
-  loadStyle('css/digital-compass/digital-compass.css?v=20260824-fog-r1','data-qibla-digital-compass-style');
-  loadStyle('css/digital-compass/app-integration.css?v=20260824-fog-r1','data-qibla-digital-compass-integration-style');
+  loadStyle('css/digital-compass/digital-compass.css?v=20260825-fog-parity1','data-qibla-digital-compass-style');
+  loadStyle('css/digital-compass/app-integration.css?v=20260825-fog-parity1','data-qibla-digital-compass-integration-style');
   loadScript('js/presentation/compass/host.js?v=20260814-deviation-action1','data-qibla-compass-host',function(){
     var host=root.QiblaCompassHost;
     if(!host||typeof host.mount!=='function'){compassRequested=false;return;}
     host.mount().then(function(){
       loadSeries([
-        ['js/presentation/compass/digital-adapter.js?v=20260824-fog-r1','data-qibla-digital-adapter'],
-        ['js/digital-compass/digital-compass-state.js?v=20260824-fog-r1','data-qibla-digital-state'],
-        ['js/digital-compass/digital-compass-app-bridge.js?v=20260824-fog-r1','data-qibla-digital-app-bridge'],
-        ['js/digital-compass/digital-compass-renderer.js?v=20260824-fog-r1','data-qibla-digital-renderer'],
-        ['js/digital-compass/digital-compass-deviation.js?v=20260824-fog-r1','data-qibla-digital-deviation'],
-        ['js/digital-compass/digital-compass-controller.js?v=20260824-fog-r1','data-qibla-digital-controller'],
-        ['js/presentation/compass/digital-screen-host.js?v=20260824-fog-r1','data-qibla-digital-screen-host']
+        ['js/presentation/compass/digital-adapter.js?v=20260825-fog-parity1','data-qibla-digital-adapter'],
+        ['js/digital-compass/digital-compass-state.js?v=20260825-fog-parity1','data-qibla-digital-state'],
+        ['js/digital-compass/digital-compass-app-bridge.js?v=20260825-fog-parity1','data-qibla-digital-app-bridge'],
+        ['js/digital-compass/digital-compass-renderer.js?v=20260825-fog-parity1','data-qibla-digital-renderer'],
+        ['js/digital-compass/digital-compass-deviation.js?v=20260825-fog-parity1','data-qibla-digital-deviation'],
+        ['js/digital-compass/digital-compass-controller.js?v=20260825-fog-parity1','data-qibla-digital-controller'],
+        ['js/presentation/compass/digital-screen-host.js?v=20260825-fog-parity1','data-qibla-digital-screen-host']
       ],function(){
         var digitalHost=root.QiblaDigitalCompassScreenHost;
         var digitalMount=digitalHost&&typeof digitalHost.mount==='function'?digitalHost.mount():Promise.reject(new Error('Digital compass screen host unavailable'));
         digitalMount.catch(function(){
           try{root.sessionStorage.setItem('qibla-compass-view-mode','astro');}catch(_){}
         }).then(function(){
-          loadScript('js/compass-mode-view.js?v=20260824-fog-r1','data-qibla-compass-mode',function(){
+          loadScript('js/compass-mode-view.js?v=20260825-fog-parity1','data-qibla-compass-mode',function(){
             loadScript('js/compass-premium-render.js?v=20260809-reference-ui1','data-qibla-compass-premium',function(){
               loadScript('js/presentation/compass/trusted-qibla-refresh.js?v=20260814-trusted-qibla1','data-qibla-trusted-qibla-refresh');
               loadStyle('css/compass-astro-dashboard.css?v=20260809-reference-ui1','data-qibla-astro-dashboard-style');

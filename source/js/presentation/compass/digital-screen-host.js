@@ -13,24 +13,31 @@
     try{return root.QiblaCompassViewMode&&root.QiblaCompassViewMode.get?root.QiblaCompassViewMode.get():(root.sessionStorage.getItem('qibla-compass-view-mode')||'digital');}
     catch(_){return 'digital';}
   }
+  function pageIsActive(){
+    var page=byId('page-compass');
+    return !!(page&&page.classList&&page.classList.contains('active'));
+  }
+  function shouldBeActive(){return desiredMode()!=='astro'&&pageIsActive();}
   function setActive(next){
-    active=next===true;
+    var wasActive=active;
+    active=next===true&&pageIsActive();
     var host=byId('qa-digital-compass-host');
     if(host)host.hidden=!active;
     var controller=root.QiblaDigitalCompassController;
     if(!mounted||!controller)return active;
-    if(active&&typeof controller.mount==='function')controller.mount().catch(function(error){console.error(error);});
-    if(!active&&typeof controller.unmount==='function')controller.unmount();
+    var controllerMounted=typeof controller.isMounted==='function'?controller.isMounted():wasActive;
+    if(active&&(!wasActive||!controllerMounted)&&typeof controller.mount==='function')controller.mount().catch(function(error){console.error(error);});
+    if(!active&&(wasActive||controllerMounted)&&typeof controller.unmount==='function')controller.unmount();
     return active;
   }
   function mount(){
-    if(mounted){setActive(desiredMode()!=='astro');return Promise.resolve(true);}
+    if(mounted){setActive(shouldBeActive());return Promise.resolve(true);}
     if(mounting)return mounting;
     var d=doc();
     var page=byId('page-compass');
     if(!d)return Promise.resolve(false);
     if(!page)return Promise.reject(new Error('[DigitalCompassScreenHost] Missing #page-compass'));
-    mounting=root.fetch('pages/digital-compass.html?v=20260824-fog-r1',{cache:'no-store'}).then(function(response){
+    mounting=root.fetch('pages/digital-compass.html?v=20260825-fog-parity1',{cache:'no-store'}).then(function(response){
       if(!response||!response.ok)fail('Failed to load digital compass fragment ('+(response&&response.status)+')');
       return response.text();
     }).then(function(html){
@@ -46,7 +53,7 @@
       page.appendChild(host);
       mounted=true;
       mounting=null;
-      setActive(desiredMode()!=='astro');
+      setActive(shouldBeActive());
       if(typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('qiblaastro:digital-compass-mounted'));
       return true;
     }).catch(function(error){mounting=null;console.error(error);throw error;});

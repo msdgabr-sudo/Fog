@@ -23,9 +23,14 @@
   function clone(){return Object.freeze(Object.assign({},state));}
   function emit(){var snap=clone();listeners.slice().forEach(function(fn){try{fn(snap);}catch(_){}});}
   function patch(next){
-    Object.keys(next||{}).forEach(function(k){if(Object.prototype.hasOwnProperty.call(state,k))state[k]=next[k];});
-    state.deviation=finite(state.qibla)&&finite(state.heading)?angleDiff(state.qibla,state.heading):null;
-    state.updatedAt=Date.now();emit();return clone();
+    var changed=false;
+    Object.keys(next||{}).forEach(function(k){
+      if(Object.prototype.hasOwnProperty.call(state,k)&&!Object.is(state[k],next[k])){state[k]=next[k];changed=true;}
+    });
+    var deviation=finite(state.qibla)&&finite(state.heading)?angleDiff(state.qibla,state.heading):null;
+    if(!Object.is(state.deviation,deviation)){state.deviation=deviation;changed=true;}
+    if(changed){state.updatedAt=Date.now();emit();}
+    return clone();
   }
   function readHost(){
     var adapter=root.QiblaDigitalCompassAdapter;
