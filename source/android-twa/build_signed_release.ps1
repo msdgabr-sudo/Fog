@@ -49,13 +49,15 @@ Write-Host '[4/14] Enforce Android 16 / API 36...' -ForegroundColor Yellow
 & python .\ensure_target_api_36.py
 if ($LASTEXITCODE -ne 0) { throw 'API 36 enforcement failed.' }
 
-Write-Host '[5/14] Apply localized native Azkar reminders...' -ForegroundColor Yellow
-& .\apply_native_azkar_reminders.ps1
-if ($LASTEXITCODE -ne 0) { throw 'Native Azkar reminder patch/gate failed.' }
+Write-Host '[5/14] Apply all reviewed native integrations with the cross-platform injector...' -ForegroundColor Yellow
+& python .\apply_native_integrations.py --all
+if ($LASTEXITCODE -ne 0) { throw 'Native Azkar/prayer/Adhan/widget injection failed.' }
 
-Write-Host '[6/14] Apply authenticated prayer notifications and home Widget...' -ForegroundColor Yellow
-& .\apply_native_widget.ps1
-if ($LASTEXITCODE -ne 0) { throw 'Authenticated prayer/widget patch/gate failed.' }
+Write-Host '[6/14] Re-run generated native feature gates...' -ForegroundColor Yellow
+& python .\check_native_azkar_bridge.py
+if ($LASTEXITCODE -ne 0) { throw 'Native Azkar reminder gate failed.' }
+& python .\check_native_widget.py
+if ($LASTEXITCODE -ne 0) { throw 'Native prayer/Adhan/widget gate failed.' }
 
 Write-Host '[7/14] Verify generated native bridge and release integration...' -ForegroundColor Yellow
 & python .\check_release_integration.py

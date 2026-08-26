@@ -1,7 +1,7 @@
 # QiblaAstro ELITE — Android Permission & Capability Release Matrix
 
-**Branch:** `pre`  
-**Package:** `com.qiblalabs.qiblaastro`  
+**Branch:** `main`
+**Package:** `com.qiblalabs`
 **Origin:** `https://app.qiblalabs.com`  
 **Target:** Android 16 / API 36
 
@@ -20,7 +20,7 @@ This document is a release boundary. A permission must not be added merely "just
 - Acceptance: fresh install -> location request -> GNSS succeeds; denial produces controlled UI; granting later restores function.
 
 ### Notifications
-- Feature: notification delegation now; future prayer/azkar alerts rely on Android notification capability.
+- Feature: notification delegation plus native prayer and Azkar reminders.
 - TWA config: `enableNotifications = true`.
 - Required on Android 13+ / target API 36:
   - `android.permission.POST_NOTIFICATIONS`
@@ -39,45 +39,46 @@ This document is a release boundary. A permission must not be added merely "just
 - Acceptance: heading/motion update on a real device; device-specific browser sensor behavior tested.
 
 ### Audio playback
-- Feature: Quran, Serenity, adhan preview, azkar audio while app is active.
+- Feature: Quran, Serenity, Adhan preview, native full Adhan, and short native Azkar reminder audio.
 - Release rule: playback does not justify microphone permission.
 - Explicitly forbidden: `android.permission.RECORD_AUDIO`.
 
-## Gate B — Native background Adhan / Azkar scheduler: NOT enabled yet
+## Gate B — Native background Adhan / Azkar scheduler: IMPLEMENTED
 
 The requirement is stronger than ordinary PWA notifications: a selected adhan or dhikr must trigger at its configured time while the app is closed and the screen may be locked.
 
-This must be implemented as a real Android feature, then permissions are added with the implementation — never before.
+The native sources, manifest injector, merged-manifest permission gate, and structural build are present. Real-device lock-screen/Doze acceptance remains mandatory before production rollout.
 
 ### Exact scheduling
-Candidate permission:
+Prayer permission:
 - `android.permission.SCHEDULE_EXACT_ALARM`
 
 Rules:
-- Use only for user-facing prayer/dhikr schedules that genuinely require exact timing.
+- Use only for actual user-selected prayer events. Periodic Azkar and pre-prayer notices intentionally remain inexact with `setAndAllowWhileIdle`.
 - Android special access is not pre-granted on fresh installs targeting modern Android.
 - Before scheduling, check `canScheduleExactAlarms()`.
 - Explain the need inside the app before opening the system "Alarms & reminders" access screen.
-- If access is revoked, degrade gracefully and show the user that exact reminders are disabled.
+- If access is revoked after scheduling, retain the deduplicated inexact backup; the next app sync continues with inexact delivery until access is granted again.
 - Reschedule after permission state changes and after reboot.
 - Do not use `USE_EXACT_ALARM` unless a separate Play-policy review proves it is appropriate.
 
 ### Background audio playback
-Expected permissions only when native playback service exists:
+Required permissions for the implemented native playback service:
 - `android.permission.FOREGROUND_SERVICE`
 - `android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK`
+- `android.permission.WAKE_LOCK`
 
 Expected component:
 - Android media playback foreground service / MediaSession-compatible service with `foregroundServiceType="mediaPlayback"`.
 
 Rules:
-- Use a media-style notification and proper audio focus.
+- Use a visible stop-capable playback notification, MediaSession state, proper audio focus, and bundled local sound only.
 - Do not add microphone foreground-service types.
 - Android 15+ must not start a media playback foreground service directly from `BOOT_COMPLETED`.
 - Boot handling may restore/reschedule user alarms, but actual playback starts from the legitimate scheduled/user event flow.
 
 ### Reboot resilience
-A native scheduling implementation may require a boot receiver and the corresponding manifest capability to restore future schedules. This is not added until its code and test exist.
+`RECEIVE_BOOT_COMPLETED` and non-exported boot receivers restore future prayer/Azkar schedules. Boot never starts playback; playback begins only from a scheduled user-facing prayer event.
 
 Acceptance for Gate B:
 1. Configure a dhikr reminder a few minutes ahead.

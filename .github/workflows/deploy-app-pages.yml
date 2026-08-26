@@ -1,9 +1,8 @@
 name: Deploy app.qiblalabs.com
 
-# Active release: QiblaAstro 3.1.0 / Android versionCode 3.
-# Revert deployment: removed the attempted GNSS position handoff and restored the prior code-3 state.
-# This deployment must not publish the later code-4 native Location bridge assets.
-# Location onboarding must stay independent from Adhan notification permission.
+# Active web release: QiblaAstro 3.1.0 / Android versionCode 3 candidate.
+# Location onboarding remains independent from prayer notification permission.
+# Native prayer/Azkar/widget sources are packaged only by the Android build gate.
 
 on:
   push:
@@ -52,8 +51,9 @@ jobs:
           assert cfg["appVersion"] == "3.1.0", cfg["appVersion"]
           assert cfg["appVersionCode"] == 3, cfg["appVersionCode"]
           PY
-          grep -Fq "VERSION='qiblaastro-3.1.0-code3-location-only-r1'" source/service-worker.js
-          grep -Fq "PERMISSIONS_RELEASE='code3-location-only-20260819-r1'" source/service-worker.js
+          grep -Fq "VERSION='qiblaastro-v5.70-offline-native-20260826'" source/service-worker.js
+          grep -Fq "PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'" source/service-worker.js
+          grep -Fq "OFFLINE_RELEASE='atomic-app-shell-quran-audio-20260826'" source/service-worker.js
           grep -Fq "permissions-onboarding.js?v=20260819-code3-location-only1" source/js/presentation/bootstrap.js
           grep -Fq "qiblaastro:permissions-onboarding:v3-location-only" source/js/presentation/permissions-onboarding.js
           ! grep -Fq "prepareAdhanStage" source/js/presentation/permissions-onboarding.js
@@ -63,6 +63,8 @@ jobs:
             echo 'ERROR: signing/private key material found in web release.' >&2
             exit 1
           fi
+          (cd source && node tests/pwa-standalone-readiness.test.js)
+          (cd source && node tests/offline-complete-shell.test.js)
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

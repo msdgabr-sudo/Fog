@@ -51,7 +51,7 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — PWA caching/runtime, currently `qiblaastro-3.1.0-code3-location-only-r8-activation-layout2`.
+- `service-worker.js` — atomic offline App Shell/runtime, currently `qiblaastro-v5.70-offline-native-20260826`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features
@@ -103,15 +103,15 @@ Priority order:
 7. Complete real-device regression validation of astronomical capture, record, live compass, and deviation.
 
 ## 6. Current Working Task
-Harden the `fog` digital-compass activation affordance and verify that trusted GNSS drives computational Qibla, prayer times, and location-based deviation internationally, while preserving the astronomical-verification equations and cycle unchanged.
+Release the four requested Android/PWA capabilities from `fog` under `com.qiblalabs`: closed-app Adhan, native local voice Dhikr reminders, a complete offline shell, and an event-driven prayer/Qibla widget, while preserving the astronomical-verification equations and cycle unchanged.
 
 Current checks:
-- keep `اضغط للتفعيل` as visible button content until the user explicitly presses the compass card, even if the canonical adapter already holds a heading, then show `البوصلة الحية` immediately after that press;
-- accept only finite, in-range trusted device coordinates;
-- keep true Qibla available if magnetic WMM publication is unavailable, without fabricating a magnetic value;
-- calculate deviation kilometres from the live location-to-Kaaba distance and publish no fallback distance before GNSS;
-- verify regional prayer methods and civil-time conversion across representative global time zones;
-- preserve all astronomical calculation and verification contracts.
+- keep actual prayer delivery on user-granted exact alarms, with an idle-safe approximate fallback and visible local media-playback foreground service;
+- keep Azkar reminders local, user-started, notification-permission-gated, and inexact to respect battery and Play policy;
+- authenticate every web-to-native handoff with a per-install token and lock Android intents to `com.qiblalabs`;
+- cache the complete App Shell, Quran text, local Adhan/Azkar audio, and protected scientific modules atomically;
+- refresh installed widgets only at prayer boundaries and from the app-private dated schedule;
+- keep version `3.1.0` / code `3` and preserve all astronomical calculation and verification contracts.
 
 ## 7. Last Changes
 - Retired the unloaded CSS experiment chain `29`–`45` plus `47` after reading all 21 files and proving that no production or preview loader references them.
@@ -121,7 +121,11 @@ Current checks:
 - Made the digital-compass activation instruction explicit and cascade-resistant.
 - Removed the fabricated 1,300 km deviation fallback; the calculator now waits for a trusted GNSS fix and derives each distance from the current location.
 - Hardened GNSS coordinate-range validation and decoupled true-Qibla publication from magnetic WMM availability.
-- Added executable international coverage for Qibla, prayer civil time/regional method selection, and deviation distance. The full suite is now `81 = 59 pass + 22 classified inherited failures`, with no new failure.
+- Added executable international coverage for Qibla, prayer civil time/regional method selection, and deviation distance.
+- Added Play-policy-aware native Android delivery for background Adhan, local Azkar voice reminders, an authenticated prayer-data bridge, and an event-driven prayer/Qibla widget under `com.qiblalabs`.
+- Completed the atomic offline App Shell, Quran text set, protected astronomical modules, and local Adhan/Azkar audio caching with byte-range playback support.
+- Added an idempotent cross-platform native injector plus hermetic Android structure tests, without changing version `3.1.0` / code `3` or any protected astronomical file.
+- The full suite is now `84 = 73 pass + 11 classified inherited failures`, with no new failure.
 - Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` before the explicit card press and `البوصلة الحية` immediately after it.
 - Re-audited the qappan/Fog canvas radius, smoothing, responsive canvas sizes, card-row heights, and deviation-panel heights. The source geometry is identical; the apparent vertical shift in the supplied pair comes from comparing standalone display mode with a browser viewport reduced by its toolbar.
 - Added a controller-local activation gate: an existing/cached host heading can no longer skip `اضغط للتفعيل`; the displayed heading, deviation, confidence, and dial remain idle until the card is pressed.
@@ -170,7 +174,7 @@ Current checks:
 - The inherited full test suite still contains separately classified legacy-contract, offline-shell, and protected astronomical-behavior failures.
 
 ## 11. Next Step
-Run the new commit-pinned Fog link on the phone in the same display mode as qappan, verify the idle-to-live label transition and centered full-height screen, then continue multi-country location/sensor regression without changing protected astronomical behavior.
+Complete the GitHub unsigned-AAB compile proof, then sign from the external upload keystore and run real-device locked-screen/Doze, reboot, exact-alarm revocation, notification revocation, offline restart, audio-focus, and widget-boundary tests before Play submission.
 
 ## 12. Session Handoff
-The trusted GNSS path validates global coordinates, publishes true Qibla independently of WMM availability, and supplies the digital deviation calculator only after a real fix. The isolated digital screen now owns an explicit user-activation gate and a qappan-matched no-scroll viewport shell. Prayer calculations retain regional methods and device/manual civil-time conversion. The astronomical solver, equations, store, and verification cycle remain untouched. Production Home stays static in `index.html`; independent screens retain their own hosts and assets. Continue with real-device validation and classified test/PWA work without touching astronomical-verification behavior.
+The web release now carries an authenticated package-scoped bridge, date-stamped 14-day native prayer plan, bundled foreground Adhan service, local inexact Azkar voice reminders, app-private event-driven widget, and atomic offline shell. Android identity remains `com.qiblalabs`, version remains `3.1.0` / code `3`, and signing material remains outside the repository. The astronomical solver, equations, store, verification cycle, and protected WMM runtime remain untouched. Continue with the compile artifact and real-device/Play Console validation without changing protected astronomical behavior.

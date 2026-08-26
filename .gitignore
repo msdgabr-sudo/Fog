@@ -15,3 +15,5 @@ android-twa/*service-account*.json
 *.keystore
 *.p12
 *.pem
+__pycache__/
+*.py[cod]

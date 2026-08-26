@@ -23,5 +23,5 @@ const cssMatch=gateway.match(/var STACK_CSS = '([^']+)'/);
 assert(cssMatch,'STACK_CSS not found in astro-verification.js');
 assert(sw.includes("'./"+cssMatch[1]+"'"),`Service Worker APP_SHELL missing ${cssMatch[1]}`);
 
-assert(sw.includes("qiblaastro-v5.55-astronomical-verification-offline"),'Astronomical verification cache version not active');
+assert(sw.includes("qiblaastro-v5.70-offline-native-20260826"),'Astronomical verification cache version not active');
 console.log(`PASS: ${scripts.length} astronomical verification modules + HUD CSS are precached.`);

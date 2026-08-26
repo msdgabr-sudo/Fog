@@ -43,8 +43,12 @@ required = {
     "android.permission.ACCESS_COARSE_LOCATION",
     "android.permission.ACCESS_FINE_LOCATION",
     "android.permission.POST_NOTIFICATIONS",
-    # Native Azkar reminders are restored after reboot. No exact-alarm permission is used.
     "android.permission.RECEIVE_BOOT_COMPLETED",
+    # Prayer-time delivery uses user-granted special access. Azkar remains inexact.
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+    "android.permission.WAKE_LOCK",
 }
 for permission in sorted(required):
     if permission not in permissions:
@@ -60,8 +64,13 @@ forbidden = {
     "android.permission.WRITE_CONTACTS": "contacts are not used",
     "android.permission.READ_CALENDAR": "calendar data is not read",
     "android.permission.WRITE_CALENDAR": "calendar data is not written",
-    "android.permission.SCHEDULE_EXACT_ALARM": "Azkar reminders intentionally use inexact idle-safe alarms",
-    "android.permission.USE_EXACT_ALARM": "Azkar reminders intentionally use inexact idle-safe alarms",
+    "android.permission.ACCESS_BACKGROUND_LOCATION": "prayer times use the last user-approved foreground location",
+    "android.permission.READ_MEDIA_AUDIO": "all Adhan and Azkar sounds are bundled app resources",
+    "android.permission.READ_MEDIA_IMAGES": "broad media access is not used",
+    "android.permission.READ_MEDIA_VIDEO": "broad media access is not used",
+    "android.permission.USE_EXACT_ALARM": "Play-restricted auto-granted exact-alarm access is not used",
+    "android.permission.USE_FULL_SCREEN_INTENT": "prayer alerts do not interrupt the lock screen",
+    "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS": "the app does not request battery-optimization exemption",
 }
 for permission, reason in forbidden.items():
     if permission in permissions:
@@ -69,8 +78,9 @@ for permission, reason in forbidden.items():
 
 notes.append("permission source: Gradle merged RELEASE manifest (dependency manifests included)")
 notes.append("camera remains a web/TWA site permission; CAMERA is not forced into wrapper manifest")
-notes.append("native Azkar reminders use POST_NOTIFICATIONS + RECEIVE_BOOT_COMPLETED")
-notes.append("exact-alarm permissions remain forbidden; scheduler uses setAndAllowWhileIdle")
+notes.append("native Azkar reminders remain inexact and use POST_NOTIFICATIONS + RECEIVE_BOOT_COMPLETED")
+notes.append("actual prayer events use user-granted SCHEDULE_EXACT_ALARM; USE_EXACT_ALARM remains forbidden")
+notes.append("full bundled Adhan runs only in a visible mediaPlayback foreground service")
 
 print("QiblaAstro ELITE — Merged Release Android Permission Gate")
 print("=" * 58)

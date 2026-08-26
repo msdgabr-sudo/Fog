@@ -28,8 +28,11 @@ else:
         permissions = {n.get(ANDROID+"name") for n in root.findall("uses-permission") if n.get(ANDROID+"name")}
         for required in ("android.permission.RECEIVE_BOOT_COMPLETED","android.permission.POST_NOTIFICATIONS"):
             if required not in permissions: fail(f"{required} missing from generated manifest")
-        for forbidden in ("android.permission.SCHEDULE_EXACT_ALARM","android.permission.USE_EXACT_ALARM"):
-            if forbidden in permissions: fail(f"forbidden exact-alarm permission present: {forbidden}")
+        # SCHEDULE_EXACT_ALARM may be present for user-selected prayer alarms.
+        # Azkar itself remains inexact and must never rely on the policy-restricted
+        # USE_EXACT_ALARM permission.
+        if "android.permission.USE_EXACT_ALARM" in permissions:
+            fail("forbidden exact-alarm permission present: android.permission.USE_EXACT_ALARM")
         app = root.find("application")
         if app is None: fail("application node missing")
         else:
@@ -78,8 +81,9 @@ if activity.is_file():
 receiver=JAVA/"AzkarReminderReceiver.java"
 if receiver.is_file():
     text=receiver.read_text(encoding="utf-8")
-    for required in ("NotificationChannel","scheduleNext","R.string.azkar_channel_name","R.string.azkar_notification_title","getLaunchIntentForPackage"):
+    for required in ("NotificationChannel","scheduleNext","R.string.azkar_channel_name","R.string.azkar_notification_title","getLaunchIntentForPackage","POST_NOTIFICATIONS","AzkarReminderScheduler.stop(context)","R.raw.azkar_subhanallah"):
         if required not in text: fail(f"receiver contract missing: {required}")
+    if "getIdentifier" in text: fail("Azkar voice resources must use direct R.raw references so release shrinking cannot remove them")
     for hardcoded in ('"تنبيهات الأذكار"','"QiblaAstro — تذكير بالذكر"'):
         if hardcoded in text: fail("native notification UI must use Android resources, not hard-coded Arabic")
 
@@ -92,4 +96,4 @@ if errors:
     for error in errors: print("ERROR:",error,file=sys.stderr)
     raise SystemExit(1)
 print("PASS: AR/EN/FR/ID/UR resources generated and referenced by native notification UI")
-print("PASS: direct authenticated toggle, Android 13+ permission, broadcast scheduling, reboot and inexact-alarm contracts intact")
+print("PASS: direct authenticated toggle, Android 13+ permission, broadcast scheduling, reboot and Azkar inexact-alarm contracts intact")

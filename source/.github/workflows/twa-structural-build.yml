@@ -38,12 +38,15 @@ jobs:
       - name: Enforce Android 16 / API 36 target
         run: python3 ensure_target_api_36.py
 
+      - name: Inject reviewed native Adhan, Azkar, and Widget features
+        run: python3 apply_native_integrations.py --all
+
       - name: Assert package and SDK identity before build
         shell: bash
         run: |
           set -euo pipefail
-          grep -F 'applicationId "com.qiblalabs.qiblaastro"' app/build.gradle
-          grep -F 'namespace "com.qiblalabs.qiblaastro"' app/build.gradle
+          grep -F 'applicationId "com.qiblalabs"' app/build.gradle
+          grep -F 'namespace "com.qiblalabs"' app/build.gradle
           grep -E 'compileSdkVersion[[:space:]]+36' app/build.gradle
           grep -E 'targetSdkVersion[[:space:]]+36' app/build.gradle
 

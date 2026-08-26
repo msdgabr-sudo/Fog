@@ -1,5 +1,6 @@
 package com.qiblalabs.nativebridge;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,8 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioAttributes;
-import android.net.Uri;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
@@ -19,27 +19,48 @@ import com.qiblalabs.widget.QiblaWidgetProvider;
 public final class PrayerNotificationReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context context, Intent intent) {
         String id=intent!=null?intent.getStringExtra("prayer"):"";
-        String mode=intent!=null?intent.getStringExtra("mode"):"notification";
         boolean pre=intent!=null&&intent.getBooleanExtra("pre",false);
-        show(context,id,mode,pre);
+        long scheduledAt=intent!=null?intent.getLongExtra("scheduled_at",0L):0L;
+        if(indexOf(id)<0)return;
+        SharedPreferences p=context.getSharedPreferences(PrayerNativeScheduler.PREFS,Context.MODE_PRIVATE);
+        if(!p.getBoolean("enabled",false))return;
+        if(Build.VERSION.SDK_INT>=33&&context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED){
+            p.edit().putBoolean("enabled",false).apply();
+            PrayerNativeScheduler.cancelAll(context);
+            return;
+        }
+        String mode=pre?"notification":p.getString("mode_"+id,"off");
+        if("off".equals(mode))return;
+        if(!pre&&scheduledAt>0L){
+            String deliveredKey="last_delivery_"+id;
+            if(p.getLong(deliveredKey,0L)==scheduledAt)return;
+            p.edit().putLong(deliveredKey,scheduledAt).apply();
+        }
+        if(!pre&&"adhan".equals(mode)){
+            if(!startAdhan(context,id))showNotice(context,id,false,p);
+        }else showNotice(context,id,pre,p);
         PrayerNativeScheduler.reschedule(context);
         QiblaWidgetProvider.refreshAll(context);
     }
 
-    private void show(Context c,String id,String mode,boolean pre){
-        SharedPreferences p=c.getSharedPreferences(PrayerNativeScheduler.PREFS,Context.MODE_PRIVATE);
-        boolean adhan=!pre&&"adhan".equals(mode);
-        String profile=p.getString("profile","makkah");
-        String soundKey="fajr".equals(id)?"fajr":("calm".equals(profile)?"calm":"deep".equals(profile)?"deep":"makkah");
-        String channel=adhan?("qiblaastro_prayer_adhan_"+soundKey+"_v1"):"qiblaastro_prayer_notice_v1";
-        int rawId=adhan?rawForAdhan(c,soundKey):0;
-        Uri sound=rawId==0?null:Uri.parse("android.resource://"+c.getPackageName()+"/"+rawId);
+    private boolean startAdhan(Context context,String id){
+        Intent service=new Intent(context,AdhanPlaybackService.class)
+                .setAction(AdhanPlaybackService.ACTION_PLAY)
+                .putExtra(AdhanPlaybackService.EXTRA_PRAYER,id);
+        try{
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)context.startForegroundService(service);
+            else context.startService(service);
+            return true;
+        }catch(RuntimeException ignored){return false;}
+    }
+
+    private void showNotice(Context c,String id,boolean pre,SharedPreferences p){
+        String channel="qiblaastro_prayer_notice_v2";
         NotificationManager nm=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
         if(nm==null)return;
         if(Build.VERSION.SDK_INT>=26){
-            NotificationChannel ch=new NotificationChannel(channel,c.getString(adhan?R.string.prayer_channel_adhan:R.string.prayer_channel_notice),NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel ch=new NotificationChannel(channel,c.getString(R.string.prayer_channel_notice),NotificationManager.IMPORTANCE_HIGH);
             ch.setDescription(c.getString(R.string.prayer_channel_description));
-            if(adhan&&sound!=null){AudioAttributes a=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build();ch.setSound(sound,a);}
             nm.createNotificationChannel(ch);
         }
         Intent launch=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
@@ -51,14 +72,8 @@ public final class PrayerNotificationReceiver extends BroadcastReceiver {
                 .setSmallIcon(c.getApplicationInfo().icon)
                 .setContentTitle(c.getString(R.string.prayer_notification_title))
                 .setContentText(body).setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_HIGH);
-        if(Build.VERSION.SDK_INT<26&&adhan&&sound!=null)b.setSound(sound);
         if(pi!=null)b.setContentIntent(pi);
         nm.notify((pre?8700:8600)+indexOf(id),b.build());
-    }
-
-    private int rawForAdhan(Context c,String key){
-        String r="fajr".equals(key)?"adhan_fajr":"calm".equals(key)?"adhan_ahmed_al_nufais":"deep".equals(key)?"adhan_islam_sobhi":"adhan_mecca";
-        return c.getResources().getIdentifier(r,"raw",c.getPackageName());
     }
 
     public static String prayerName(Context c,String id){
@@ -68,5 +83,5 @@ public final class PrayerNotificationReceiver extends BroadcastReceiver {
         if("maghrib".equals(id))return c.getString(R.string.prayer_name_maghrib);
         return c.getString(R.string.prayer_name_isha);
     }
-    private int indexOf(String id){for(int i=0;i<PrayerNativeScheduler.IDS.length;i++)if(PrayerNativeScheduler.IDS[i].equals(id))return i;return 0;}
+    private int indexOf(String id){for(int i=0;i<PrayerNativeScheduler.IDS.length;i++)if(PrayerNativeScheduler.IDS[i].equals(id))return i;return -1;}
 }

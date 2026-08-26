@@ -6,5 +6,8 @@
   <string name="prayer_notification_title">QiblaAstro — Waktu salat</string>
   <string name="prayer_notification_now">Waktunya %1$s</string>
   <string name="prayer_notification_advance">%1$s segera tiba — tersisa %2$d menit</string>
+  <string name="prayer_playback_stop">Hentikan Azan</string>
+  <string name="prayer_notification_permission_required">Izin notifikasi diperlukan untuk Azan dan pengingat salat di latar belakang.</string>
+  <string name="prayer_exact_alarm_hint">Izinkan alarm tepat QiblaAstro agar Azan dimulai tepat waktu saat ponsel terkunci.</string>
   <string name="prayer_name_fajr">Subuh</string><string name="prayer_name_dhuhr">Zuhur</string><string name="prayer_name_asr">Asar</string><string name="prayer_name_maghrib">Magrib</string><string name="prayer_name_isha">Isya</string>
 </resources>

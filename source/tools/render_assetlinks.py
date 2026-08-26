@@ -9,7 +9,7 @@ import argparse
 import json
 import re
 
-PACKAGE_ID = "com.qiblalabs.qiblaastro"
+PACKAGE_ID = "com.qiblalabs"
 
 
 def normalize_fingerprint(value: str) -> str:

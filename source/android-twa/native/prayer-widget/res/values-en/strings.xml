@@ -6,5 +6,8 @@
   <string name="prayer_notification_title">QiblaAstro — Prayer times</string>
   <string name="prayer_notification_now">It is time for %1$s</string>
   <string name="prayer_notification_advance">%1$s is approaching — %2$d minutes remaining</string>
+  <string name="prayer_playback_stop">Stop Adhan</string>
+  <string name="prayer_notification_permission_required">Notification permission is required for background Adhan and prayer alerts.</string>
+  <string name="prayer_exact_alarm_hint">Allow exact QiblaAstro alarms so Adhan can start on time while the phone is locked.</string>
   <string name="prayer_name_fajr">Fajr</string><string name="prayer_name_dhuhr">Dhuhr</string><string name="prayer_name_asr">Asr</string><string name="prayer_name_maghrib">Maghrib</string><string name="prayer_name_isha">Isha</string>
 </resources>

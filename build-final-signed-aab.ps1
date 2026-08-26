@@ -69,25 +69,6 @@ function Resolve-Jdk17Home {
     throw 'A compatible JDK 17 installation was not found. Gradle 8.11.1 must not run on JDK 25.'
 }
 
-function Invoke-Utf8BomScriptInPlace([string]$ScriptPath) {
-    $ResolvedScript = (Resolve-Path -LiteralPath $ScriptPath).Path
-    $ScriptDir = Split-Path -Parent $ResolvedScript
-    $TempScript = Join-Path $ScriptDir ('.qiblaastro-utf8-' + [Guid]::NewGuid().ToString('N') + '.ps1')
-    try {
-        # Windows PowerShell 5.1 treats UTF-8-without-BOM scripts as the active ANSI code page.
-        # The frozen Azkar injector contains Arabic filenames, so execute an exact temporary
-        # UTF-8-with-BOM copy from the same directory. This preserves $MyInvocation paths and
-        # leaves the tracked frozen source untouched after cleanup.
-        $Utf8Bom = New-Object System.Text.UTF8Encoding($true)
-        $ScriptText = [System.IO.File]::ReadAllText($ResolvedScript, [System.Text.Encoding]::UTF8)
-        [System.IO.File]::WriteAllText($TempScript, $ScriptText, $Utf8Bom)
-        & $TempScript
-    }
-    finally {
-        Remove-Item -LiteralPath $TempScript -Force -ErrorAction SilentlyContinue
-    }
-}
-
 if (-not (Test-Path -LiteralPath $FrozenShaFile -PathType Leaf)) {
     throw 'Frozen source marker is missing. Clone/checkout release/aab-3.1.0 completely before signing.'
 }
@@ -176,12 +157,15 @@ Write-Host '[4/15] Enforce Android 16 / API 36...' -ForegroundColor Yellow
 & python (Join-Path $AndroidRoot 'ensure_target_api_36.py')
 if ($LASTEXITCODE -ne 0) { throw 'API 36 enforcement failed.' }
 
-Write-Host '[5/15] Apply localized native Azkar reminders...' -ForegroundColor Yellow
-Invoke-Utf8BomScriptInPlace (Join-Path $AndroidRoot 'apply_native_azkar_reminders.ps1')
+Write-Host '[5/15] Apply all reviewed native integrations with the cross-platform injector...' -ForegroundColor Yellow
+& python (Join-Path $AndroidRoot 'apply_native_integrations.py') --all
+if ($LASTEXITCODE -ne 0) { throw 'Native Azkar/prayer/Adhan/widget injection failed.' }
 
-Write-Host '[6/15] Apply authenticated prayer notifications and home Widget...' -ForegroundColor Yellow
-& (Join-Path $AndroidRoot 'apply_native_widget.ps1')
-if ($LASTEXITCODE -ne 0) { throw 'Authenticated prayer/widget patch/gate failed.' }
+Write-Host '[6/15] Re-run generated native feature gates...' -ForegroundColor Yellow
+& python (Join-Path $AndroidRoot 'check_native_azkar_bridge.py')
+if ($LASTEXITCODE -ne 0) { throw 'Native Azkar reminder gate failed.' }
+& python (Join-Path $AndroidRoot 'check_native_widget.py')
+if ($LASTEXITCODE -ne 0) { throw 'Native prayer/Adhan/widget gate failed.' }
 
 Write-Host '[7/15] Verify generated native bridge and release integration...' -ForegroundColor Yellow
 & python (Join-Path $AndroidRoot 'check_release_integration.py')

@@ -54,6 +54,7 @@ jobs:
           set -euo pipefail
           python3 tools/pre_apk_check.py
           python3 android-twa/check_twa_config.py
+          python3 android-twa/test_native_integrations.py
           node tests/wmm2025-official-gate.js
           node tests/wmm2025-global-coverage.test.js
           node tests/wmm2025-runtime-integration.test.js
@@ -84,8 +85,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 source/android-twa/ensure_target_api_36.py
-          pwsh -NoProfile -File source/android-twa/apply_native_azkar_reminders.ps1
-          pwsh -NoProfile -File source/android-twa/apply_native_widget.ps1
+          python3 source/android-twa/apply_native_integrations.py --all
           python3 source/android-twa/check_release_integration.py
           (cd source && node tests/native-android-localization-security.test.js)
 

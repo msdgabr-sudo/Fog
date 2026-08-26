@@ -25,8 +25,15 @@ $adhan=@{'audio\adhan\mecca.mp3'='adhan_mecca.mp3';'audio\adhan\ahmed-al-nufais.
 foreach($pair in $adhan.GetEnumerator()){$from=Join-Path $RepoRoot $pair.Key;if(-not(Test-Path -LiteralPath $from -PathType Leaf)){throw "Required local Adhan file missing: $from"};Copy-Item -LiteralPath $from -Destination (Join-Path $Raw $pair.Value) -Force}
 
 $text=Get-Content -LiteralPath $Manifest -Raw
-if(-not $text.Contains('android.permission.RECEIVE_BOOT_COMPLETED')){$text=$text -replace '(<application\b)',"    <uses-permission android:name=`"android.permission.RECEIVE_BOOT_COMPLETED`" />`r`n`r`n`$1"}
-if(-not $text.Contains('android.permission.POST_NOTIFICATIONS')){$text=$text -replace '(<application\b)',"    <uses-permission android:name=`"android.permission.POST_NOTIFICATIONS`" />`r`n`r`n`$1"}
+$permissions=@(
+  'android.permission.RECEIVE_BOOT_COMPLETED',
+  'android.permission.POST_NOTIFICATIONS',
+  'android.permission.SCHEDULE_EXACT_ALARM',
+  'android.permission.FOREGROUND_SERVICE',
+  'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
+  'android.permission.WAKE_LOCK'
+)
+foreach($permission in $permissions){if(-not $text.Contains($permission)){$text=$text -replace '(<application\b)',"    <uses-permission android:name=`"$permission`" />`r`n`r`n`$1"}}
 $marker='<!-- QIBLAASTRO_AUTHENTICATED_PRAYER_WIDGET -->'
 if(-not $text.Contains($marker)){$components=@"
         $marker
@@ -34,7 +41,9 @@ if(-not $text.Contains($marker)){$components=@"
             <intent-filter><action android:name="android.intent.action.VIEW" /><category android:name="android.intent.category.DEFAULT" /><category android:name="android.intent.category.BROWSABLE" /><data android:scheme="qiblaastro" android:host="prayer-sync" /></intent-filter>
         </activity>
         <receiver android:name="com.qiblalabs.nativebridge.PrayerNotificationReceiver" android:exported="false" />
-        <receiver android:name="com.qiblalabs.nativebridge.PrayerBootReceiver" android:exported="false"><intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /><action android:name="android.intent.action.TIMEZONE_CHANGED" /><action android:name="android.intent.action.TIME_SET" /></intent-filter></receiver>
+        <service android:name="com.qiblalabs.nativebridge.AdhanPlaybackService" android:exported="false" android:foregroundServiceType="mediaPlayback" android:stopWithTask="false" />
+        <receiver android:name="com.qiblalabs.nativebridge.PrayerWidgetRefreshReceiver" android:exported="false" />
+        <receiver android:name="com.qiblalabs.nativebridge.PrayerBootReceiver" android:exported="false"><intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /><action android:name="android.intent.action.TIMEZONE_CHANGED" /><action android:name="android.intent.action.TIME_SET" /><action android:name="android.intent.action.LOCALE_CHANGED" /><action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" /></intent-filter></receiver>
         <receiver android:name="com.qiblalabs.widget.QiblaWidgetProvider" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/qibla_widget_info" /></receiver>
 "@;$text=$text -replace '</application>',($components+"`r`n    </application>")}
 Set-Content -LiteralPath $Manifest -Value $text -Encoding UTF8
@@ -64,4 +73,6 @@ $token=Get-Content -LiteralPath (Join-Path $JavaBridge 'NativeBridgeToken.java')
 if($sync -notmatch 'NativeBridgeToken\.valid'){throw 'Prayer/widget sync token validation missing.'}
 if($token -notmatch 'SecureRandom' -or $token -notmatch 'MODE_PRIVATE'){throw 'Per-install cryptographic private token store missing.'}
 if($sync -notmatch 'MODE_PRIVATE'){throw 'Private native prayer/widget store requirement missing.'}
-Write-Host 'PASS: authenticated local prayer notifications + local Adhan + translated widget integrated; launcher resolved from generated manifest.' -ForegroundColor Green
+& python (Join-Path $Here 'check_native_widget.py')
+if($LASTEXITCODE -ne 0){throw 'Native prayer/Adhan/widget integrity gate failed.'}
+Write-Host 'PASS: exact prayer alarms + foreground local Adhan + translated event-driven widget integrated.' -ForegroundColor Green

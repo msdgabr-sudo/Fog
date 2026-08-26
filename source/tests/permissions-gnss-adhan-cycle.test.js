@@ -13,6 +13,7 @@ const runtime=read('js/runtime/trusted-location-dependent-sync.js');
 const nativeActivity=read('android-twa/native/prayer-widget/PrayerWidgetSyncActivity.java');
 const nativeScheduler=read('android-twa/native/prayer-widget/PrayerNativeScheduler.java');
 const nativeReceiver=read('android-twa/native/prayer-widget/PrayerNotificationReceiver.java');
+const adhanService=read('android-twa/native/prayer-widget/AdhanPlaybackService.java');
 const twa=JSON.parse(read('android-twa/twa-manifest.json'));
 const sw=read('service-worker.js');
 
@@ -65,17 +66,19 @@ assert(adhanUi.includes('function requestNotificationPermission()'),'Adhan UI mu
 assert(adhanUi.includes('Notification.requestPermission()'),'Web notification permission must remain inside Adhan UI');
 assert(sync.includes("q.set('notify',st.enabled?'1':'0')"),'Native handoff must continue to request notifications only from Adhan state');
 assert(nativeActivity.includes('"1".equals(data.getQueryParameter("notify"))'),'Android notification permission must remain conditional on enabled Adhan notifications');
-assert(nativeScheduler.includes('AlarmManager.RTC_WAKEUP')&&nativeScheduler.includes('setAndAllowWhileIdle'),'Native Adhan must remain scheduled for closed-app/Doze delivery');
+assert(nativeScheduler.includes('AlarmManager.RTC_WAKEUP')&&nativeScheduler.includes('setExactAndAllowWhileIdle')&&nativeScheduler.includes('canScheduleExactAlarms'),'Prayer-time Adhan must use the user-granted exact-alarm path for closed-app/Doze delivery');
+assert(nativeScheduler.includes('setAndAllowWhileIdle'),'Pre-alerts and devices without special exact-alarm access need an idle-safe fallback');
 assert(nativeScheduler.includes('PendingIntent.getBroadcast')&&nativeScheduler.includes('PrayerNotificationReceiver.class'),'Native Adhan delivery must remain BroadcastReceiver-based');
-assert(nativeReceiver.includes('USAGE_ALARM')&&nativeReceiver.includes('rawForAdhan'),'Native receiver must retain local Adhan alarm audio');
+assert(nativeReceiver.includes('AdhanPlaybackService.ACTION_PLAY')&&nativeReceiver.includes('startForegroundService'),'Native receiver must hand full Adhan playback to the declared foreground service');
+assert(adhanService.includes('USAGE_ALARM')&&adhanService.includes('rawForAdhan')&&adhanService.includes('startForeground'),'Foreground service must retain bundled alarm-usage Adhan playback');
 
 // Service worker and loader must force this exact integration to replace stale first-run code.
 assert(bootstrap.includes('permissions-onboarding.js?v=20260819-code3-location-only1'),'Bootstrap must request the fresh location-only permission asset');
 assert(sw.includes("'./js/presentation/permissions-onboarding.js'"),'Permissions integration must stay in critical cache');
-assert(sw.includes("VERSION='qiblaastro-3.1.0-code3-location-only-r1'"),'Service worker must evict the stale coupled cache');
-assert(sw.includes("PERMISSIONS_RELEASE='code3-location-only-20260819-r1'"),'Service worker must advertise the location-only permissions release');
+assert(sw.includes("VERSION='qiblaastro-v5.70-offline-native-20260826'"),'Service worker must evict the stale coupled/native/offline cache');
+assert(sw.includes("PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'"),'Service worker must advertise the independent prayer exact-alarm permission release');
 assert(!sw.includes("'./js/05-gnss.js'"),'Service worker must not activate the unused external GNSS implementation beside the production inline engine');
 
 console.log('Permissions cycle: explicit bounded Android location request -> immediate independent completion -> trusted existing GNSS: PASS');
-console.log('Adhan cycle: separate contextual web/native notification permission -> RTC_WAKEUP BroadcastReceiver local Adhan: PASS');
+console.log('Adhan cycle: separate contextual permission -> exact RTC_WAKEUP -> receiver -> foreground bundled playback: PASS');
 console.log('Safety: retired GNSS state removed; no IP fallback and no Qibla/WMM/prayer/Falaki/raw-equation implementation added to onboarding: PASS');

@@ -7,16 +7,31 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
 import com.qiblalabs.R;
 import com.qiblalabs.nativebridge.PrayerNativeScheduler;
 import com.qiblalabs.nativebridge.PrayerNotificationReceiver;
+import com.qiblalabs.nativebridge.PrayerWidgetRefreshReceiver;
+
+import java.util.Date;
 
 /** Read-only widget. Data comes only from the authenticated app-private prayer store. */
 public final class QiblaWidgetProvider extends AppWidgetProvider {
     @Override public void onUpdate(Context context, AppWidgetManager manager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) manager.updateAppWidget(appWidgetId, buildViews(context));
+        PrayerWidgetRefreshReceiver.schedule(context);
+    }
+
+    @Override public void onEnabled(Context context){
+        super.onEnabled(context);
+        refreshAll(context);
+    }
+
+    @Override public void onDisabled(Context context){
+        PrayerWidgetRefreshReceiver.cancel(context);
+        super.onDisabled(context);
     }
 
     public static void refreshAll(Context context){
@@ -30,8 +45,9 @@ public final class QiblaWidgetProvider extends AppWidgetProvider {
         SharedPreferences prefs = context.getSharedPreferences(PrayerNativeScheduler.PREFS, Context.MODE_PRIVATE);
         String unavailable = context.getString(R.string.widget_value_unavailable);
         String city = prefs.getString("city", context.getString(R.string.widget_city_unavailable));
-        String prayer = nextPrayerLabel(context,prefs);
-        String prayerTime = nextPrayerTime(prefs);
+        PrayerNativeScheduler.NextPrayer next=PrayerNativeScheduler.nextPrayer(prefs,System.currentTimeMillis());
+        String prayer = nextPrayerLabel(context,next);
+        String prayerTime = nextPrayerTime(context,next);
         String qibla = prefs.getString("qibla", unavailable);
         String hijri = prefs.getString("hijri", unavailable);
 
@@ -48,21 +64,13 @@ public final class QiblaWidgetProvider extends AppWidgetProvider {
         return views;
     }
 
-    private String nextPrayerLabel(Context c,SharedPreferences p){
-        int idx=nextIndex(p); if(idx<0)return c.getString(R.string.widget_refresh_required);
-        return PrayerNotificationReceiver.prayerName(c,PrayerNativeScheduler.IDS[idx]);
+    private String nextPrayerLabel(Context c,PrayerNativeScheduler.NextPrayer next){
+        if(next==null)return c.getString(R.string.widget_refresh_required);
+        return PrayerNotificationReceiver.prayerName(c,next.id);
     }
-    private String nextPrayerTime(SharedPreferences p){
-        int idx=nextIndex(p); if(idx<0)return "--:--"; int m=p.getInt("time_"+PrayerNativeScheduler.IDS[idx],-1);
-        if(m<0)return "--:--"; int h=m/60,mm=m%60; String ap=h<12?"AM":"PM"; int h12=h%12;if(h12==0)h12=12;
-        return String.format(java.util.Locale.getDefault(),"%d:%02d %s",h12,mm,ap);
-    }
-    private int nextIndex(SharedPreferences p){
-        String tz=p.getString("timezone",java.util.TimeZone.getDefault().getID());
-        java.util.Calendar c=java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone(tz));
-        int now=c.get(java.util.Calendar.HOUR_OF_DAY)*60+c.get(java.util.Calendar.MINUTE);
-        for(int i=0;i<PrayerNativeScheduler.IDS.length;i++){int m=p.getInt("time_"+PrayerNativeScheduler.IDS[i],-1);if(m>=now)return i;}
-        return 0;
+    private String nextPrayerTime(Context context,PrayerNativeScheduler.NextPrayer next){
+        if(next==null)return "--:--";
+        return DateFormat.getTimeFormat(context).format(new Date(next.atMillis));
     }
 
     private PendingIntent openAppIntent(Context context) {

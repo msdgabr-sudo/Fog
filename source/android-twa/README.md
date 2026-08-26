@@ -4,10 +4,10 @@ This directory is intentionally isolated from the web application's runtime engi
 
 ## Frozen identity
 - Origin: `https://app.qiblalabs.com`
-- Package ID: `com.qiblalabs.qiblaastro`
+- Package ID: `com.qiblalabs`
 - App name: `QiblaAstro ELITE`
-- Version name: `1.0.0`
-- Version code: `1`
+- Version name: `3.1.0`
+- Version code: `3`
 - First Play release: no ads / no `AD_ID`
 
 ## Hard safety boundaries
@@ -28,13 +28,14 @@ This directory is intentionally isolated from the web application's runtime engi
 7. Enable Play App Signing and obtain the **Play App Signing certificate SHA-256** from Play Console.
 8. Publish `.well-known/assetlinks.json` with the real certificate fingerprint(s).
 9. Verify TWA launches without browser chrome.
-10. Separately validate Android background behavior for Adhan and periodic Azkar audio. TWA notification delegation alone is not considered proof that scheduled background audio works when the app is closed.
+10. Validate the bundled foreground-service Adhan, periodic Azkar audio, exact-alarm special access, reboot restoration, and the event-driven widget on a real Android device.
 
 ## Bubblewrap commands (once Bubblewrap is available)
 ```bash
 cd android-twa
 bubblewrap update --skipVersionUpgrade --manifest=./twa-manifest.json
 python3 ensure_target_api_36.py
+python3 apply_native_integrations.py --all
 bubblewrap build --skipSigning --manifest=./twa-manifest.json
 ```
 

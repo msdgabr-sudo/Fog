@@ -3,10 +3,10 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $KeyDir = Join-Path $ScriptDir 'keystore'
 $KeyPath = Join-Path $KeyDir 'qiblaastro-upload.jks'
-$Alias = 'qiblaastro-upload'
+$Alias = 'qiblaastro'
 
 Write-Host 'QiblaAstro ELITE - Local Upload Key Generator' -ForegroundColor Cyan
-Write-Host 'Package ID: com.qiblalabs.qiblaastro'
+Write-Host 'Package ID: com.qiblalabs'
 Write-Host 'This creates the Google Play UPLOAD key, not the Play App Signing key.' -ForegroundColor Yellow
 Write-Host 'The keystore and passwords must NEVER be committed to GitHub.' -ForegroundColor Yellow
 Write-Host ''

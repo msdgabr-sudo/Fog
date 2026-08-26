@@ -6,5 +6,8 @@
   <string name="prayer_notification_title">QiblaAstro — نماز کے اوقات</string>
   <string name="prayer_notification_now">%1$s کا وقت ہو گیا ہے</string>
   <string name="prayer_notification_advance">%1$s قریب ہے — %2$d منٹ باقی</string>
+  <string name="prayer_playback_stop">اذان بند کریں</string>
+  <string name="prayer_notification_permission_required">پس منظر میں اذان اور نماز کی یاددہانی کے لیے اطلاع کی اجازت ضروری ہے۔</string>
+  <string name="prayer_exact_alarm_hint">درست وقت پر مقفل فون میں اذان کے لیے QiblaAstro کی درست الارم اجازت دیں۔</string>
   <string name="prayer_name_fajr">فجر</string><string name="prayer_name_dhuhr">ظہر</string><string name="prayer_name_asr">عصر</string><string name="prayer_name_maghrib">مغرب</string><string name="prayer_name_isha">عشاء</string>
 </resources>

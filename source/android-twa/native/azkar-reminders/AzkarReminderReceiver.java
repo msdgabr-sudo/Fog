@@ -1,11 +1,13 @@
 package com.qiblalabs.azkar;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
@@ -20,9 +22,15 @@ public final class AzkarReminderReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (!AzkarReminderScheduler.isEnabled(context)) return;
+        if (Build.VERSION.SDK_INT >= 33
+                && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            AzkarReminderScheduler.stop(context);
+            return;
+        }
         String phraseId = AzkarReminderScheduler.phraseId(context);
         String phraseText = AzkarReminderScheduler.phraseText(context);
-        int rawId = rawForPhrase(context, phraseId);
+        int rawId = rawForPhrase(phraseId);
         String channelId = "azkar_" + phraseId + "_v1";
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager != null) {
@@ -62,20 +70,18 @@ public final class AzkarReminderReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private int rawForPhrase(Context context, String phraseId) {
-        String resource;
+    private int rawForPhrase(String phraseId) {
         switch (phraseId) {
-            case "alhamdulillah": resource = "azkar_alhamdulillah"; break;
-            case "allahuakbar": resource = "azkar_allahuakbar"; break;
-            case "lailahaillallah": resource = "azkar_lailahaillallah"; break;
-            case "astaghfirullah": resource = "azkar_astaghfirullah"; break;
-            case "astaghfirullahalazim": resource = "azkar_astaghfirullahalazim"; break;
-            case "subhanallahwabihamdih": resource = "azkar_subhanallahwabihamdih"; break;
-            case "lahawla": resource = "azkar_lahawla"; break;
-            case "hasbiyallah": resource = "azkar_hasbiyallah"; break;
-            case "salat": resource = "azkar_salat"; break;
-            default: resource = "azkar_subhanallah"; break;
+            case "alhamdulillah": return R.raw.azkar_alhamdulillah;
+            case "allahuakbar": return R.raw.azkar_allahuakbar;
+            case "lailahaillallah": return R.raw.azkar_lailahaillallah;
+            case "astaghfirullah": return R.raw.azkar_astaghfirullah;
+            case "astaghfirullahalazim": return R.raw.azkar_astaghfirullahalazim;
+            case "subhanallahwabihamdih": return R.raw.azkar_subhanallahwabihamdih;
+            case "lahawla": return R.raw.azkar_lahawla;
+            case "hasbiyallah": return R.raw.azkar_hasbiyallah;
+            case "salat": return R.raw.azkar_salat;
+            default: return R.raw.azkar_subhanallah;
         }
-        return context.getResources().getIdentifier(resource, "raw", context.getPackageName());
     }
 }

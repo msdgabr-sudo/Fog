@@ -34,8 +34,9 @@ assert(/function\s+tryIPGeo\s*\(\)/.test(gnss),'compatibility alias may remain')
 const permissions=fs.readFileSync('js/presentation/permissions-onboarding.js','utf8');
 assert(/function\s+queryLocationPermission\s*\(/.test(permissions),'onboarding must inspect the browser/TWA geolocation permission state');
 assert(/if\(err&&err\.code===1\)\{finish\('denied'\)/.test(permissions),'only PERMISSION_DENIED may classify location permission as denied');
-assert(/finish\('granted'\);\s*\n\s*\}/.test(permissions),'position timeout/unavailable must not be confused with a denied permission');
-assert(/var\s+notificationResult=currentWebNotificationState\(\)/.test(permissions),'first-run onboarding must not launch a competing notification prompt');
+assert(/getCurrentPosition\(\s*function\(\)\{finish\('granted'\);\}/.test(permissions),'only geolocation success may classify location permission as granted');
+assert(/settleFromObservedPermission\(\);\s*\}/.test(permissions),'position timeout/unavailable must resolve from observed permission instead of being confused with denial');
+assert(/setState\('notifications','contextual'\)/.test(permissions),'first-run onboarding must keep notification permission contextual');
 assert(!/var\s+notificationPromise=requestWebNotifications\(\)/.test(permissions),'legacy concurrent notification/location permission request must remain removed');
 assert(/typeof\s+root\.tryBrowserGPS===['\"]function['\"]/.test(permissions),'successful permission onboarding must hand off to the existing trusted GNSS path');
 
@@ -98,7 +99,8 @@ assert(serviceWorker.includes("'./js/presentation/quran/host.js'"),'service work
 assert(serviceWorker.includes("'./js/presentation/quran/back-history.js'"),'service worker must critical-cache the Quran nested Back bridge');
 assert(serviceWorker.includes("'./js/presentation/azkar/host.js'"),'service worker must critical-cache the modern Azkar host');
 assert(serviceWorker.includes("'./js/presentation/azkar/back-history.js'"),'service worker must critical-cache the Azkar nested Back bridge');
-assert(/fetch\(r,\{cache:['\"]no-store['\"]\}\)/.test(serviceWorker),'service worker must network-refresh JS/CSS/HTML instead of pinning stale navigation code');
+assert(/async function navigationResponse\(request\)/.test(serviceWorker)&&/fetchAndStore\(request,APP_CACHE,'no-store'\)/.test(serviceWorker),'service worker must network-refresh navigation instead of pinning stale pages');
+assert(/async function cachedAssetResponse\(request\)/.test(serviceWorker)&&/matchIgnoringSearch\(request\)/.test(serviceWorker),'service worker must reuse the complete local shell before network-fetching assets');
 
 assert(/const\s+UTC_OFF\s*=\s*3\s*;/.test(indexHtml),'legacy solar-event UTC+3 contract must remain explicit in the production owner behind the isolated civil-time adapter');
 const timezoneAudit=fs.readFileSync('checkpoints/PRAYER_TIMEZONE_AUDIT_2026-08-14.md','utf8');
