@@ -126,6 +126,7 @@ Current checks:
 - Completed the atomic offline App Shell, Quran text set, protected astronomical modules, and local Adhan/Azkar audio caching with byte-range playback support.
 - Added an idempotent cross-platform native injector plus hermetic Android structure tests, without changing version `3.1.0` / code `3` or any protected astronomical file.
 - The full suite is now `84 = 73 pass + 11 classified inherited failures`, with no new failure.
+- Published the reviewed four-feature batch from `fog` to `main` on 2026-08-26 after all active local release gates passed.
 - Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` before the explicit card press and `البوصلة الحية` immediately after it.
 - Re-audited the qappan/Fog canvas radius, smoothing, responsive canvas sizes, card-row heights, and deviation-panel heights. The source geometry is identical; the apparent vertical shift in the supplied pair comes from comparing standalone display mode with a browser viewport reduced by its toolbar.
 - Added a controller-local activation gate: an existing/cached host heading can no longer skip `اضغط للتفعيل`; the displayed heading, deviation, confidence, and dial remain idle until the card is pressed.
