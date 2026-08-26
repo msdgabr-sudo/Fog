@@ -64,7 +64,7 @@ assert(permissions.includes("notifications:'contextual'"),'Location onboarding m
 // Existing Adhan permissions remain contextual in their own web/native modules.
 assert(adhanUi.includes('function requestNotificationPermission()'),'Adhan UI must retain its independent notification permission request');
 assert(adhanUi.includes('Notification.requestPermission()'),'Web notification permission must remain inside Adhan UI');
-assert(sync.includes("q.set('notify',st.enabled?'1':'0')"),'Native handoff must continue to request notifications only from Adhan state');
+assert(sync.includes("q.set('notify',widgetOnly?'0':(st.enabled?'1':'0'))"),'Native handoff must request notifications only for Adhan delivery, never widget-only refresh');
 assert(nativeActivity.includes('"1".equals(data.getQueryParameter("notify"))'),'Android notification permission must remain conditional on enabled Adhan notifications');
 assert(nativeScheduler.includes('AlarmManager.RTC_WAKEUP')&&nativeScheduler.includes('setExactAndAllowWhileIdle')&&nativeScheduler.includes('canScheduleExactAlarms'),'Prayer-time Adhan must use the user-granted exact-alarm path for closed-app/Doze delivery');
 assert(nativeScheduler.includes('setAndAllowWhileIdle'),'Pre-alerts and devices without special exact-alarm access need an idle-safe fallback');
@@ -75,7 +75,7 @@ assert(adhanService.includes('USAGE_ALARM')&&adhanService.includes('rawForAdhan'
 // Service worker and loader must force this exact integration to replace stale first-run code.
 assert(bootstrap.includes('permissions-onboarding.js?v=20260819-code3-location-only1'),'Bootstrap must request the fresh location-only permission asset');
 assert(sw.includes("'./js/presentation/permissions-onboarding.js'"),'Permissions integration must stay in critical cache');
-assert(sw.includes("VERSION='qiblaastro-v5.70-offline-native-20260826'"),'Service worker must evict the stale coupled/native/offline cache');
+assert(sw.includes("VERSION='qiblaastro-v5.71-pre-aab-20260826'"),'Service worker must evict the stale coupled/native/offline cache');
 assert(sw.includes("PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'"),'Service worker must advertise the independent prayer exact-alarm permission release');
 assert(!sw.includes("'./js/05-gnss.js'"),'Service worker must not activate the unused external GNSS implementation beside the production inline engine');
 

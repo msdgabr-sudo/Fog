@@ -3,7 +3,7 @@
  * © 2026 Mohamed SG Behairy. All Rights Reserved. */
 'use strict';
 
-const VERSION='qiblaastro-v5.70-offline-native-20260826';
+const VERSION='qiblaastro-v5.71-pre-aab-20260826';
 const BRIDGE_RELEASE='package-scoped-native-20260826';
 const GNSS_RELEASE='trusted-startup-recovery-20260818';
 const PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826';

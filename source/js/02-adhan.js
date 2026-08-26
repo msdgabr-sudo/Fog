@@ -3,9 +3,9 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // Audio engine only. Prayer times are supplied by the unchanged prayer schedule.
 var _adhanAudio=null,_adhanPlayed={},_adhanEnabled=true,_adhanDay='',_adhanPending=null,_audioUnlocked=false;
-var _adhanFajrURL='https://raw.githubusercontent.com/AalianKhan/adhans/master/adhan_fajr.mp3';
-var _adhanNormalURL='https://raw.githubusercontent.com/AalianKhan/adhans/master/adhan.mp3';
-var _adhanFallbackURL='https://raw.githubusercontent.com/AalianKhan/adhans/master/adhan.mp3';
+var _adhanFajrURL='audio/adhan/fajr-alafasy.mp3';
+var _adhanNormalURL='audio/adhan/mecca.mp3';
+var _adhanFallbackURL='audio/adhan/mecca.mp3';
 function adhanSetAudioURLs(normalURL,fajrURL,fallbackURL){if(typeof normalURL==='string'&&normalURL)_adhanNormalURL=normalURL;if(typeof fajrURL==='string'&&fajrURL)_adhanFajrURL=fajrURL;if(typeof fallbackURL==='string'&&fallbackURL)_adhanFallbackURL=fallbackURL;}
 function adhanSetEnabled(value){_adhanEnabled=!!value;if(!_adhanEnabled){_adhanPending=null;_stopAdhanFromAlert();}return _adhanEnabled;}
 function adhanIsEnabled(){return !!_adhanEnabled;}

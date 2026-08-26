@@ -4,7 +4,9 @@ const engine=fs.readFileSync('js/02-adhan.js','utf8');
 const readiness=fs.readFileSync('js/presentation/prayer/audio-readiness.js','utf8');
 const finalizer=fs.readFileSync('js/presentation/prayer/audio-finalizer.js','utf8');
 const bootstrap=fs.readFileSync('js/presentation/bootstrap.js','utf8');
+const screen=fs.readFileSync('js/presentation/prayer/screen.js','utf8');
 const sw=fs.readFileSync('service-worker.js','utf8');
+const index=fs.readFileSync('index.html','utf8');
 const page=fs.readFileSync('pages/prayer.html','utf8');
 const css=fs.readFileSync('css/presentation/prayer/refinement.css','utf8');
 const polish=fs.readFileSync('css/presentation/prayer/final-polish.css','utf8');
@@ -13,6 +15,22 @@ assert.match(ui,/makkah:\{/);assert.match(ui,/calm:\{/);assert.match(ui,/deep:\{
 ['الأذان الأساسي','أذان أحمد النفيس','أذان إسلام صبحي'].forEach(x=>assert.ok(ui.includes(x),x));
 assert.ok(!ui.includes('www.islamcan.com'),'IslamCan UI dependency must not return');
 assert.ok(!engine.includes('www.islamcan.com'),'IslamCan engine default must not return');
+assert.ok(!/var _adhan(?:Fajr|Normal|Fallback)URL\s*=\s*['"]https?:\/\//.test(index),'active Web Adhan defaults must never require the network');
+assert.ok(!/var _adhan(?:Fajr|Normal|Fallback)URL\s*=\s*['"]https?:\/\//.test(engine),'extracted Adhan engine defaults must never require the network');
+assert.match(index,/var _adhanFajrURL\s*=\s*['"]audio\/adhan\/fajr-alafasy\.mp3['"]/);
+assert.match(index,/var _adhanNormalURL\s*=\s*['"]audio\/adhan\/mecca\.mp3['"]/);
+assert.match(index,/function adhanSetAudioURLs\(normalURL, fajrURL, fallbackURL\)/);
+assert.match(engine,/var _adhanFallbackURL=['"]audio\/adhan\/mecca\.mp3['"]/);
+const inlineAdhan=index.match(/\[JS-2\] ADHAN AUDIO ENGINE[\s\S]*?(?=function updateHome\()/);
+assert.ok(inlineAdhan,'inline production Adhan block missing');
+for(const [name,source] of [['inline Adhan engine',inlineAdhan[0]],['extracted Adhan engine',engine],['Adhan profiles',ui],['Adhan finalizer',finalizer]]){
+  assert.ok(!/https?:\/\//i.test(source),`${name} must not contain a network audio dependency`);
+}
+
+// Startup mounts Prayer even while its route is hidden, and bind installs the adapter once.
+assert.match(bootstrap,/function start\(\)\{[^}]*loadPrayer\(\)/);
+assert.match(screen,/function bindStaticUi\(\)\{if\(root\.QiblaAdhanUI&&typeof root\.QiblaAdhanUI\.bind===['"]function['"]\)root\.QiblaAdhanUI\.bind/);
+assert.match(ui,/function bind\(el\)[\s\S]*?installSchedulerAdapter\(\)/);
 
 // Release contract: user-selectable muezzin playback is local/offline and deterministic.
 for(const asset of ['audio/adhan/mecca.mp3','audio/adhan/ahmed-al-nufais.mp3','audio/adhan/islam-sobhi.mp3','audio/adhan/fajr-alafasy.mp3']){

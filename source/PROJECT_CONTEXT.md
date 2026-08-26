@@ -51,7 +51,7 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — atomic offline App Shell/runtime, currently `qiblaastro-v5.70-offline-native-20260826`.
+- `service-worker.js` — atomic offline App Shell/runtime, currently `qiblaastro-v5.71-pre-aab-20260826`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features
@@ -125,6 +125,8 @@ Current checks:
 - Added Play-policy-aware native Android delivery for background Adhan, local Azkar voice reminders, an authenticated prayer-data bridge, and an event-driven prayer/Qibla widget under `com.qiblalabs`.
 - Completed the atomic offline App Shell, Quran text set, protected astronomical modules, and local Adhan/Azkar audio caching with byte-range playback support.
 - Added an idempotent cross-platform native injector plus hermetic Android structure tests, without changing version `3.1.0` / code `3` or any protected astronomical file.
+- Replaced the remaining Web/PWA Adhan network defaults with the bundled Fajr and Makkah files, restored the production `adhanSetAudioURLs()` adapter, and added a regression gate that forbids network URLs across every active Adhan audio layer.
+- Made widget startup refresh opt-in: only a successful explicit widget refresh stores activation, and every later automatic refresh stays `widgetOnly` with `notify=0`; a runtime test proves that this path cannot activate Adhan permissions while full Adhan delivery remains unchanged.
 - The full suite is now `84 = 73 pass + 11 classified inherited failures`, with no new failure.
 - Published the reviewed four-feature batch from `fog` to `main` on 2026-08-26 after all active local release gates passed.
 - Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` before the explicit card press and `البوصلة الحية` immediately after it.

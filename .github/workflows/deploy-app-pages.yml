@@ -51,7 +51,7 @@ jobs:
           assert cfg["appVersion"] == "3.1.0", cfg["appVersion"]
           assert cfg["appVersionCode"] == 3, cfg["appVersionCode"]
           PY
-          grep -Fq "VERSION='qiblaastro-v5.70-offline-native-20260826'" source/service-worker.js
+          grep -Fq "VERSION='qiblaastro-v5.71-pre-aab-20260826'" source/service-worker.js
           grep -Fq "PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'" source/service-worker.js
           grep -Fq "OFFLINE_RELEASE='atomic-app-shell-quran-audio-20260826'" source/service-worker.js
           grep -Fq "permissions-onboarding.js?v=20260819-code3-location-only1" source/js/presentation/bootstrap.js

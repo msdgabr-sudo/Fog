@@ -595,8 +595,15 @@ var _adhanEnabled   = true;
 var _adhanDay       = '';        // لتصفير _adhanPlayed يومياً
 var _adhanPending   = null;      // الأذان المعلق
 var _audioUnlocked  = false;     // هل فعّل المستخدم الصوت؟
-var _adhanFajrURL   = 'https://www.islamcan.com/audio/adhan/azan2.mp3';
-var _adhanNormalURL = 'https://www.islamcan.com/audio/adhan/azan1.mp3';
+var _adhanFajrURL   = 'audio/adhan/fajr-alafasy.mp3';
+var _adhanNormalURL = 'audio/adhan/mecca.mp3';
+
+// تُضبط الملفات المختارة من واجهة الأذان، وتبقى محلية لتعمل دون اتصال.
+function adhanSetAudioURLs(normalURL, fajrURL, fallbackURL){
+  var fallback = (typeof fallbackURL === 'string' && fallbackURL) ? fallbackURL : 'audio/adhan/mecca.mp3';
+  _adhanNormalURL = (typeof normalURL === 'string' && normalURL) ? normalURL : fallback;
+  _adhanFajrURL = (typeof fajrURL === 'string' && fajrURL) ? fajrURL : fallback;
+}
 
 function _playAdhan(isFajr){
   if(!_adhanEnabled) return;

@@ -66,6 +66,7 @@ jobs:
           node tests/i18n-roundtrip-safety.test.js
           node tests/a2-phone-ui-regressions.test.js
           node tests/permissions-gnss-adhan-cycle.test.js
+          node tests/prayer-widget-safe-autosync.test.js
           node tests/astronomical-verification-store-persistence.test.js
           node tests/native-android-localization-security.test.js
           node tests/pre-native-release-readiness.test.js
