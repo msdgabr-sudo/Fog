@@ -71,10 +71,12 @@ assert(apply.includes('QiblaWidgetProvider')&&apply.includes('PrayerWidgetSyncAc
 const plan=read('js/presentation/prayer/native-plan.js');
 assert(plan.includes('QiblaPrayerMethods.calculate'),'background plan must reuse the approved prayer method engine rather than duplicate its equations');
 assert(plan.includes('QiblaPrayerLocation.dateKey'),'background plan must use the effective prayer-location timezone date');
+assert(plan.includes("typeof runtime.getSchedule==='function'"),'background plan must prefer the authoritative advanced prayer schedule');
 assert(plan.includes('sameMinutes(first.times,current)'),'background plan must match the live displayed schedule before it can cross the native bridge');
 assert(plan.includes('Math.min(14'),'background plan horizon must remain bounded');
 const webSync=read('js/presentation/prayer/schedule-sync.js');
 assert(webSync.includes("TOKEN_KEY='qiblaastro:native-token'"),'web sync token storage missing');
+assert(webSync.includes("typeof runtime.getSchedule==='function'"),'native schedule sync must prefer the authoritative advanced prayer schedule');
 assert(webSync.includes("AUTO_KEY='qiblaastro:prayer-native-sync-enabled:v1'"),'native prayer sync activation marker missing');
 assert(webSync.includes("LAST_SYNC_KEY='qiblaastro:prayer-native-sync-last:v1'"),'native prayer sync de-duplication marker missing');
 assert(webSync.includes('root.location.hash'),'web bridge must capture token from non-HTTP fragment');
@@ -113,10 +115,11 @@ assert(azHost.includes('seedFrameContext(frame)'),'Azkar iframe must receive sam
 assert(azPage.includes('#azAudio .az-audio-status{display:none!important}'),'Azkar audio status note must remain hidden; the toggle is the visible state control');
 assert(azPage.includes('azkar-native-reminders.js?v=20260826-package-scoped5'),'Azkar page must load the package-scoped native reminder bridge');
 const bootstrap=read('js/presentation/bootstrap.js');
-assert(bootstrap.includes('schedule-sync.js?v=20260826-widget-sync4'),'authenticated widget/prayer sync loader version missing');
+assert(bootstrap.includes('schedule-sync.js?v=20260827-authoritative1'),'authenticated widget/prayer sync loader version missing');
+assert(webSync.includes('native-plan.js?v=20260827-authoritative1'),'authenticated dated-plan loader version missing');
 const sw=read('service-worker.js');
 assert(/qiblaastro-v\d+\.\d+-/.test(sw),'versioned service-worker cache missing');
-assert(sw.includes('qiblaastro-v5.71-pre-aab-20260826'),'pre-AAB offline/native service-worker version missing');
+assert(sw.includes('qiblaastro-v5.72-offline-adhan-20260827'),'pre-AAB offline/Adhan service-worker version missing');
 assert(sw.includes('./js/presentation/prayer/native-plan.js')&&sw.includes('./js/presentation/prayer/schedule-sync.js')&&sw.includes('./js/azkar-native-reminders.js'),'native web bridge files must remain in critical offline cache');
 console.log('Native Android localization/security gate: PASS');
 console.log('Prayer actual-time + separate pre-alert + local Adhan audio: PASS');

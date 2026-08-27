@@ -77,7 +77,7 @@ for(const asset of ['./index.html','./js/06-navigation.js','./js/home-final.js',
  assert(sw.includes("'"+asset+"'"),`Service worker must precache stable shell asset: ${asset}`);
 }
 assert(sw.includes("'./js/presentation/permissions-onboarding.js'"),'Service worker must keep the production permissions/GNSS startup integration in the critical cache');
-assert(/fetch\(r,\{cache:['\"]no-store['\"]\}\)/.test(sw),'Service worker must network-refresh JS/CSS/HTML so GNSS startup fixes are not pinned stale');
+assert(sw.includes("fetchWithTimeout(r,'no-store')")&&sw.includes('NETWORK_TIMEOUT_MS'),'Service worker must network-refresh JS/CSS/HTML with a bounded offline fallback so GNSS startup fixes are not pinned stale');
 
 const gnss=read('js/05-gnss.js');
 assert((gnss.match(/maximumAge:0/g)||[]).length>=2,'GNSS manual refresh/watch must request fresh device fixes');

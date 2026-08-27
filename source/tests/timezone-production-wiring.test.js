@@ -20,7 +20,7 @@ for(const src of [
   'js/prayer/prayer-settings.js?v=20260814-global-prayer1',
   'js/prayer/prayer-location.js?v=20260814-prayer-location2',
   'js/prayer/time-format.js?v=20260814-prayer-12h1',
-  'js/runtime/trusted-location-dependent-sync.js?v=20260814-prayer-runtime6'
+  'js/runtime/trusted-location-dependent-sync.js?v=20260827-authoritative1'
 ]) assert(label.includes(src),`production prayer dependency missing: ${src}`);
 
 // The source defines loader functions in reverse dependency order, so validate callback edges,

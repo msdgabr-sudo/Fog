@@ -51,7 +51,7 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — atomic offline App Shell/runtime, currently `qiblaastro-v5.71-pre-aab-20260826`.
+- `service-worker.js` — atomic offline App Shell/runtime with bounded network fallback, currently `qiblaastro-v5.72-offline-adhan-20260827`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features
@@ -127,7 +127,10 @@ Current checks:
 - Added an idempotent cross-platform native injector plus hermetic Android structure tests, without changing version `3.1.0` / code `3` or any protected astronomical file.
 - Replaced the remaining Web/PWA Adhan network defaults with the bundled Fajr and Makkah files, restored the production `adhanSetAudioURLs()` adapter, and added a regression gate that forbids network URLs across every active Adhan audio layer.
 - Made widget startup refresh opt-in: only a successful explicit widget refresh stores activation, and every later automatic refresh stays `widgetOnly` with `notify=0`; a runtime test proves that this path cannot activate Adhan permissions while full Adhan delivery remains unchanged.
-- The full suite is now `84 = 73 pass + 11 classified inherited failures`, with no new failure.
+- Added an eager one-second Web Adhan scheduler that starts without opening the Prayer screen, survives failure of the legacy compass loop, uses the effective prayer-location civil time, and de-duplicates delivery across the independent and legacy callbacks.
+- Made the approved advanced prayer schedule authoritative outside the protected inline runtime, refresh it on each civil day and timezone-offset change, expose defensive copies to Web/native consumers, and fail the Android bridge closed until that schedule is valid.
+- Bounded Service Worker network-first requests, fall back to cached navigation/code on timeouts and non-success HTTP responses, preserve atomic complete precaching, and register the worker at DOM readiness instead of waiting for every page asset.
+- Added executable regression coverage for independent Adhan delivery, civil-midnight refresh, stalled/failed-network fallback, cached navigation, and offline Adhan byte ranges; the full suite is now `86 = 75 pass + 11 classified inherited failures`, with the same inherited failure names as the `83 = 72 pass + 11 fail` parent baseline.
 - Published the reviewed four-feature batch from `fog` to `main` on 2026-08-26 after all active local release gates passed.
 - Matched the qappan two-state live-compass copy exactly: `اضغط للتفعيل` before the explicit card press and `البوصلة الحية` immediately after it.
 - Re-audited the qappan/Fog canvas radius, smoothing, responsive canvas sizes, card-row heights, and deviation-panel heights. The source geometry is identical; the apparent vertical shift in the supplied pair comes from comparing standalone display mode with a browser viewport reduced by its toolbar.
@@ -177,7 +180,7 @@ Current checks:
 - The inherited full test suite still contains separately classified legacy-contract, offline-shell, and protected astronomical-behavior failures.
 
 ## 11. Next Step
-Complete the GitHub unsigned-AAB compile proof, then sign from the external upload keystore and run real-device locked-screen/Doze, reboot, exact-alarm revocation, notification revocation, offline restart, audio-focus, and widget-boundary tests before Play submission.
+Publish and verify the dedicated pre-AAB Web test branch, including a real-browser offline restart and foreground Adhan boundary test. After owner acceptance, generate the Android project, enforce API 36, inject the reviewed native layer, build the unsigned AAB proof, and run real-device locked-screen/Doze, reboot, exact-alarm revocation, notification revocation, offline restart, audio-focus, and widget-boundary tests before Play submission. Independently match at least one published `assetlinks.json` fingerprint to the Play App Signing SHA-256 shown in Play Console.
 
 ## 12. Session Handoff
-The web release now carries an authenticated package-scoped bridge, date-stamped 14-day native prayer plan, bundled foreground Adhan service, local inexact Azkar voice reminders, app-private event-driven widget, and atomic offline shell. Android identity remains `com.qiblalabs`, version remains `3.1.0` / code `3`, and signing material remains outside the repository. The astronomical solver, equations, store, verification cycle, and protected WMM runtime remain untouched. Continue with the compile artifact and real-device/Play Console validation without changing protected astronomical behavior.
+The pre-AAB branch now carries an authenticated package-scoped bridge, authoritative date-stamped 14-day native prayer plan, bundled foreground Adhan service, independent civil-time Web Adhan scheduler, local inexact Azkar voice reminders, app-private event-driven widget, and an atomic offline shell with bounded network fallback. Android identity remains `com.qiblalabs`, version remains `3.1.0` / code `3`, and signing material remains outside the repository. The astronomical solver, equations, store, verification cycle, protected inline runtime, and WMM runtime remain untouched. Continue with branch publication/live Web verification, then the compile artifact and real-device/Play Console validation without changing protected astronomical behavior.

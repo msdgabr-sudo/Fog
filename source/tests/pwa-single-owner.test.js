@@ -46,7 +46,9 @@ assert(homeFinalizer.includes('navigator.serviceWorker.getRegistration()'), 'Hom
 assert(!homeFinalizer.includes('serviceWorker.register('), 'Home finalizer must not create another registration');
 
 assert(worker.includes("const APP_CACHE=VERSION+'-app'"), 'production worker cache ownership must remain unchanged');
-assert(worker.includes("fetch(r,{cache:'no-store'})"), 'production worker code refresh strategy must remain unchanged');
+assert(worker.includes("const NETWORK_TIMEOUT_MS=4000"), 'production worker must bound network-first requests before offline fallback');
+assert(worker.includes("fetchWithTimeout(r,'no-store')"), 'production worker code refresh must use the bounded network-first helper');
+assert(worker.includes("if(!response||!response.ok)throw new Error('network response unavailable')"), 'HTTP failures must fall back to the cached application copy');
 assert(worker.includes("type:'SW_UPDATED',version:VERSION"), 'production worker must continue notifying controlled clients');
 
 console.log('PASS PWA registration, install state, network state and update messages have one owner');

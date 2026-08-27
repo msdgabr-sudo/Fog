@@ -63,6 +63,10 @@ jobs:
           node tests/local-timezone-adapter.test.js
           node tests/timezone-production-wiring.test.js
           node tests/trusted-location-runtime-sync.test.js
+          node tests/prayer-midnight-refresh.test.js
+          node tests/adhan-runtime-resilience.test.js
+          node tests/offline-complete-shell.test.js
+          node tests/offline-network-fallback.test.js
           node tests/i18n-roundtrip-safety.test.js
           node tests/a2-phone-ui-regressions.test.js
           node tests/permissions-gnss-adhan-cycle.test.js

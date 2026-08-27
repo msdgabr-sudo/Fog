@@ -17,7 +17,7 @@ window.QiblaLocationLabel={update:resolve,getLabel:function(){return currentLabe
 function script(src,marker,onload){if(document.querySelector('script['+marker+']')){if(onload)onload();return;}var s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(marker,'true');if(onload)s.onload=onload;(document.head||document.documentElement).appendChild(s);}
 function style(href,marker){if(document.querySelector('link['+marker+']'))return;var l=document.createElement('link');l.rel='stylesheet';l.href=href;l.setAttribute(marker,'true');(document.head||document.documentElement).appendChild(l);}
 function loadUi(){style('css/presentation/prayer/settings-overrides.css?v=20260814-prayer-settings2','data-qibla-prayer-settings-overrides');script('js/presentation/prayer/calculation-settings-ui.js?v=20260814-global-prayer2','data-qibla-prayer-calculation-settings-ui');script('js/presentation/prayer/location-settings-ui.js?v=20260814-prayer-location2','data-qibla-prayer-location-settings-ui');}
-function loadSync(){script('js/runtime/trusted-location-dependent-sync.js?v=20260814-prayer-runtime6','data-qibla-trusted-location-runtime-sync');loadUi();}
+function loadSync(){script('js/runtime/trusted-location-dependent-sync.js?v=20260827-authoritative1','data-qibla-trusted-location-runtime-sync');loadUi();}
 function loadFormat(){script('js/prayer/time-format.js?v=20260814-prayer-12h1','data-qibla-prayer-time-format',loadSync);}
 function loadLocation(){script('js/prayer/prayer-location.js?v=20260814-prayer-location2','data-qibla-prayer-location',loadFormat);}
 function loadSettings(){script('js/prayer/prayer-settings.js?v=20260814-global-prayer1','data-qibla-prayer-settings',loadLocation);}

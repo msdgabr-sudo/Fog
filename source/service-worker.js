@@ -3,15 +3,17 @@
  * © 2026 Mohamed SG Behairy. All Rights Reserved. */
 'use strict';
 
-const VERSION='qiblaastro-v5.71-pre-aab-20260826';
+const VERSION='qiblaastro-v5.72-offline-adhan-20260827';
 const BRIDGE_RELEASE='package-scoped-native-20260826';
 const GNSS_RELEASE='trusted-startup-recovery-20260818';
 const PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826';
-const OFFLINE_RELEASE='atomic-app-shell-quran-audio-20260826';
+const OFFLINE_RELEASE='bounded-fallback-app-shell-quran-audio-20260827';
 const CACHE_PREFIX='qiblaastro-';
 const APP_CACHE=VERSION+'-app';
 const RUNTIME_CACHE=VERSION+'-runtime';
 const OFFLINE_URL='./offline.html';
+const NETWORK_TIMEOUT_MS=4000;
+const PRECACHE_TIMEOUT_MS=120000;
 
 /* Every literal below is verified by the repository PWA gate. Do not replace
  * this list with a silent best-effort cache: an incomplete install must fail
@@ -244,8 +246,10 @@ const PRECACHE_URLS=Object.freeze(APP_SHELL.concat(QURAN_TEXT));
 
 async function precacheCritical(){
   const cache=await caches.open(APP_CACHE);
-  const requests=PRECACHE_URLS.map(function(url){return new Request(url,{cache:'reload',credentials:'same-origin'});});
-  await cache.addAll(requests);
+  const controller=typeof AbortController==='function'?new AbortController():null;
+  const requests=PRECACHE_URLS.map(function(url){var init={cache:'reload',credentials:'same-origin'};if(controller)init.signal=controller.signal;return new Request(url,init);});
+  const timeout=controller?setTimeout(function(){controller.abort();},PRECACHE_TIMEOUT_MS):0;
+  try{await cache.addAll(requests);}finally{if(timeout)clearTimeout(timeout);}
 }
 
 async function notifyUpdated(){
@@ -261,21 +265,28 @@ async function matchIgnoringSearch(request){
   return caches.match(request,{ignoreSearch:true});
 }
 
+async function fetchWithTimeout(request,cacheMode){
+  const controller=typeof AbortController==='function'?new AbortController():null;
+  const options={cache:cacheMode||'no-store'};
+  if(controller)options.signal=controller.signal;
+  const timeout=controller?setTimeout(function(){controller.abort();},NETWORK_TIMEOUT_MS):0;
+  try{return await fetch(request,options);}finally{if(timeout)clearTimeout(timeout);}
+}
+
 async function fetchAndStore(request,cacheName,cacheMode){
-  const response=await fetch(request,{cache:cacheMode||'no-store'});
+  const response=await fetchWithTimeout(request,cacheMode||'no-store');
   if(response&&response.ok){
-    const cache=await caches.open(cacheName);
-    await cache.put(request,response.clone());
+    try{const cache=await caches.open(cacheName);await cache.put(request,response.clone());}catch(_){}
   }
   return response;
 }
 
 async function networkFirst(r,cacheName){
   try{
-    const response=await fetch(r,{cache:'no-store'});
+    const response=await fetchWithTimeout(r,'no-store');
+    if(!response||!response.ok)throw new Error('network response unavailable');
     if(response&&response.ok){
-      const cache=await caches.open(cacheName);
-      await cache.put(r,response.clone());
+      try{const cache=await caches.open(cacheName);await cache.put(r,response.clone());}catch(_){}
     }
     return response;
   }catch(_){
@@ -287,7 +298,7 @@ function isNavigation(request){return request.mode==='navigate';}
 function isRefreshableCode(url){return /\.(?:html?|css|js)$/i.test(url.pathname);}
 
 async function navigationResponse(request){
-  try{return await fetchAndStore(request,APP_CACHE,'no-store');}
+  try{const response=await fetchAndStore(request,APP_CACHE,'no-store');if(!response||!response.ok)throw new Error('navigation response unavailable');return response;}
   catch(_){return(await matchIgnoringSearch(request))||(await caches.match('./index.html'))||(await caches.match(OFFLINE_URL))||new Response('',{status:503});}
 }
 
@@ -300,7 +311,7 @@ async function cachedAssetResponse(request){
 
 async function rangedResponse(request){
   const cached=await matchIgnoringSearch(request);
-  if(!cached)return fetch(request);
+  if(!cached){try{return await fetchWithTimeout(request,'no-store');}catch(_){return new Response('',{status:503});}}
   const value=request.headers.get('range')||'';
   const match=/^bytes=(\d*)-(\d*)$/.exec(value);
   if(!match)return cached;

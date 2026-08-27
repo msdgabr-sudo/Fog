@@ -76,6 +76,11 @@ const first=boot(persisted);
 flushTimeouts(first);
 assert.deepStrictEqual(first.launches,[],'startup must not launch a native bridge before explicit Adhan or widget activation');
 
+const unready=boot(storage());
+unready.context.QiblaTrustedLocationRuntimeSync={getSchedule(){return[];},getState(){return{ok:false};}};
+assert.strictEqual(unready.context.QiblaPrayerNativeSync.syncWidget(),false,'native bridge must fail closed while the authoritative prayer schedule is unavailable');
+assert.deepStrictEqual(unready.launches,[],'legacy pCache must not cross the native bridge after the authoritative runtime has taken ownership');
+
 assert.strictEqual(first.context.QiblaPrayerNativeSync.syncWidget(),true,'explicit widget refresh should launch the authenticated native bridge');
 assert.strictEqual(persisted.getItem(WIDGET_KEY),'1','successful explicit widget refresh must persist widget auto-refresh activation');
 assert.strictEqual(first.launches.length,1);

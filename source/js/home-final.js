@@ -224,27 +224,27 @@
 
   if(!('serviceWorker' in navigator))return;
 
+  navigator.serviceWorker.addEventListener('message',function(event){
+    var data=event&&event.data;
+    if(!data||data.type!=='SW_UPDATED')return;
+    console.log('✅ QiblaAstro Updated:',data.version);
+    try{localStorage.setItem('qiblaastro-version',data.version||'unknown');}catch(_){ }
+  });
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    console.log('[SW] Controller changed — active worker updated');
+  });
+
   function registerWorker(){
     navigator.serviceWorker.register('./service-worker.js',{scope:'./'})
       .then(function(registration){
         console.log('[SW] Registered:',registration.scope);
-        try{registration.update();}catch(_){ }
-
-        navigator.serviceWorker.addEventListener('message',function(event){
-          var data=event&&event.data;
-          if(!data||data.type!=='SW_UPDATED')return;
-          console.log('✅ QiblaAstro Updated:',data.version);
-          try{localStorage.setItem('qiblaastro-version',data.version||'unknown');}catch(_){ }
-        });
-        navigator.serviceWorker.addEventListener('controllerchange',function(){
-          console.log('[SW] Controller changed — active worker updated');
-        });
+        try{var update=registration.update();if(update&&typeof update.catch==='function')update.catch(function(){});}catch(_){ }
       })
       .catch(function(error){console.error('[SW] Registration failed:',error);});
   }
 
-  if(document.readyState==='complete')registerWorker();
-  else window.addEventListener('load',registerWorker,{once:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',registerWorker,{once:true});
+  else registerWorker();
 })();
 
 /* PWA shortcut routing — presentation only. The manifest exposes ?page= shortcuts;

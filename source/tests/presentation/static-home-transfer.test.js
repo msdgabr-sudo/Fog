@@ -31,5 +31,5 @@ for(const asset of [
   './css/home-final.css','./css/home-header-controls.css','./css/home-button-icons-polish.css','./js/home-final.js',
   './js/home-reference-finalizer.js','./images/home/qibla-bg-4k.webp','./images/home/qibla-bg-embedded.svg','./images/home/kaaba-reference.data-uri.txt'
 ]) if(!sw.includes(asset)) fail('Home offline asset missing: '+asset);
-if(!sw.includes("const VERSION='qiblaastro-v5.71-pre-aab-20260826'")) fail('Expected current Fog pre-AAB offline/native cache generation');
+if(!sw.includes("const VERSION='qiblaastro-v5.72-offline-adhan-20260827'")) fail('Expected current Fog pre-AAB offline/Adhan cache generation');
 console.log('Static Home transfer contract: PASS');
