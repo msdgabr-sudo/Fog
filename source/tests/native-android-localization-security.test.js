@@ -114,7 +114,7 @@ assert(!azWeb.includes('تعذر بدء تنبيه Android')&&!azWeb.includes('�
 assert(azHost.includes("TOKEN_KEY='qiblaastro:native-token'")&&azHost.includes("'?twa=1'")&&azHost.includes("'#nativeToken='+encodeURIComponent(token)"),'Azkar iframe host must propagate authenticated TWA context into the standalone page');
 assert(azHost.includes('seedFrameContext(frame)'),'Azkar iframe must receive same-origin session TWA/token context after load');
 assert(azPage.includes('#azAudio .az-audio-status{display:none!important}'),'Azkar audio status note must remain hidden; the toggle is the visible state control');
-assert(azPage.includes('azkar-native-reminders.js?v=20260826-package-scoped5'),'Azkar page must load the package-scoped native reminder bridge');
+assert(azPage.includes('azkar-native-reminders.js?v=20260828-topbridge1'),'Azkar page must load the trusted top-level package-scoped native reminder bridge');
 const bootstrap=read('js/presentation/bootstrap.js');
 assert(bootstrap.includes('schedule-sync.js?v=20260827-authoritative1'),'authenticated widget/prayer sync loader version missing');
 assert(webSync.includes('native-plan.js?v=20260827-authoritative1'),'authenticated dated-plan loader version missing');
