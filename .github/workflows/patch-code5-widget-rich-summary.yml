@@ -39,43 +39,19 @@ jobs:
           new=old+"\nfunction cleanWidgetText(value){return String(value||'').replace(/[\\u0000-\\u001F\\u007F]/g,' ').replace(/\\s+/g,' ').trim();}\nfunction widgetMinute(value){value=Number(value);if(!Number.isFinite(value)||value<0||value>=1440)return'--:--';var h=Math.floor(value/60),m=Math.floor(value%60);return(h<10?'0':'')+h+':'+(m<10?'0':'')+m;}\nfunction widgetGregorianDate(timeZone){try{return cleanWidgetText(new Intl.DateTimeFormat('ar-EG-u-nu-latn',{weekday:'short',day:'numeric',month:'short',timeZone:timeZone||undefined}).format(new Date()).replace(/،/g,''));}catch(_){return'';}}\nfunction widgetPresentation(payload,hijriOverride){payload=payload||{};var loc=payload.loc||{},times=payload.times||{},hijri='';if(hijriOverride!==undefined&&hijriOverride!==null)hijri=cleanWidgetText(hijriOverride);else try{var h=root.document&&root.document.getElementById('pr-h');hijri=cleanWidgetText(h&&h.textContent?h.textContent:'');}catch(_){}var gregorian=widgetGregorianDate(payload.plan&&payload.plan.timeZone||loc.timeZone||'');var clocks='فج'+widgetMinute(times.fajr)+' · ظه'+widgetMinute(times.dhuhr)+' · عص'+widgetMinute(times.asr)+' · مغ'+widgetMinute(times.maghrib)+' · عش'+widgetMinute(times.isha);var datePart=[gregorian,hijri].filter(Boolean).join(' • '),separator=datePart?' • ':'',allowed=Math.max(0,80-separator.length-clocks.length);if(datePart.length>allowed){datePart=datePart.slice(0,allowed).replace(/\\s+\\S*$/,'').replace(/[•·\\s]+$/,'');}var summary=(datePart?datePart+' • ':'')+clocks;if(summary.length>80)summary=clocks.slice(0,80);return{city:cleanWidgetText(loc.label||'').slice(0,80),summary:summary};}"
           replace_exact(sync,old,new)
 
-          old_native="q.set('city',loc.label||'');q.set('tz',payload.plan.timeZone||loc.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'');q.set('plan',payload.planText);var h=root.document&&root.document.getElementById('pr-h');q.set('hijri',h&&h.textContent?h.textContent:'');"
-          new_native="var widget=widgetPresentation(payload);q.set('city',widget.city);q.set('tz',payload.plan.timeZone||loc.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'');q.set('plan',payload.planText);q.set('hijri',widget.summary);"
-          replace_exact(sync,old_native,new_native)
+          replace_exact(sync,
+              "q.set('city',loc.label||'');q.set('tz',payload.plan.timeZone||loc.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'');q.set('plan',payload.planText);var h=root.document&&root.document.getElementById('pr-h');q.set('hijri',h&&h.textContent?h.textContent:'');",
+              "var widget=widgetPresentation(payload);q.set('city',widget.city);q.set('tz',payload.plan.timeZone||loc.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'');q.set('plan',payload.planText);q.set('hijri',widget.summary);")
 
-          old_export="root.QiblaPrayerNativeSync=Object.freeze({sync:explicitSync,syncWidget:widgetSync,refresh:maybeNativeSync,refreshWidget:maybeWidgetSync,captureToken:captureToken});"
-          new_export="root.QiblaPrayerNativeSync=Object.freeze({sync:explicitSync,syncWidget:widgetSync,refresh:maybeNativeSync,refreshWidget:maybeWidgetSync,captureToken:captureToken,widgetPreview:widgetPresentation});"
-          replace_exact(sync,old_export,new_export)
+          replace_exact(sync,
+              "root.QiblaPrayerNativeSync=Object.freeze({sync:explicitSync,syncWidget:widgetSync,refresh:maybeNativeSync,refreshWidget:maybeWidgetSync,captureToken:captureToken});",
+              "root.QiblaPrayerNativeSync=Object.freeze({sync:explicitSync,syncWidget:widgetSync,refresh:maybeNativeSync,refreshWidget:maybeWidgetSync,captureToken:captureToken,widgetPreview:widgetPresentation});")
 
-          boot='source/js/presentation/bootstrap.js'
-          replace_exact(boot,
+          replace_exact('source/js/presentation/bootstrap.js',
               "js/presentation/prayer/schedule-sync.js?v=20260829-foreground2",
               "js/presentation/prayer/schedule-sync.js?v=20260829-widget-rich1")
 
-          test=Path('source/tests/code5-widget-rich-summary.test.js')
-          test.write_text("""'use strict';
-const assert=require('assert');
-const fs=require('fs');
-const vm=require('vm');
-const source=fs.readFileSync('js/presentation/prayer/schedule-sync.js','utf8');
-assert(source.includes('function widgetPresentation(payload,hijriOverride)'),'rich widget formatter missing');
-assert(source.includes("q.set('hijri',widget.summary)"),'native widget sync must receive the rich summary');
-assert(!source.includes('widgetCountdown'),'Code 5 must not fake a stale live countdown');
-function storage(){const m=new Map();return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)};}
-const context={console,URLSearchParams,Intl,Date,Number,Math,Object,Array,String,Promise,document:null,location:{hash:'',pathname:'/',search:''},history:{replaceState(){}},sessionStorage:storage(),localStorage:storage(),setInterval(){return 1;},setTimeout(){return 1;},addEventListener(){}};
-context.globalThis=context;
-vm.runInNewContext(source,context,{filename:'schedule-sync.js'});
-assert(context.QiblaPrayerNativeSync&&typeof context.QiblaPrayerNativeSync.widgetPreview==='function','widget preview helper must be exported for regression testing');
-const preview=context.QiblaPrayerNativeSync.widgetPreview({loc:{label:'موقعك الحالي',timeZone:'Africa/Cairo'},plan:{timeZone:'Africa/Cairo'},times:{fajr:299,dhuhr:777,asr:991,maghrib:1162,isha:1282}},'16 ربيع الأول 1448 هـ');
-assert.strictEqual(preview.city,'موقعك الحالي');
-assert(preview.summary.length<=80,'native safeText limit is 80 chars');
-for(const value of ['فج04:59','ظه12:57','عص16:31','مغ19:22','عش21:22'])assert(preview.summary.includes(value),`missing prayer time ${value}`);
-assert(preview.summary.includes('ربيع')||preview.summary.includes('أغسطس'),'summary must preserve date context');
-console.log('Code 5 widget rich summary: Gregorian/Hijri context + all five prayer times within native 80-char field: PASS');
-""",encoding='utf-8')
-
-          deploy='.github/workflows/deploy-app-pages.yml'
-          replace_exact(deploy,
+          replace_exact('.github/workflows/deploy-app-pages.yml',
               "          (cd source && node tests/code5-background-adhan-web-gate.test.js)\n",
               "          (cd source && node tests/code5-background-adhan-web-gate.test.js)\n          (cd source && node tests/code5-widget-rich-summary.test.js)\n")
       - name: Verify Code 5 safety gates
