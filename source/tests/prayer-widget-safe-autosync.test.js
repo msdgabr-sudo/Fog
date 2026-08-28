@@ -8,6 +8,7 @@ const source=fs.readFileSync('js/presentation/prayer/schedule-sync.js','utf8');
 const TOKEN='a'.repeat(64);
 const WIDGET_KEY='qiblaastro:widget-native-sync-enabled:v1';
 const DELIVERY_KEY='qiblaastro:prayer-native-sync-enabled:v1';
+const PREF_KEY='qiblaastro-adhan-ui-v5';
 
 function storage(seed){
   const values=seed||Object.create(null);
@@ -67,37 +68,48 @@ function boot(localStorage){
   return {context,launches,timeouts,sessionStorage};
 }
 
-function flushTimeouts(app){
-  while(app.timeouts.length)app.timeouts.shift()();
-}
+function flushTimeouts(app){while(app.timeouts.length)app.timeouts.shift()();}
 
-const persisted=storage();
-const first=boot(persisted);
-flushTimeouts(first);
-assert.deepStrictEqual(first.launches,[],'startup must not launch a native bridge before explicit Adhan or widget activation');
+// Migration fail-closed: a user who never enabled native prayer delivery must
+// not gain, lose or mutate Adhan merely by asking for an independent widget refresh.
+const freshStore=storage();
+const fresh=boot(freshStore);
+flushTimeouts(fresh);
+assert.deepStrictEqual(fresh.launches,[],'startup must not launch a native bridge before explicit Adhan authorization');
+assert.strictEqual(fresh.context.QiblaPrayerNativeSync.syncWidget(),false,'independent widget sync must be blocked while Code 3 may still be installed');
+assert.strictEqual(freshStore.getItem(WIDGET_KEY),null,'blocked widget sync must not persist an auto-refresh marker');
+assert.deepStrictEqual(fresh.launches,[],'blocked widget sync must not send any ambiguous prayer-sync intent to Code 3');
 
-const unready=boot(storage());
+// Even a stale widget-only marker from an earlier candidate must be ignored
+// during migration instead of auto-launching an ambiguous Code 3 intent.
+const staleWidgetStore=storage({[WIDGET_KEY]:'1'});
+const staleWidget=boot(staleWidgetStore);
+flushTimeouts(staleWidget);
+assert.deepStrictEqual(staleWidget.launches,[],'legacy migration guard must ignore stale widget-only auto-sync markers');
+
+// Authoritative runtime unavailability still fails closed.
+const unready=boot(storage({[PREF_KEY]:'{}'}));
 unready.context.QiblaTrustedLocationRuntimeSync={getSchedule(){return[];},getState(){return{ok:false};}};
-assert.strictEqual(unready.context.QiblaPrayerNativeSync.syncWidget(),false,'native bridge must fail closed while the authoritative prayer schedule is unavailable');
+assert.strictEqual(unready.context.QiblaPrayerNativeSync.syncWidget(),false,'authorized full sync must still fail closed while the authoritative prayer schedule is unavailable');
 assert.deepStrictEqual(unready.launches,[],'legacy pCache must not cross the native bridge after the authoritative runtime has taken ownership');
 
-assert.strictEqual(first.context.QiblaPrayerNativeSync.syncWidget(),true,'explicit widget refresh should launch the authenticated native bridge');
-assert.strictEqual(persisted.getItem(WIDGET_KEY),'1','successful explicit widget refresh must persist widget auto-refresh activation');
-assert.strictEqual(first.launches.length,1);
-assert(first.launches[0].includes('widgetOnly=1'),'explicit widget refresh must remain widget-only for Code 5');
-assert(first.launches[0].includes('notify=1'),'widget-only refresh must carry the real enabled Adhan state so legacy Code 3 cannot interpret a synthetic notify=0 as disabling Adhan');
+// Once the user has explicit prayer/Adhan preferences, widget refresh may reuse
+// the normal full sync. That contract is understood by both Code 3 and Code 5.
+const authorizedStore=storage({[PREF_KEY]:'{}'});
+const authorized=boot(authorizedStore);
+assert.strictEqual(authorized.context.QiblaPrayerNativeSync.syncWidget(),true,'authorized widget refresh may reuse the legacy-safe full prayer sync');
+assert.strictEqual(authorized.launches.length,1);
+assert(!authorized.launches[0].includes('widgetOnly=1'),'migration-safe widget refresh must not use the Code 5-only widgetOnly semantic');
+assert(authorized.launches[0].includes('notify=1'),'legacy-safe full sync must carry the user-visible Adhan state');
+flushTimeouts(authorized);
+assert.strictEqual(authorized.launches.length,1,'startup refresh must deduplicate the already-sent authorized delivery state');
 
-const reopened=boot(persisted);
-flushTimeouts(reopened);
-assert.strictEqual(reopened.launches.length,1,'an explicitly activated widget should refresh once on the next app start');
-assert(reopened.launches[0].includes('widgetOnly=1'),'automatic widget refresh must use the isolated widget-only bridge for Code 5');
-assert(reopened.launches[0].includes('notify=1'),'automatic widget refresh must preserve the real Adhan master state for legacy Code 3 compatibility');
-
-persisted.setItem(DELIVERY_KEY,'1');
-const delivery=boot(persisted);
+const deliveryStore=storage({[DELIVERY_KEY]:'1'});
+const delivery=boot(deliveryStore);
 flushTimeouts(delivery);
 assert.strictEqual(delivery.launches.length,1,'an activated Adhan schedule should use one full native refresh');
-assert(!delivery.launches[0].includes('widgetOnly=1'),'full Adhan refresh must remain distinct from widget-only refresh');
+assert(!delivery.launches[0].includes('widgetOnly=1'),'full Adhan refresh must remain legacy-compatible during migration');
 assert(delivery.launches[0].includes('notify=1'),'full Adhan refresh must preserve the enabled delivery state');
 
-console.log('Prayer widget safe auto-sync: Code 5 widgetOnly isolation + legacy Code 3 Adhan-state preservation: PASS');
+assert(source.includes('var LEGACY_CODE3_MIGRATION_GUARD=true'),'Code 3 migration guard must remain explicitly enabled until the old wrapper is retired');
+console.log('Prayer widget migration safety: independent widget-only handoff blocked; authorized Code 3/5 full sync preserved: PASS');
