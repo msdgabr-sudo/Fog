@@ -15,7 +15,7 @@
   "iconUrl": "https://app.qiblalabs.com/icons/icon-512x512.png",
   "maskableIconUrl": "https://app.qiblalabs.com/icons/maskable/icon-maskable-512x512.png",
   "appVersion": "4.1.7",
-  "appVersionCode": 4,
+  "appVersionCode": 5,
   "minSdkVersion": 23,
   "splashScreenFadeOutDuration": 0,
   "enableNotifications": true,
