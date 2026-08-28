@@ -6,8 +6,8 @@ This directory is intentionally isolated from the web application's runtime engi
 - Origin: `https://app.qiblalabs.com`
 - Package ID: `com.qiblalabs`
 - App name: `QiblaAstro ELITE`
-- Version name: `3.1.0`
-- Version code: `3`
+- Version name: `4.1.7`
+- Version code: `4`
 - First Play release: no ads / no `AD_ID`
 
 ## Hard safety boundaries

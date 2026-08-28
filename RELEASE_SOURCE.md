@@ -1,4 +1,4 @@
-# QiblaAstro ELITE 3.1.0 — Release Source and Provenance
+# QiblaAstro ELITE 4.1.7 — Release Source and Provenance
 
 > Read `REPOSITORY_STATE.md` before release, branch, source-materialization, or recovery work.
 
@@ -10,8 +10,8 @@ The authoritative application and Android release source is now:
 - Working/release branch: **`main`**
 - Source directory: `source/`
 - Package ID: `com.qiblalabs`
-- Version name: `3.1.0`
-- Version code: `3`
+- Version name: `4.1.7`
+- Version code: `4`
 - Minimum SDK: `23`
 - Compile SDK: `36`
 - Target SDK: `36`

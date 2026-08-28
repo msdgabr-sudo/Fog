@@ -1,8 +1,10 @@
 # QiblaAstro publishing source
 
+Current Fog candidate: version `4.1.7` / `versionCode` `4`, on `pre-aab/offline-adhan-priority`. This metadata update does not deploy `main` or build an AAB. The following publishing/provenance record describes the historical `3.1.0` baseline.
+
 Production web publishing for `app.qiblalabs.com` is owned by this repository: `msdgabr-sudo/q-app-an`.
 
-Current release source:
+Historical release source:
 
 - Branch: `release/aab-3.1.0`
 - Web root: `source/`

@@ -66,8 +66,8 @@ The former materialization workflow has therefore been converted to a manual, re
 
 - Product: `QiblaAstro ELITE`
 - Package / Application ID: `com.qiblalabs`
-- Version name: `3.1.0`
-- Version code: `3`
+- Version name: `4.1.7`
+- Version code: `4`
 - Minimum SDK: `23`
 - Compile SDK: `36`
 - Target SDK: `36`

@@ -1,8 +1,9 @@
 # QiblaAstro ELITE — Pre-APK Android Identity
 
-**Branch:** `a2-release-prep`  
+**Branch:** `pre-aab/offline-adhan-priority`
+
 **Status:** Release-preparation identity freeze  
-**Date:** 2026-08-14
+**Date:** 2026-08-28
 
 ## Approved release identity
 
@@ -10,8 +11,8 @@
 - Developer name / brand: `Qiblalabs`
 - App name: `QiblaAstro ELITE`
 - Android Package ID: `com.qiblalabs`
-- Version Name: `3.1.0`
-- Version Code: `3`
+- Version Name: `4.1.7`
+- Version Code: `4`
 - Approved TWA origin: `https://app.qiblalabs.com/`
 - Web Manifest URL: `https://app.qiblalabs.com/manifest.json`
 - Digital Asset Links URL: `https://app.qiblalabs.com/.well-known/assetlinks.json`
@@ -45,7 +46,7 @@ Current release analytics cache: `qiblaastro-v6.08-release-analytics`.
 ## Build tooling decision
 
 - Use the current GoogleChromeLabs Bubblewrap/PWABuilder TWA toolchain only after the approved origin is live and serving the intended A2 release candidate.
-- Bubblewrap must preserve Package ID `com.qiblalabs`, host `app.qiblalabs.com`, start path `/?twa=1`, app version `3.1.0`, version code `3`, and the approved 512px/maskable icons.
+- Bubblewrap must preserve Package ID `com.qiblalabs`, host `app.qiblalabs.com`, start path `/?twa=1`, app version `4.1.7`, version code `4`, and the approved 512px/maskable icons.
 - Keep signing material outside Git and inject it only at build/signing time.
 - When Play App Signing is enabled, publish the Google Play **app signing certificate** SHA-256 in Digital Asset Links. A locally signed test APK may additionally require its own certificate fingerprint for local fullscreen verification.
 

@@ -53,8 +53,8 @@ jobs:
           import json
           m=json.load(open('android-twa/twa-manifest.json',encoding='utf-8'))
           assert m['packageId']=='com.qiblalabs'
-          assert m['appVersion']=='3.1.0'
-          assert int(m['appVersionCode'])==3
+          assert m['appVersion']=='4.1.7'
+          assert int(m['appVersionCode'])==4
           assert int(m['minSdkVersion'])==23
           assert m['signingKey']['path']=='./keystore/qiblaastro-upload.jks'
           assert m['signingKey']['alias']=='qiblaastro'
@@ -151,8 +151,8 @@ jobs:
 
           required={
               'package':("package: name='com.qiblalabs'",badging),
-              'versionCode':("versionCode='3'",badging),
-              'versionName':("versionName='3.1.0'",badging),
+              'versionCode':("versionCode='4'",badging),
+              'versionName':("versionName='4.1.7'",badging),
               'minSdk':("minSdkVersion:'23'",badging),
               'targetSdk':("targetSdkVersion:'36'",badging),
               'compileSdk':("compileSdkVersion='36'",badging),
@@ -181,15 +181,15 @@ jobs:
                   raise SystemExit(f'ERROR: forbidden APK contract present: {label} :: {needle}')
               print(f'PASS: absent {label}')
           PY
-          cp android-twa/app/build/outputs/apk/debug/app-debug.apk android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk
-          sha256sum android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk | tee android-twa/QiblaAstro-A2-3.1.0-RC-debug.sha256
+          cp android-twa/app/build/outputs/apk/debug/app-debug.apk android-twa/QiblaAstro-A2-4.1.7-RC-debug.apk
+          sha256sum android-twa/QiblaAstro-A2-4.1.7-RC-debug.apk | tee android-twa/QiblaAstro-A2-4.1.7-RC-debug.sha256
 
       - name: Upload APK RC artifact
         uses: actions/upload-artifact@v6
         with:
-          name: QiblaAstro-A2-3.1.0-APK-RC
+          name: QiblaAstro-A2-4.1.7-APK-RC
           path: |
-            android-twa/QiblaAstro-A2-3.1.0-RC-debug.apk
-            android-twa/QiblaAstro-A2-3.1.0-RC-debug.sha256
+            android-twa/QiblaAstro-A2-4.1.7-RC-debug.apk
+            android-twa/QiblaAstro-A2-4.1.7-RC-debug.sha256
           if-no-files-found: error
           retention-days: 14

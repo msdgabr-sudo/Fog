@@ -54,6 +54,7 @@ jobs:
           set -euo pipefail
           python3 tools/pre_apk_check.py
           python3 android-twa/check_twa_config.py
+          node tests/android-release-version.test.js
           python3 android-twa/test_native_integrations.py
           node tests/wmm2025-official-gate.js
           node tests/wmm2025-global-coverage.test.js
@@ -126,16 +127,16 @@ jobs:
           done
           test -n "$CANDIDATE"
           mkdir -p dist
-          cp "$CANDIDATE" dist/QiblaAstro-3.1.0-code3-unsigned.aab
-          unzip -t dist/QiblaAstro-3.1.0-code3-unsigned.aab >/dev/null
-          sha256sum dist/QiblaAstro-3.1.0-code3-unsigned.aab | tee dist/QiblaAstro-3.1.0-code3-unsigned.aab.sha256
+          cp "$CANDIDATE" dist/QiblaAstro-4.1.7-code4-unsigned.aab
+          unzip -t dist/QiblaAstro-4.1.7-code4-unsigned.aab >/dev/null
+          sha256sum dist/QiblaAstro-4.1.7-code4-unsigned.aab | tee dist/QiblaAstro-4.1.7-code4-unsigned.aab.sha256
 
       - name: Upload unsigned AAB proof artifact
         uses: actions/upload-artifact@v6
         with:
-          name: QiblaAstro-3.1.0-code3-unsigned-AAB-proof
+          name: QiblaAstro-4.1.7-code4-unsigned-AAB-proof
           path: |
-            dist/QiblaAstro-3.1.0-code3-unsigned.aab
-            dist/QiblaAstro-3.1.0-code3-unsigned.aab.sha256
+            dist/QiblaAstro-4.1.7-code4-unsigned.aab
+            dist/QiblaAstro-4.1.7-code4-unsigned.aab.sha256
           if-no-files-found: error
           retention-days: 14

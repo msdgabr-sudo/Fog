@@ -17,8 +17,8 @@ The complete rules, protected systems, provenance model, and recovery instructio
 ## Release identity
 
 - Application ID: `com.qiblalabs`
-- Release line: `3.1.0`
-- Version code: `3`
+- Release line: `4.1.7`
+- Version code: `4`
 - Android target: API 36
 - TWA origin: `https://app.qiblalabs.com`
 - Current application/release source: `main/source`

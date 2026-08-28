@@ -15,7 +15,7 @@ function Require-Command([string]$Name) {
 Write-Host 'QiblaAstro ELITE — guarded Android AAB/APK build and signing' -ForegroundColor Cyan
 Write-Host 'Release branch: a2-release-prep'
 Write-Host 'Package: com.qiblalabs'
-Write-Host 'Version: 3.1.0 (code 3)'
+Write-Host 'Version: 4.1.7 (code 4)'
 Write-Host 'Target: Android 16 / API 36'
 Write-Host 'Origin: https://app.qiblalabs.com'
 Write-Host ''

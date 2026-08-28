@@ -70,7 +70,7 @@ function Resolve-Jdk17Home {
 }
 
 if (-not (Test-Path -LiteralPath $FrozenShaFile -PathType Leaf)) {
-    throw 'Frozen source marker is missing. Clone/checkout release/aab-3.1.0 completely before signing.'
+    throw 'Source provenance marker is missing. Use the complete approved Fog checkout before signing.'
 }
 $ActualSourceSha = (Get-Content -LiteralPath $FrozenShaFile -Raw).Trim()
 if ($ActualSourceSha -ne $ExpectedSourceSha) {
@@ -94,10 +94,10 @@ $BuildJdk = Resolve-Jdk17Home
 $env:JAVA_HOME = $BuildJdk
 $env:Path = (Join-Path $BuildJdk 'bin') + ';' + $env:Path
 
-Write-Host 'QiblaAstro ELITE 3.1.0 - final local signed AAB build' -ForegroundColor Cyan
+Write-Host 'QiblaAstro ELITE 4.1.7 - final local signed AAB build' -ForegroundColor Cyan
 Write-Host "Frozen source: $ExpectedSourceSha"
 Write-Host 'Package: com.qiblalabs'
-Write-Host 'Version: 3.1.0 (code 3)'
+Write-Host 'Version: 4.1.7 (code 4)'
 Write-Host 'Target SDK: 36'
 Write-Host "Build JDK: $BuildJdk" -ForegroundColor Green
 Write-Host "Expected upload key SHA-256: $ExpectedUploadSha256"
@@ -270,8 +270,8 @@ if (-not (Test-Path -LiteralPath $SignedAab -PathType Leaf)) { throw 'Final sign
 if (-not (Test-Path -LiteralPath $SignedApk -PathType Leaf)) { throw 'Final signed APK was not produced.' }
 $Dist = Join-Path $Root 'dist'
 New-Item -ItemType Directory -Force -Path $Dist | Out-Null
-$FinalAab = Join-Path $Dist 'QiblaAstro-3.1.0-code3-final.aab'
-$FinalApk = Join-Path $Dist 'QiblaAstro-3.1.0-code3-final.apk'
+$FinalAab = Join-Path $Dist 'QiblaAstro-4.1.7-code4-final.aab'
+$FinalApk = Join-Path $Dist 'QiblaAstro-4.1.7-code4-final.apk'
 Copy-Item -LiteralPath $SignedAab -Destination $FinalAab -Force
 Copy-Item -LiteralPath $SignedApk -Destination $FinalApk -Force
 $Hashes = Get-FileHash -Algorithm SHA256 -LiteralPath $FinalAab,$FinalApk
