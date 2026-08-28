@@ -1,2 +1,0 @@
-Base main before Code 5 Web reconciliation: b6d5e2affeebd57fc39732973418e830342df95d
-Scope: remove misleading Web audio readiness gate only; preserve Native offline closed-app Adhan chain.
