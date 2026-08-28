@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.SystemClock;
 
 public final class AzkarReminderScheduler {
@@ -12,8 +13,9 @@ public final class AzkarReminderScheduler {
     static final String KEY_INTERVAL = "interval_minutes";
     static final String KEY_PHRASE = "phrase_id";
     static final String KEY_TEXT = "phrase_text";
+    static final String KEY_EXACT_PROMPTED = "exact_alarm_prompted";
     static final int REQUEST_CODE = 7124;
-    static final int MIN_INTERVAL_MINUTES = 5;
+    static final int MIN_INTERVAL_MINUTES = 10;
 
     private AzkarReminderScheduler() {}
 
@@ -52,12 +54,28 @@ public final class AzkarReminderScheduler {
         return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_TEXT, "ذكر الله");
     }
 
+    public static boolean canScheduleExact(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null) return false;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms();
+    }
+
     public static void scheduleNext(Context context, int intervalMinutes) {
         if (!isEnabled(context)) return;
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) return;
         long trigger = SystemClock.elapsedRealtime() + Math.max(MIN_INTERVAL_MINUTES, intervalMinutes) * 60_000L;
-        alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, pendingIntent(context));
+        PendingIntent operation = pendingIntent(context);
+        if (canScheduleExact(context)) {
+            try {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, operation);
+                return;
+            } catch (SecurityException ignored) {
+                // Exact-alarm special access can be revoked between the capability
+                // check and scheduling. Preserve an idle-safe inexact fallback.
+            }
+        }
+        alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger, operation);
     }
 
     private static PendingIntent pendingIntent(Context context) {
