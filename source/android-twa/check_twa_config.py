@@ -16,7 +16,7 @@ EXPECTED = {
     "name": "QiblaAstro ELITE",
     "launcherName": "QiblaAstro",
     "appVersion": "4.1.7",
-    "appVersionCode": 4,
+    "appVersionCode": 5,
     "webManifestUrl": "https://app.qiblalabs.com/manifest.json",
     "startUrl": "/?twa=1",
     "fallbackType": "customtabs",
