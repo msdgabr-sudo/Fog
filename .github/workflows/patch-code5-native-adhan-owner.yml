@@ -1,0 +1,97 @@
+name: Patch Code 5 Native Adhan ownership safely
+
+on:
+  push:
+    branches:
+      - fix/code5-native-adhan-owner
+    paths:
+      - '.github/workflows/patch-code5-native-adhan-owner.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Apply exact guarded patch
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace_exact(path, old, new):
+              p=Path(path)
+              text=p.read_text(encoding='utf-8')
+              count=text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected exactly one match, found {count}')
+              p.write_text(text.replace(old,new),encoding='utf-8')
+
+          ui='source/js/presentation/prayer/adhan-ui.js'
+          replace_exact(ui,
+              "var schedulerInstalled=false,runtimeTimer=0,runtimeDay='',deliveredPlayed={},preAlertPlayed={},lastFocus=null,backAction=null,keyBound=false;",
+              "var schedulerInstalled=false,runtimeTimer=0,runtimeDay='',deliveredPlayed={},preAlertPlayed={},lastFocus=null,backAction=null,keyBound=false;\nfunction nativeDeliveryOwner(){try{return !!(root.sessionStorage&&root.sessionStorage.getItem('qiblaastro:twa')==='1'&&root.sessionStorage.getItem('qiblaastro:native-token'));}catch(_){return false;}}")
+          replace_exact(ui,
+              "function requestNotificationPermission(){try{if(!('Notification'in root))return Promise.resolve('unsupported');if(Notification.permission==='granted')return Promise.resolve('granted');if(Notification.permission==='denied')return Promise.resolve('denied');return Notification.requestPermission();}catch(e){return Promise.resolve('error');}}",
+              "function requestNotificationPermission(){try{if(nativeDeliveryOwner())return Promise.resolve('native');if(!('Notification'in root))return Promise.resolve('unsupported');if(Notification.permission==='granted')return Promise.resolve('granted');if(Notification.permission==='denied')return Promise.resolve('denied');return Notification.requestPermission();}catch(e){return Promise.resolve('error');}}")
+          replace_exact(ui,
+              "function requestAndReportPermission(){return requestNotificationPermission().then(function(result){announce(result==='granted'?'تم تفعيل إذن الإشعارات':result==='denied'?'الإشعارات محظورة من إعدادات المتصفح':result==='unsupported'?'إشعارات النظام غير مدعومة على هذا المتصفح':'تعذر تغيير إذن الإشعارات');return result;});}",
+              "function requestAndReportPermission(){return requestNotificationPermission().then(function(result){announce(result==='native'?'إشعارات Android هي المستخدمة داخل التطبيق':result==='granted'?'تم تفعيل إذن الإشعارات':result==='denied'?'الإشعارات محظورة من إعدادات المتصفح':result==='unsupported'?'إشعارات النظام غير مدعومة على هذا المتصفح':'تعذر تغيير إذن الإشعارات');return result;});}")
+          replace_exact(ui,
+              "function checkSchedule(now,cache){if(!cache||!cache.length||!enabled())return false;",
+              "function checkSchedule(now,cache){if(nativeDeliveryOwner())return false;if(!cache||!cache.length||!enabled())return false;")
+          replace_exact(ui,
+              "function startRuntimeScheduler(){if(runtimeTimer)return true;installSchedulerAdapter();runtimeTick();runtimeTimer=root.setInterval(runtimeTick,1000);",
+              "function startRuntimeScheduler(){if(nativeDeliveryOwner()){installSchedulerAdapter();return true;}if(runtimeTimer)return true;installSchedulerAdapter();runtimeTick();runtimeTimer=root.setInterval(runtimeTick,1000);")
+
+          boot='source/js/presentation/bootstrap.js'
+          p=Path(boot); text=p.read_text(encoding='utf-8')
+          old="js/presentation/prayer/adhan-ui.js?v=20260829-code5-background1"
+          if text.count(old) != 2:
+              raise SystemExit(f'{boot}: expected two Adhan UI revision refs, found {text.count(old)}')
+          text=text.replace(old,"js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
+          oldsync="js/presentation/prayer/schedule-sync.js?v=20260829-code5-background1"
+          if text.count(oldsync) != 1:
+              raise SystemExit(f'{boot}: expected one schedule-sync revision ref, found {text.count(oldsync)}')
+          text=text.replace(oldsync,"js/presentation/prayer/schedule-sync.js?v=20260829-foreground2")
+          p.write_text(text,encoding='utf-8')
+
+          sw='source/service-worker.js'
+          replace_exact(sw,
+              "const VERSION='qiblaastro-v5.73-azkar-reminder-20260828';",
+              "const VERSION='qiblaastro-v5.74-native-adhan-owner-20260829';")
+          replace_exact(sw,
+              "const OFFLINE_RELEASE='bounded-fallback-azkar-reminder-20260828';",
+              "const OFFLINE_RELEASE='native-adhan-owner-20260829';")
+      - name: Verify complete Code 5 contracts
+        working-directory: source
+        run: |
+          set -euo pipefail
+          node tests/code5-native-adhan-owner.test.js
+          node tests/code5-background-adhan-web-gate.test.js
+          node tests/native-token-fragment-compatibility.test.js
+          node tests/permissions-gnss-adhan-cycle.test.js
+          node tests/adhan-runtime-resilience.test.js
+          node tests/prayer-midnight-refresh.test.js
+          node tests/code3-web-cutover-compatibility.test.js
+          node tests/offline-complete-shell.test.js
+          node tests/offline-network-fallback.test.js
+          node tests/pwa-standalone-readiness.test.js
+          node tests/android-release-version.test.js
+          python3 android-twa/test_native_integrations.py
+      - name: Commit guarded patch
+        run: |
+          set -euo pipefail
+          git config user.name 'msdgabr-sudo'
+          git config user.email 'm.sd.gabr@gmail.com'
+          git add source/js/presentation/prayer/adhan-ui.js source/js/presentation/bootstrap.js source/service-worker.js
+          git diff --cached --quiet && { echo 'No patch changes to commit'; exit 1; }
+          git commit -m 'Make Android Native the sole scheduled Adhan owner in Code 5'
+          git push origin HEAD:fix/code5-native-adhan-owner
