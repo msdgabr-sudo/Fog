@@ -73,6 +73,7 @@ jobs:
           (cd source && node tests/offline-network-fallback.test.js)
           (cd source && node tests/adhan-runtime-resilience.test.js)
           (cd source && node tests/code5-background-adhan-web-gate.test.js)
+          (cd source && node tests/code5-widget-rich-summary.test.js)
           (cd source && node tests/code5-native-adhan-owner.test.js)
           (cd source && node tests/prayer-midnight-refresh.test.js)
           (cd source && node tests/azkar-web-reminder-runtime.test.js)
