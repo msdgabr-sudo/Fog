@@ -166,16 +166,16 @@ jobs:
           done
           test -n "$CANDIDATE"
           mkdir -p dist
-          cp "$CANDIDATE" dist/QiblaAstro-4.1.7-code4-unsigned.aab
-          python3 source/android-twa/check_aab_release.py dist/QiblaAstro-4.1.7-code4-unsigned.aab
-          sha256sum dist/QiblaAstro-4.1.7-code4-unsigned.aab | tee dist/QiblaAstro-4.1.7-code4-unsigned.aab.sha256
+          cp "$CANDIDATE" dist/QiblaAstro-4.1.7-code5-unsigned.aab
+          python3 source/android-twa/check_aab_release.py dist/QiblaAstro-4.1.7-code5-unsigned.aab
+          sha256sum dist/QiblaAstro-4.1.7-code5-unsigned.aab | tee dist/QiblaAstro-4.1.7-code5-unsigned.aab.sha256
 
       - name: Upload unsigned AAB proof artifact
         uses: actions/upload-artifact@v6
         with:
-          name: QiblaAstro-4.1.7-code4-unsigned-AAB-proof
+          name: QiblaAstro-4.1.7-code5-unsigned-AAB-proof
           path: |
-            dist/QiblaAstro-4.1.7-code4-unsigned.aab
-            dist/QiblaAstro-4.1.7-code4-unsigned.aab.sha256
+            dist/QiblaAstro-4.1.7-code5-unsigned.aab
+            dist/QiblaAstro-4.1.7-code5-unsigned.aab.sha256
           if-no-files-found: error
           retention-days: 14
