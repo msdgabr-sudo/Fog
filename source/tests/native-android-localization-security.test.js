@@ -83,7 +83,8 @@ assert(webSync.includes('root.location.hash'),'web bridge must capture token fro
 assert(webSync.includes('intent://prayer-sync?'),'web prayer sync intent missing');
 assert(webSync.includes("q.set('plan',payload.planText)"),'web prayer bridge must send the validated date-stamped plan');
 assert(webSync.includes("q.set('widgetOnly','1')")&&webSync.includes('syncWidget:widgetSync'),'TWA must expose an explicit widget-only refresh without enabling Adhan');
-assert(webSync.includes("q.set('notify',widgetOnly?'0':(st.enabled?'1':'0'))"),'widget-only refresh must explicitly suppress native delivery permission requests');
+assert(webSync.includes("q.set('notify',st.enabled?'1':'0')"),'every native handoff must carry the real Adhan master state so legacy Code 3 cannot misread widget-only sync as a disable command');
+assert(!webSync.includes("q.set('notify',widgetOnly?'0':"),'widget-only sync must never synthesize notify=0 for legacy Code 3');
 assert(webSync.includes("WIDGET_AUTO_KEY='qiblaastro:widget-native-sync-enabled:v1'")&&webSync.includes('if(launched)setWidgetAutoEnabled()'),'widget auto-refresh must activate only after a successful explicit widget refresh');
 assert(webSync.includes("return nativeSync(reason||'widget-auto',true)")&&webSync.includes("maybeNativeSync('startup')"),'an activated widget must refresh through the widget-only bridge on later app starts');
 assert(!/setTimeout\(function\(\)\{explicitSync\(\);?\},800\)/.test(webSync),'startup must never trigger delivery permissions through explicitSync');
