@@ -8,6 +8,11 @@
  * is retired. Widget data still refreshes through an already-authorized prayer
  * sync, which carries the user's real Adhan choices. */
 var LEGACY_CODE3_MIGRATION_GUARD=true;
+/* An intent:// handoff changes Android task focus. Never launch it from startup,
+ * polling, focus, visibility or passive location/runtime events. Native prayer
+ * delivery is armed only by an explicit user action; the Android AlarmManager
+ * then owns closed-app/offline delivery without further Web navigation. */
+var AUTO_NATIVE_NAVIGATION=false;
 var lastKey='',timer=0,TOKEN_KEY='qiblaastro:native-token',AUTO_KEY='qiblaastro:prayer-native-sync-enabled:v1',WIDGET_AUTO_KEY='qiblaastro:widget-native-sync-enabled:v1',LAST_SYNC_KEY='qiblaastro:prayer-native-sync-last:v1';
 function hashParams(hash){var raw=String(hash||'').replace(/^#/,'');var params=new URLSearchParams(raw);if(params.has('nativeToken'))return params;try{var decoded=decodeURIComponent(raw);if(decoded!==raw){var legacy=new URLSearchParams(decoded);if(legacy.has('nativeToken'))return legacy;}}catch(_){}return params;}
 function captureToken(){try{var hp=hashParams(root.location.hash),t=hp.get('nativeToken');if(t&&t.length>=32){root.sessionStorage.setItem(TOKEN_KEY,t);hp.delete('nativeToken');var cleanHash=hp.toString();root.history.replaceState(null,'',root.location.pathname+root.location.search+(cleanHash?'#'+cleanHash:''));return t;}return root.sessionStorage.getItem(TOKEN_KEY)||'';}catch(_){return '';}}
@@ -28,7 +33,7 @@ function markSync(key){try{root.sessionStorage.setItem(LAST_SYNC_KEY,key);}catch
 function packageIntent(q){return 'intent://prayer-sync?'+q.toString()+'#Intent;scheme=qiblaastro;package=com.qiblalabs;category=android.intent.category.BROWSABLE;end';}
 function launchBridge(q){var uri=packageIntent(q);try{var topWin=root.top||root;topWin.location.href=uri;return true;}catch(_){try{root.location.href=uri;return true;}catch(__){return false;}}}
 function nativeSync(reason,widgetOnly){var payload=nativePayload();if(!payload)return false;var fp=fingerprint(payload)+(widgetOnly?'|widget-only':'|delivery');if(!fp)return false;if(reason!=='explicit'&&reason!=='widget'&&lastSync()===fp)return true;var token=payload.token,loc=payload.loc,st=payload.st,q=new URLSearchParams();q.set('token',token);q.set('notify',st.enabled?'1':'0');if(widgetOnly)q.set('widgetOnly','1');q.set('city',loc.label||'');q.set('tz',payload.plan.timeZone||loc.timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'');q.set('plan',payload.planText);var h=root.document&&root.document.getElementById('pr-h');q.set('hijri',h&&h.textContent?h.textContent:'');try{if(Number.isFinite(Number(QT)))q.set('qibla',Number(QT).toFixed(1));}catch(_){}q.set('advance',String(st.advance||0));q.set('profile',st.profile||'makkah');Object.keys(payload.map).forEach(function(id){q.set('t_'+id,String(payload.times[id]));q.set('m_'+id,(st.prayers&&st.prayers[payload.map[id]])||'off');});var launched=launchBridge(q);if(launched){markSync(fp);if(reason==='explicit'&&!widgetOnly)setAutoEnabled();}return launched;}
-function maybeAutoSync(reason){if(!captureToken())return false;if(!autoEnabled()&&!hasExplicitPrayerPrefs())return false;return nativeSync(reason||'auto');}
+function maybeAutoSync(reason){if(!AUTO_NATIVE_NAVIGATION)return false;if(!captureToken())return false;if(!autoEnabled()&&!hasExplicitPrayerPrefs())return false;return nativeSync(reason||'auto');}
 function maybeWidgetSync(reason){if(LEGACY_CODE3_MIGRATION_GUARD)return false;if(!captureToken()||!widgetAutoEnabled())return false;if(autoEnabled()||hasExplicitPrayerPrefs())return false;return nativeSync(reason||'widget-auto',true);}
 function maybeNativeSync(reason){return maybeAutoSync(reason)||maybeWidgetSync(reason);}
 function explicitSync(){return nativeSync('explicit');}
