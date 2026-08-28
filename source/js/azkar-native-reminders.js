@@ -22,17 +22,17 @@ function captureToken(){
   }catch(_){return '';}
 }
 function isNativeTwa(){try{var here=new URLSearchParams(root.location.search||''),parent=new URLSearchParams(parentPart('search')),top=new URLSearchParams(topPart('search'));if(here.get('twa')==='1'||parent.get('twa')==='1'||top.get('twa')==='1'||captureToken()){root.sessionStorage.setItem('qiblaastro:twa','1');return true;}return root.sessionStorage.getItem('qiblaastro:twa')==='1';}catch(_){return false;}}
-function selectedInterval(){var b=root.document.querySelector('#azIntervals .az-interval.is-on');var n=b?parseInt(b.textContent,10):10;return Number.isFinite(n)?Math.max(5,n):10;}
+function selectedInterval(){var b=root.document.querySelector('#azIntervals .az-interval.is-on');var n=b?parseInt(b.textContent,10):10;return Number.isFinite(n)?Math.max(10,n):10;}
 function selectedText(){var s=root.document.getElementById('azAudioPhrase');return s&&s.value?s.value:'سبحان الله';}
 function phraseId(text){return PHRASES[text]||'subhanallah';}
-function packageIntentUri(mode,minutes,text,token){return 'intent://azkar-reminder?token='+encodeURIComponent(token)+'&mode='+encodeURIComponent(mode)+'&interval='+encodeURIComponent(String(minutes||10))+'&phrase='+encodeURIComponent(phraseId(text))+'#Intent;scheme=qiblaastro;package=com.qiblalabs;category=android.intent.category.BROWSABLE;end';}
+function packageIntentUri(mode,minutes,text,token){return 'intent://azkar-reminder?token='+encodeURIComponent(token)+'&mode='+encodeURIComponent(mode)+'&interval='+encodeURIComponent(String(Math.max(10,minutes||10)))+'&phrase='+encodeURIComponent(phraseId(text))+'#Intent;scheme=qiblaastro;package=com.qiblalabs;category=android.intent.category.BROWSABLE;end';}
 function navigateTop(uri){try{var topWin=root.top||root;topWin.location.href=uri;return true;}catch(_){try{root.location.href=uri;return true;}catch(__){return false;}}}
 function launchViaTrustedTop(mode,minutes,text){
   try{
     var topWin=root.top;
     var host=topWin&&topWin.QiblaAzkarHost;
     if(topWin&&topWin!==root&&host&&typeof host.launchNativeReminder==='function'){
-      return host.launchNativeReminder({mode:mode,interval:minutes,phrase:phraseId(text)})===true;
+      return host.launchNativeReminder({mode:mode,interval:Math.max(10,minutes||10),phrase:phraseId(text)})===true;
     }
   }catch(_){}
   return false;
@@ -51,7 +51,8 @@ function setUi(running,state){var btn=root.document.getElementById('azAudioToggl
 function clearStaleState(){writeState(null);setUi(false,null);}
 function topBridgeReady(){try{var topWin=root.top,host=topWin&&topWin.QiblaAzkarHost;return !!(topWin&&topWin!==root&&host&&typeof host.nativeReady==='function'&&host.nativeReady());}catch(_){return false;}}
 function nativeReady(){return topBridgeReady()||!!captureToken();}
-function restoreUi(){if(!isNativeTwa())return;if(!nativeReady()){clearStaleState();return;}var s=readState();if(s&&s.running)setUi(true,s);else setUi(false,null);}
-function intercept(event){if(!isNativeTwa())return;var btn=event.target&&event.target.closest?event.target.closest('#azAudioToggle'):null;if(!btn)return;event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();var prior=readState();if(prior&&prior.running){if(launch('stop',prior.interval||10,prior.text||'ذكر الله'))clearStaleState();return;}if(btn.disabled)return;var text=selectedText(),interval=selectedInterval(),state={running:true,text:text,interval:interval,phrase:phraseId(text),startedAt:Date.now()};var launched=launch('start',interval,text);if(!launched){clearStaleState();return;}writeState(state);setUi(true,state);}
-root.document.addEventListener('click',intercept,true);if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',function(){captureToken();setTimeout(restoreUi,50);},{once:true});else{captureToken();setTimeout(restoreUi,50);}root.QiblaAzkarNativeReminder=Object.freeze({isNativeTwa:isNativeTwa,getState:readState,stop:function(){var s=readState();if(s&&launch('stop',s.interval,s.text))clearStaleState();return true;}});
+function enforceNativeIntervals(){try{if(!isNativeTwa())return;var buttons=root.document.querySelectorAll('#azIntervals .az-interval');buttons.forEach(function(button){var n=parseInt(button.textContent,10);if(Number.isFinite(n)&&n<10){button.hidden=true;button.disabled=true;button.classList.remove('is-on');}});var active=root.document.querySelector('#azIntervals .az-interval.is-on');if(!active||parseInt(active.textContent,10)<10){var first=Array.from(buttons).find(function(button){var n=parseInt(button.textContent,10);return Number.isFinite(n)&&n>=10&&!button.hidden;});if(first&&typeof first.click==='function')first.click();}}catch(_){} }
+function restoreUi(){if(!isNativeTwa())return;enforceNativeIntervals();if(!nativeReady()){clearStaleState();return;}var s=readState();if(s&&s.running){if(Number(s.interval)<10){s.interval=10;writeState(s);}setUi(true,s);}else setUi(false,null);}
+function intercept(event){if(!isNativeTwa())return;var btn=event.target&&event.target.closest?event.target.closest('#azAudioToggle'):null;if(!btn)return;event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();var prior=readState();if(prior&&prior.running){if(launch('stop',Math.max(10,prior.interval||10),prior.text||'ذكر الله'))clearStaleState();return;}if(btn.disabled)return;var text=selectedText(),interval=selectedInterval(),state={running:true,text:text,interval:interval,phrase:phraseId(text),startedAt:Date.now()};var launched=launch('start',interval,text);if(!launched){clearStaleState();return;}writeState(state);setUi(true,state);}
+root.document.addEventListener('click',intercept,true);if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',function(){captureToken();enforceNativeIntervals();setTimeout(restoreUi,50);},{once:true});else{captureToken();enforceNativeIntervals();setTimeout(restoreUi,50);}root.QiblaAzkarNativeReminder=Object.freeze({isNativeTwa:isNativeTwa,getState:readState,stop:function(){var s=readState();if(s&&launch('stop',Math.max(10,s.interval||10),s.text))clearStaleState();return true;}});
 })(typeof globalThis!=='undefined'?globalThis:window);
