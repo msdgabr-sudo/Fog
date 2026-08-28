@@ -7,7 +7,7 @@ var STORAGE_KEY='qiblaastro:native-azkar-reminder:v1',TOKEN_KEY='qiblaastro:nati
 var PHRASES={'سبحان الله':'subhanallah','الحمد لله':'alhamdulillah','الله أكبر':'allahuakbar','لا إله إلا الله':'lailahaillallah','أستغفر الله':'astaghfirullah','أستغفر الله العظيم':'astaghfirullahalazim','سبحان الله وبحمده':'subhanallahwabihamdih','لا حول ولا قوة إلا بالله':'lahawla','حسبي الله':'hasbiyallah','اللهم صل وسلم على نبينا محمد':'salat'};
 function parentPart(name){try{return root.parent&&root.parent!==root?String(root.parent.location[name]||''):'';}catch(_){return '';}}
 function topPart(name){try{return root.top&&root.top!==root?String(root.top.location[name]||''):'';}catch(_){return '';}}
-function tokenFromHash(h){try{return new URLSearchParams(String(h||'').replace(/^#/,'' )).get('nativeToken')||'';}catch(_){return '';}}
+function tokenFromHash(h){try{var raw=String(h||'').replace(/^#/,'');var params=new URLSearchParams(raw),token=params.get('nativeToken')||'';if(token)return token;try{var decoded=decodeURIComponent(raw);if(decoded!==raw)return new URLSearchParams(decoded).get('nativeToken')||'';}catch(_){}return '';}catch(_){return '';}}
 function tokenFromStorage(win){try{return win&&win.sessionStorage?win.sessionStorage.getItem(TOKEN_KEY)||'':'';}catch(_){return '';}}
 function captureToken(){
   try{
