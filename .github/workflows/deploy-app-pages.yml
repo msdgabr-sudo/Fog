@@ -75,6 +75,9 @@ jobs:
           (cd source && node tests/adhan-runtime-resilience.test.js)
           (cd source && node tests/prayer-midnight-refresh.test.js)
           (cd source && node tests/azkar-web-reminder-runtime.test.js)
+          # Migration safety: deployment is blocked if Fog Web can disable or
+          # break the still-installed versionCode 3 wrapper during rollout.
+          (cd source && node tests/code3-web-cutover-compatibility.test.js)
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
