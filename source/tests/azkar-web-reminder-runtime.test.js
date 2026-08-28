@@ -9,7 +9,7 @@ const page=fs.readFileSync('pages/azkar.html','utf8');
 const serviceWorker=fs.readFileSync('service-worker.js','utf8');
 
 assert(page.includes('azkar-new.js?v=20260828-web-reminder1'),'Azkar page must request the corrected Web reminder runtime');
-assert(serviceWorker.includes("VERSION='qiblaastro-v5.73-azkar-reminder-20260828'"),'corrected Web reminder must rotate the offline cache generation');
+assert(serviceWorker.includes("VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'"),'corrected Web reminder must use the current offline cache generation');
 
 class ClassList{
   constructor(){this.values=new Set();}
