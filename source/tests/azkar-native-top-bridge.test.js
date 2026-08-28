@@ -6,6 +6,13 @@ const vm=require('vm');
 
 const hostSource=fs.readFileSync('js/presentation/azkar/host.js','utf8');
 const childSource=fs.readFileSync('js/azkar-native-reminders.js','utf8');
+const pageSource=fs.readFileSync('pages/azkar.html','utf8');
+const serviceWorker=fs.readFileSync('service-worker.js','utf8');
+
+assert(pageSource.includes('azkar-native-reminders.js?v=20260828-topbridge1'),'Azkar page must request the top-level native bridge release');
+assert(serviceWorker.includes("'./js/azkar-native-reminders.js'"),'native Azkar bridge must remain in the offline App Shell');
+assert(serviceWorker.includes("'./js/presentation/azkar/host.js'"),'top-level Azkar host must remain in the offline App Shell');
+assert(serviceWorker.includes("if(isRefreshableCode(url)){\n    event.respondWith(networkFirst(request, APP_CACHE));"),'online JS/HTML refresh must remain network-first so the bridge hotfix reaches installed clients');
 
 function storage(seed={}){
   const values=new Map(Object.entries(seed));
