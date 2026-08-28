@@ -75,6 +75,7 @@ jobs:
           (cd source && node tests/prayer-midnight-refresh.test.js)
           (cd source && node tests/azkar-web-reminder-runtime.test.js)
           (cd source && node tests/azkar-native-top-bridge.test.js)
+          (cd source && node tests/native-token-fragment-compatibility.test.js)
           # Migration safety: deployment is blocked if Fog Web can disable or
           # break the still-installed versionCode 3 wrapper during rollout.
           (cd source && node tests/code3-web-cutover-compatibility.test.js)
