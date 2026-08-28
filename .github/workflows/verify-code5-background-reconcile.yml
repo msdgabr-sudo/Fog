@@ -1,0 +1,42 @@
+name: Verify Code 5 background Adhan reconciliation
+
+on:
+  push:
+    branches:
+      - fix/code5-background-reconcile
+    paths:
+      - 'source/**'
+      - '.github/workflows/verify-code5-background-reconcile.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact reconciliation commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Verify Code 5 closed-app offline Adhan and migration safety
+        working-directory: source
+        run: |
+          set -euo pipefail
+          node tests/code5-background-adhan-web-gate.test.js
+          node tests/native-token-fragment-compatibility.test.js
+          node tests/permissions-gnss-adhan-cycle.test.js
+          node tests/adhan-runtime-resilience.test.js
+          node tests/prayer-midnight-refresh.test.js
+          node tests/code3-web-cutover-compatibility.test.js
+          node tests/offline-complete-shell.test.js
+          node tests/offline-network-fallback.test.js
+          node tests/android-release-version.test.js
+          python3 android-twa/test_native_integrations.py
