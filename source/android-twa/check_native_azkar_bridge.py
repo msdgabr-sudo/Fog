@@ -26,11 +26,8 @@ else:
     try:
         root = ET.parse(MANIFEST).getroot()
         permissions = {n.get(ANDROID+"name") for n in root.findall("uses-permission") if n.get(ANDROID+"name")}
-        for required in ("android.permission.RECEIVE_BOOT_COMPLETED","android.permission.POST_NOTIFICATIONS"):
+        for required in ("android.permission.RECEIVE_BOOT_COMPLETED","android.permission.POST_NOTIFICATIONS","android.permission.SCHEDULE_EXACT_ALARM"):
             if required not in permissions: fail(f"{required} missing from generated manifest")
-        # SCHEDULE_EXACT_ALARM may be present for user-selected prayer alarms.
-        # Azkar itself remains inexact and must never rely on the policy-restricted
-        # USE_EXACT_ALARM permission.
         if "android.permission.USE_EXACT_ALARM" in permissions:
             fail("forbidden exact-alarm permission present: android.permission.USE_EXACT_ALARM")
         app = root.find("application")
@@ -65,16 +62,19 @@ for set_name in required_sets:
 scheduler=JAVA/"AzkarReminderScheduler.java"
 if scheduler.is_file():
     text=scheduler.read_text(encoding="utf-8")
-    if "MIN_INTERVAL_MINUTES = 5" not in text: fail("scheduler must honor the visible five-minute interval")
-    if "setAndAllowWhileIdle" not in text: fail("scheduler must use setAndAllowWhileIdle")
-    if "setExact" in text or "setExactAndAllowWhileIdle" in text: fail("scheduler must not use exact alarms")
+    if "MIN_INTERVAL_MINUTES = 10" not in text: fail("scheduler must use the Android-safe ten-minute minimum")
+    if "setExactAndAllowWhileIdle" not in text: fail("scheduler must use exact idle-safe alarms when special access is available")
+    if "canScheduleExactAlarms" not in text: fail("scheduler must check user-granted exact alarm access")
+    if "setAndAllowWhileIdle" not in text: fail("scheduler must preserve an idle-safe fallback when exact access is unavailable")
+    if "catch (SecurityException ignored)" not in text: fail("exact-alarm permission races must fall back without crashing")
     if "PendingIntent.getBroadcast" not in text or "AzkarReminderReceiver.class" not in text: fail("background reminder must target a broadcast receiver independent of the TWA UI")
 
 activity=JAVA/"AzkarReminderActivity.java"
 if activity.is_file():
     text=activity.read_text(encoding="utf-8")
-    for required in ("POST_NOTIFICATIONS","requestPermissions","requestPermissionThenStart","AzkarReminderScheduler.start","AzkarReminderScheduler.stop","isExpectedBridgeUri",'"qiblaastro".equals(data.getScheme())','"azkar-reminder".equals(data.getHost())',"R.string.azkar_permission_required"):
+    for required in ("POST_NOTIFICATIONS","requestPermissions","requestPermissionThenStart","requestExactAlarmAccessOrStart","ACTION_REQUEST_SCHEDULE_EXACT_ALARM","AzkarReminderScheduler.start","AzkarReminderScheduler.stop","isExpectedBridgeUri",'"qiblaastro".equals(data.getScheme())','"azkar-reminder".equals(data.getHost())',"R.string.azkar_permission_required"):
         if required not in text: fail(f"activity contract missing: {required}")
+    if "MIN_INTERVAL_MINUTES = 10" not in text: fail("activity must clamp native reminders to at least ten minutes")
     if "AlertDialog.Builder" in text: fail("obsolete second confirmation dialog must not return; the visible toggle is the user action")
     if 'getQueryParameter("text")' in text: fail("activity must not trust arbitrary incoming display text")
 
@@ -96,4 +96,4 @@ if errors:
     for error in errors: print("ERROR:",error,file=sys.stderr)
     raise SystemExit(1)
 print("PASS: AR/EN/FR/ID/UR resources generated and referenced by native notification UI")
-print("PASS: direct authenticated toggle, Android 13+ permission, broadcast scheduling, reboot and Azkar inexact-alarm contracts intact")
+print("PASS: direct authenticated toggle, Android 13+ notification permission, exact-alarm special access, idle-safe fallback, reboot and Azkar background contracts intact")
