@@ -19,7 +19,7 @@
   function nativeReady(){var token=nativeToken();return !!(isTwa()&&token&&token.length>=32);}
   function nativeMode(value){value=String(value||'');return value==='start'||value==='stop'?value:'';}
   function nativePhrase(value){value=String(value||'subhanallah');return NATIVE_PHRASES[value]?value:'subhanallah';}
-  function nativeInterval(value){var n=parseInt(value,10);if(!Number.isFinite(n))n=10;return Math.max(5,Math.min(1440,n));}
+  function nativeInterval(value){var n=parseInt(value,10);if(!Number.isFinite(n))n=10;return Math.max(10,Math.min(1440,n));}
   function nativeIntentUri(request,token){var mode=nativeMode(request&&request.mode);if(!mode)return '';var interval=nativeInterval(request&&request.interval),phrase=nativePhrase(request&&request.phrase);return 'intent://azkar-reminder?token='+encodeURIComponent(token)+'&mode='+encodeURIComponent(mode)+'&interval='+encodeURIComponent(String(interval))+'&phrase='+encodeURIComponent(phrase)+'#Intent;scheme=qiblaastro;package=com.qiblalabs;category=android.intent.category.BROWSABLE;end';}
   /* The Azkar UI lives in a same-origin iframe. Chrome/TWA is most reliable
    * when the external Android intent is launched by the top-level trusted
