@@ -1,4 +1,4 @@
-name: Patch Code 5 Native Adhan ownership safely
+name: Final verify Code 5 Native Adhan owner
 
 on:
   push:
@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch-and-verify:
+  verify:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,82 +21,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Apply exact guarded patch
-        shell: python
-        run: |
-          from pathlib import Path
-
-          def replace_exact(path, old, new):
-              p=Path(path)
-              text=p.read_text(encoding='utf-8')
-              count=text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{path}: expected exactly one match, found {count}')
-              p.write_text(text.replace(old,new),encoding='utf-8')
-
-          ui='source/js/presentation/prayer/adhan-ui.js'
-          replace_exact(ui,
-              "var schedulerInstalled=false,runtimeTimer=0,runtimeDay='',deliveredPlayed={},preAlertPlayed={},lastFocus=null,backAction=null,keyBound=false;",
-              "var schedulerInstalled=false,runtimeTimer=0,runtimeDay='',deliveredPlayed={},preAlertPlayed={},lastFocus=null,backAction=null,keyBound=false;\nfunction nativeDeliveryOwner(){try{return !!(root.sessionStorage&&root.sessionStorage.getItem('qiblaastro:twa')==='1'&&root.sessionStorage.getItem('qiblaastro:native-token'));}catch(_){return false;}}")
-          replace_exact(ui,
-              "function requestNotificationPermission(){try{if(!('Notification'in root))return Promise.resolve('unsupported');if(Notification.permission==='granted')return Promise.resolve('granted');if(Notification.permission==='denied')return Promise.resolve('denied');return Notification.requestPermission();}catch(e){return Promise.resolve('error');}}",
-              "function requestNotificationPermission(){try{if(nativeDeliveryOwner())return Promise.resolve('native');if(!('Notification'in root))return Promise.resolve('unsupported');if(Notification.permission==='granted')return Promise.resolve('granted');if(Notification.permission==='denied')return Promise.resolve('denied');return Notification.requestPermission();}catch(e){return Promise.resolve('error');}}")
-          replace_exact(ui,
-              "function requestAndReportPermission(){return requestNotificationPermission().then(function(result){announce(result==='granted'?'تم تفعيل إذن الإشعارات':result==='denied'?'الإشعارات محظورة من إعدادات المتصفح':result==='unsupported'?'إشعارات النظام غير مدعومة على هذا المتصفح':'تعذر تغيير إذن الإشعارات');return result;});}",
-              "function requestAndReportPermission(){return requestNotificationPermission().then(function(result){announce(result==='native'?'إشعارات Android هي المستخدمة داخل التطبيق':result==='granted'?'تم تفعيل إذن الإشعارات':result==='denied'?'الإشعارات محظورة من إعدادات المتصفح':result==='unsupported'?'إشعارات النظام غير مدعومة على هذا المتصفح':'تعذر تغيير إذن الإشعارات');return result;});}")
-          replace_exact(ui,
-              "function checkSchedule(now,cache){if(!cache||!cache.length||!enabled())return false;",
-              "function checkSchedule(now,cache){if(nativeDeliveryOwner())return false;if(!cache||!cache.length||!enabled())return false;")
-          replace_exact(ui,
-              "function startRuntimeScheduler(){if(runtimeTimer)return true;installSchedulerAdapter();runtimeTick();runtimeTimer=root.setInterval(runtimeTick,1000);",
-              "function startRuntimeScheduler(){if(nativeDeliveryOwner()){installSchedulerAdapter();return true;}if(runtimeTimer)return true;installSchedulerAdapter();runtimeTick();runtimeTimer=root.setInterval(runtimeTick,1000);")
-
-          boot='source/js/presentation/bootstrap.js'
-          replace_exact(boot,
-              "js/presentation/prayer/adhan-ui.js?v=20260827-adhan-runtime1",
-              "js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
-          replace_exact(boot,
-              "js/presentation/prayer/adhan-ui.js?v=20260829-code5-background1",
-              "js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
-          replace_exact(boot,
-              "js/presentation/prayer/schedule-sync.js?v=20260829-code5-background1",
-              "js/presentation/prayer/schedule-sync.js?v=20260829-foreground2")
-
-          sw='source/service-worker.js'
-          replace_exact(sw,
-              "const VERSION='qiblaastro-v5.73-azkar-reminder-20260828';",
-              "const VERSION='qiblaastro-v5.74-native-adhan-owner-20260829';")
-          replace_exact(sw,
-              "const OFFLINE_RELEASE='bounded-fallback-azkar-reminder-20260828';",
-              "const OFFLINE_RELEASE='native-adhan-owner-20260829';")
-          replace_exact('source/tests/permissions-gnss-adhan-cycle.test.js',
-              "assert(sw.includes(\"VERSION='qiblaastro-v5.73-azkar-reminder-20260828'\"),'Service worker must evict the stale offline/Adhan/Azkar cache');",
-              "assert(sw.includes(\"VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'\"),'Service worker must evict the stale offline/Adhan/Azkar cache');")
-          replace_exact('source/tests/offline-complete-shell.test.js',
-              "assert(sw.includes(\"const VERSION='qiblaastro-v5.73-azkar-reminder-20260828'\"),'pre-AAB offline/Adhan/Azkar cache generation mismatch');",
-              "assert(sw.includes(\"const VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'\"),'Code 5 Native Adhan offline cache generation mismatch');")
-      - name: Verify complete Code 5 contracts
-        working-directory: source
+      - name: Verify final publishable branch
         run: |
           set -euo pipefail
-          node tests/code5-native-adhan-owner.test.js
-          node tests/code5-background-adhan-web-gate.test.js
-          node tests/native-token-fragment-compatibility.test.js
-          node tests/permissions-gnss-adhan-cycle.test.js
-          node tests/adhan-runtime-resilience.test.js
-          node tests/prayer-midnight-refresh.test.js
-          node tests/code3-web-cutover-compatibility.test.js
-          node tests/offline-complete-shell.test.js
-          node tests/offline-network-fallback.test.js
-          node tests/pwa-standalone-readiness.test.js
-          node tests/android-release-version.test.js
-          python3 android-twa/test_native_integrations.py
-      - name: Commit guarded patch
-        run: |
-          set -euo pipefail
-          git config user.name 'msdgabr-sudo'
-          git config user.email 'm.sd.gabr@gmail.com'
-          git add source/js/presentation/prayer/adhan-ui.js source/js/presentation/bootstrap.js source/service-worker.js source/tests/permissions-gnss-adhan-cycle.test.js source/tests/offline-complete-shell.test.js
-          git diff --cached --quiet && { echo 'No patch changes to commit'; exit 1; }
-          git commit -m 'Make Android Native the sole scheduled Adhan owner in Code 5'
-          git push origin HEAD:fix/code5-native-adhan-owner
+          grep -Fq "VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'" source/service-worker.js
+          grep -Fq "OFFLINE_RELEASE='native-adhan-owner-20260829'" source/service-worker.js
+          grep -Fq "node tests/code5-native-adhan-owner.test.js" .github/workflows/deploy-app-pages.yml
+          (cd source && node tests/code5-native-adhan-owner.test.js)
+          (cd source && node tests/code5-background-adhan-web-gate.test.js)
+          (cd source && node tests/native-token-fragment-compatibility.test.js)
+          (cd source && node tests/permissions-gnss-adhan-cycle.test.js)
+          (cd source && node tests/adhan-runtime-resilience.test.js)
+          (cd source && node tests/prayer-midnight-refresh.test.js)
+          (cd source && node tests/code3-web-cutover-compatibility.test.js)
+          (cd source && node tests/offline-complete-shell.test.js)
+          (cd source && node tests/offline-network-fallback.test.js)
+          (cd source && node tests/pwa-standalone-readiness.test.js)
+          (cd source && node tests/android-release-version.test.js)
+          (cd source && python3 android-twa/test_native_integrations.py)
