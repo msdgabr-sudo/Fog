@@ -1,8 +1,7 @@
 name: Deploy app.qiblalabs.com
 
 # Prepared web release: QiblaAstro 4.1.7 / Android versionCode 5.
-# IMPORTANT: this workflow deploys only from main. Keeping these changes on the
-# release-preparation branch does NOT transfer app.qiblalabs.com or alter DNS.
+# IMPORTANT: this workflow deploys only from main.
 # Location onboarding remains independent from prayer notification permission.
 # Native prayer/Azkar/widget sources are packaged only by the Android build gate.
 
@@ -81,6 +80,8 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
