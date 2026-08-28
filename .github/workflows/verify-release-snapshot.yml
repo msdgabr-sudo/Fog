@@ -13,6 +13,8 @@ on:
     paths:
       - 'source/**'
       - '.github/workflows/verify-release-snapshot.yml'
+      - 'build-final-signed-aab.ps1'
+      - 'sign-verified-code4-aab.ps1'
       - 'RELEASE_SOURCE.md'
       - 'REPOSITORY_STATE.md'
   workflow_dispatch:
@@ -25,6 +27,41 @@ env:
   BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
 
 jobs:
+  windows-release-script-syntax:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout exact triggering release candidate
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Parse guarded Windows release scripts with PowerShell AST
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scripts = @(
+            '.\sign-verified-code4-aab.ps1',
+            '.\build-final-signed-aab.ps1',
+            '.\source\android-twa\build_signed_release.ps1'
+          )
+          foreach ($script in $scripts) {
+            if (-not (Test-Path -LiteralPath $script -PathType Leaf)) {
+              throw "Required Windows release script missing: $script"
+            }
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path -LiteralPath $script).Path,
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error ("{0}: {1}" -f $_.Extent.Text,$_.Message) }
+              throw "PowerShell syntax errors found in $script"
+            }
+            Write-Host "PASS: PowerShell syntax $script"
+          }
+
   verify-and-build:
     runs-on: ubuntu-24.04
     steps:
