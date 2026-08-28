@@ -6,6 +6,12 @@ Current Fog release candidate: version `4.1.7` / `versionCode` `5`, on `pre-aab/
 
 Production web publishing for `app.qiblalabs.com` is still owned by `msdgabr-sudo/q-app-an` until the explicit Pages/domain cutover step.
 
+Current live rollback checkpoint (verified before cutover preparation):
+
+- Repository/branch: `msdgabr-sudo/q-app-an` / `main`
+- Commit: `c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac`
+- Commit message: `restore: return to pre-camera-permission state 304b21d`
+
 Historical/current closed-test baseline:
 
 - Android release: `3.1.0` (`versionCode` 3)
@@ -59,5 +65,7 @@ The intended order is:
 6. Also smoke-test a remaining Code 3 device if available: app open, location, Prayer/Adhan existing state, Azkar reminder, and no unexpected Adhan state change.
 7. Verify HTTPS, CNAME, Digital Asset Links, online load and offline reload before considering the Pages cutover complete.
 8. After the closed-test population has moved off Code 3, remove/disable the migration guard in a separately reviewed Web change and re-enable independent Code 5 `widgetOnly` synchronization.
+
+If a Pages cutover fails, the recorded `q-app-an/main` checkpoint above is the known rollback source; rollback still requires restoring Pages/custom-domain ownership deliberately rather than blindly rewriting DNS.
 
 The root `.github/workflows/deploy-app-pages.yml` publishes only `source/` and remains `main`-triggered. Changes on `pre-aab/offline-adhan-priority` are preparation only and do not deploy the custom domain.
