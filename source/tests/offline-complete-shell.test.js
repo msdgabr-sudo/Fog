@@ -9,7 +9,7 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const sw=read('service-worker.js');
 const gateway=read('js/astro-verification.js');
 
-assert(sw.includes("const VERSION='qiblaastro-v5.73-azkar-reminder-20260828'"),'pre-AAB offline/Adhan/Azkar cache generation mismatch');
+assert(sw.includes("const VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'"),'Code 5 Native Adhan offline cache generation mismatch');
 assert(sw.includes("const OFFLINE_URL='./offline.html'"),'local offline fallback missing');
 assert(sw.includes('await cache.addAll(requests)'),'App Shell install must be atomic');
 assert(!sw.includes('Promise.allSettled'),'critical offline caching must not silently ignore missing assets');
