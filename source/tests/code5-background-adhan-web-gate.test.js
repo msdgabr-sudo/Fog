@@ -19,6 +19,14 @@ assert(!page.includes('اختبار صلاحية الصوت'),'prayer screen mus
 assert(!bootstrap.includes('audio-readiness.js'),'prayer screen loading must not wait for Web audio readiness');
 assert(bootstrap.includes("js/presentation/prayer/screen.js?v=20260814-phone-acceptance1"),'prayer screen must load directly after Native sync/UI modules');
 
+// Passive Web lifecycle events must NEVER navigate into the Android intent bridge.
+// Such navigation backgrounds the TWA during startup while the app is still alive.
+assert(sync.includes('var AUTO_NATIVE_NAVIGATION=false;'),'passive Native navigation must be explicitly disabled');
+assert(sync.includes('function maybeAutoSync(reason){if(!AUTO_NATIVE_NAVIGATION)return false;'),'passive sync must fail closed before token/prefs/intent work');
+for(const reason of ['startup','poll','focus','visible','location-ready','location-changed','location-event','runtime-ready']){
+  assert(!sync.includes(`nativeSync('${reason}'`),`passive ${reason} must not call nativeSync directly`);
+}
+
 // A real user change must still trigger a full authenticated Native prayer sync.
 for(const selector of ['[data-advance]','[data-prayer-mode]','[data-qa-adhan-toggle]']){
   assert(sync.includes(selector),`Native prayer sync must observe ${selector}`);
@@ -42,4 +50,4 @@ assert(manifestPatch.includes('android.permission.SCHEDULE_EXACT_ALARM'),'genera
 assert(manifestPatch.includes('android.permission.RECEIVE_BOOT_COMPLETED'),'generated app must receive reboot restoration events');
 assert(manifestPatch.includes('android:stopWithTask="false"'),'Adhan foreground playback must not be tied to the recent-task card');
 
-console.log('Code 5 background Adhan: Web audio gate removed; authenticated Native exact/offline/closed-app chain preserved: PASS');
+console.log('Code 5 foreground stable + background Adhan preserved: passive Android intents blocked; explicit Native exact/offline/closed-app chain preserved: PASS');
