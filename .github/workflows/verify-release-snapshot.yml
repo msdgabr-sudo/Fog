@@ -94,6 +94,7 @@ jobs:
           set -euo pipefail
           python3 source/android-twa/ensure_target_api_36.py
           python3 source/android-twa/apply_native_integrations.py --all
+          python3 source/android-twa/check_generated_release_identity.py
           python3 source/android-twa/check_release_integration.py
           (cd source && node tests/native-android-localization-security.test.js)
 
@@ -129,7 +130,7 @@ jobs:
           test -n "$CANDIDATE"
           mkdir -p dist
           cp "$CANDIDATE" dist/QiblaAstro-4.1.7-code4-unsigned.aab
-          unzip -t dist/QiblaAstro-4.1.7-code4-unsigned.aab >/dev/null
+          python3 source/android-twa/check_aab_release.py dist/QiblaAstro-4.1.7-code4-unsigned.aab
           sha256sum dist/QiblaAstro-4.1.7-code4-unsigned.aab | tee dist/QiblaAstro-4.1.7-code4-unsigned.aab.sha256
 
       - name: Upload unsigned AAB proof artifact
