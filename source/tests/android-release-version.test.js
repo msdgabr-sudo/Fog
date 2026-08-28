@@ -28,7 +28,9 @@ for (const [file, tokens] of [
   ['.github/workflows/verify-release-snapshot.yml', ['QiblaAstro-4.1.7-code4-unsigned.aab', 'QiblaAstro-4.1.7-code4-unsigned-AAB-proof', '--skipVersionUpgrade', 'check_generated_release_identity.py', 'check_aab_release.py']],
   ['source/.github/workflows/a2-apk-rc.yml', ["m['appVersion']=='4.1.7'", "int(m['appVersionCode'])==4", "versionCode='4'", "versionName='4.1.7'", 'QiblaAstro-A2-4.1.7-RC-debug.apk', '--skipVersionUpgrade']],
   ['source/android-twa/build_signed_release.ps1', ['QiblaAstro 4.1.7 (code 4)', 'build-final-signed-aab.ps1', '-KeystorePath $KeystorePath', 'No signing key is accepted from inside the repository']],
-  ['build-final-signed-aab.ps1', ['Version: 4.1.7 (code 4)', 'QiblaAstro-4.1.7-code4-final.aab', 'QiblaAstro-4.1.7-code4-final.apk', '--skipVersionUpgrade', "pre-aab/offline-adhan-priority", 'check_generated_release_identity.py', 'check_aab_release.py', '--require-signature', 'SCHEDULE_EXACT_ALARM']]
+  ['build-final-signed-aab.ps1', ['Version: 4.1.7 (code 4)', 'QiblaAstro-4.1.7-code4-final.aab', 'QiblaAstro-4.1.7-code4-final.apk', '--skipVersionUpgrade', "pre-aab/offline-adhan-priority", 'check_generated_release_identity.py', 'check_aab_release.py', '--require-signature', 'SCHEDULE_EXACT_ALARM']],
+  ['sign-verified-code4-aab.ps1', ['eafcaf92eae8be276ad36f7884771a268ee1e968', 'A7F87CAD4F398D107BC6B77F59C4C724A23D5F9CAC594568D3D1CE15DBC17BB6', 'QiblaAstro-4.1.7-code4-final.aab', 'keytool -printcert -jarfile', 'Native .so libraries']],
+  ['source/PLAY_CONSOLE_4.1.7_SUBMISSION.md', ['Foreground service declaration', 'mediaPlayback', 'sign-verified-code4-aab.ps1', 'A7F87CAD4F398D107BC6B77F59C4C724A23D5F9CAC594568D3D1CE15DBC17BB6']]
 ]) {
   const contents = read(file);
   for (const token of tokens) assert(contents.includes(token), `${file}: release contract missing ${token}`);
@@ -45,4 +47,4 @@ for (const file of [
   'build-final-signed-aab.ps1'
 ]) assert(!read(file).includes('3.1.0'), `${file}: stale application version in active packaging path`);
 
-console.log('Android release identity: com.qiblalabs 4.1.7 (code 4), API 36, single guarded Windows signing path and AAB structural guards: PASS');
+console.log('Android release identity: com.qiblalabs 4.1.7 (code 4), API 36, verified-CI-AAB signing path, full rebuild fallback and Play submission guards: PASS');
