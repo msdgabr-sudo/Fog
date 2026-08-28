@@ -78,7 +78,7 @@ assert(adhanService.includes('USAGE_ALARM')&&adhanService.includes('rawForAdhan'
 // Service worker and loader must force this exact integration to replace stale first-run code.
 assert(bootstrap.includes('permissions-onboarding.js?v=20260819-code3-location-only1'),'Bootstrap must request the fresh location-only permission asset');
 assert(sw.includes("'./js/presentation/permissions-onboarding.js'"),'Permissions integration must stay in critical cache');
-assert(sw.includes("VERSION='qiblaastro-v5.73-azkar-reminder-20260828'"),'Service worker must evict the stale offline/Adhan/Azkar cache');
+assert(sw.includes("VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'"),'Service worker must evict the stale offline/Adhan/Azkar cache');
 assert(sw.includes("PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'"),'Service worker must advertise the independent prayer exact-alarm permission release');
 assert(!sw.includes("'./js/05-gnss.js'"),'Service worker must not activate the unused external GNSS implementation beside the production inline engine');
 
