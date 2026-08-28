@@ -51,7 +51,7 @@ Important paths:
 - `js/astronomical-verification-session.js` — verification state flow.
 - `js/astronomical-verification-store.js` — canonical astronomical record.
 - `js/post-verification-live-compass.js` — isolated live celestial compass after verification.
-- `service-worker.js` — atomic offline App Shell/runtime with bounded network fallback, currently `qiblaastro-v5.72-offline-adhan-20260827`.
+- `service-worker.js` — atomic offline App Shell/runtime with bounded network fallback, currently `qiblaastro-v5.73-azkar-reminder-20260828`.
 - `tests/` — astronomical and isolation tests.
 
 ## 4. Completed Features

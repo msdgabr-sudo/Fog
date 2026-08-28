@@ -119,7 +119,7 @@ assert(bootstrap.includes('schedule-sync.js?v=20260827-authoritative1'),'authent
 assert(webSync.includes('native-plan.js?v=20260827-authoritative1'),'authenticated dated-plan loader version missing');
 const sw=read('service-worker.js');
 assert(/qiblaastro-v\d+\.\d+-/.test(sw),'versioned service-worker cache missing');
-assert(sw.includes('qiblaastro-v5.72-offline-adhan-20260827'),'pre-AAB offline/Adhan service-worker version missing');
+assert(sw.includes('qiblaastro-v5.73-azkar-reminder-20260828'),'pre-AAB offline/Adhan/Azkar service-worker version missing');
 assert(sw.includes('./js/presentation/prayer/native-plan.js')&&sw.includes('./js/presentation/prayer/schedule-sync.js')&&sw.includes('./js/azkar-native-reminders.js'),'native web bridge files must remain in critical offline cache');
 console.log('Native Android localization/security gate: PASS');
 console.log('Prayer actual-time + separate pre-alert + local Adhan audio: PASS');

@@ -3,11 +3,11 @@
  * © 2026 Mohamed SG Behairy. All Rights Reserved. */
 'use strict';
 
-const VERSION='qiblaastro-v5.72-offline-adhan-20260827';
+const VERSION='qiblaastro-v5.73-azkar-reminder-20260828';
 const BRIDGE_RELEASE='package-scoped-native-20260826';
 const GNSS_RELEASE='trusted-startup-recovery-20260818';
 const PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826';
-const OFFLINE_RELEASE='bounded-fallback-app-shell-quran-audio-20260827';
+const OFFLINE_RELEASE='bounded-fallback-azkar-reminder-20260828';
 const CACHE_PREFIX='qiblaastro-';
 const APP_CACHE=VERSION+'-app';
 const RUNTIME_CACHE=VERSION+'-runtime';
