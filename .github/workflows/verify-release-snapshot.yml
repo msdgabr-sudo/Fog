@@ -1,15 +1,15 @@
-name: Verify main release source and build unsigned AAB
+name: Verify pre-AAB release candidate and build unsigned AAB
 
-# SINGLE-BRANCH RELEASE GATE
-# --------------------------
-# `main` is the authoritative source for both the deployed web application and
-# future Android release builds. source/.release-source-sha records historical
-# provenance only; it does NOT authorize replacing current main/source with the
-# older Mizan baseline.
+# PRE-AAB RELEASE-CANDIDATE GATE
+# ------------------------------
+# This branch is intentionally isolated from `main`. The workflow must verify
+# and build the exact commit that triggered the run, never the older main tip.
+# source/.release-source-sha remains a historical provenance marker only.
 
 on:
   push:
-    branches: [main]
+    branches:
+      - pre-aab/offline-adhan-priority
     paths:
       - 'source/**'
       - '.github/workflows/verify-release-snapshot.yml'
@@ -28,9 +28,10 @@ jobs:
   verify-and-build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout exact triggering release candidate
+        uses: actions/checkout@v7
         with:
-          ref: main
+          ref: ${{ github.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -46,9 +47,9 @@ jobs:
             echo 'ERROR: secret material is forbidden in the release repository.' >&2
             exit 1
           fi
-          echo 'Baseline provenance marker verified. Current main/source remains authoritative.'
+          echo 'Baseline provenance marker verified. Triggering release-candidate commit remains authoritative.'
 
-      - name: Run current main source release gates
+      - name: Run release-candidate source gates
         working-directory: source
         run: |
           set -euo pipefail
@@ -80,7 +81,7 @@ jobs:
       - name: Pull pinned Bubblewrap toolchain
         run: docker pull "$BUBBLEWRAP_IMAGE"
 
-      - name: Generate Android project from current main TWA manifest
+      - name: Generate Android project from release-candidate TWA manifest
         run: |
           set -euo pipefail
           docker run --rm -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
