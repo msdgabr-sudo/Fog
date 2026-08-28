@@ -1,0 +1,94 @@
+name: Verify Azkar exact background scheduling
+
+on:
+  push:
+    branches:
+      - fix/azkar-exact-background
+    paths:
+      - 'source/**'
+      - '.github/workflows/verify-azkar-exact-background.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
+
+jobs:
+  source-gates:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Verify Azkar, token, Adhan, offline and migration safety
+        working-directory: source
+        run: |
+          set -euo pipefail
+          node tests/native-token-fragment-compatibility.test.js
+          node tests/azkar-native-top-bridge.test.js
+          node tests/azkar-web-reminder-runtime.test.js
+          node tests/native-android-localization-security.test.js
+          node tests/permissions-gnss-adhan-cycle.test.js
+          node tests/prayer-widget-safe-autosync.test.js
+          node tests/code3-web-cutover-compatibility.test.js
+          node tests/offline-complete-shell.test.js
+          node tests/offline-network-fallback.test.js
+          node tests/android-release-version.test.js
+          python3 tools/pre_apk_check.py
+          python3 android-twa/test_native_integrations.py
+
+  android-compile:
+    runs-on: ubuntu-24.04
+    needs: source-gates
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Pull pinned Bubblewrap toolchain
+        run: docker pull "$BUBBLEWRAP_IMAGE"
+
+      - name: Generate Android project
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
+          sudo chown -R "$(id -u):$(id -g)" source/android-twa
+          python3 source/android-twa/ensure_target_api_36.py
+          python3 source/android-twa/apply_native_integrations.py --all
+          python3 source/android-twa/check_generated_release_identity.py
+          python3 source/android-twa/check_release_integration.py
+          (cd source && node tests/native-android-localization-security.test.js)
+
+      - name: Compile release Java and manifest
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
+            set -euo pipefail
+            CFG=/root/.bubblewrap/config.json
+            export JAVA_HOME=$(node -p "require(\"$CFG\").jdkPath")
+            export ANDROID_HOME=$(node -p "require(\"$CFG\").androidSdkPath")
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            SDKMANAGER=$(find "$ANDROID_HOME" -type f -name sdkmanager -perm -111 | head -1)
+            test -n "$SDKMANAGER"
+            export PATH="$JAVA_HOME/bin:$(dirname "$SDKMANAGER"):$ANDROID_HOME/platform-tools:$PATH"
+            yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+            "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;35.0.0"
+            ./gradlew --no-daemon :app:processReleaseMainManifest :app:compileReleaseJavaWithJavac
+            python3 check_generated_permissions.py
+            python3 check_native_azkar_bridge.py
+          '
