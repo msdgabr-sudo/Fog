@@ -84,14 +84,14 @@ assert.deepStrictEqual(unready.launches,[],'legacy pCache must not cross the nat
 assert.strictEqual(first.context.QiblaPrayerNativeSync.syncWidget(),true,'explicit widget refresh should launch the authenticated native bridge');
 assert.strictEqual(persisted.getItem(WIDGET_KEY),'1','successful explicit widget refresh must persist widget auto-refresh activation');
 assert.strictEqual(first.launches.length,1);
-assert(first.launches[0].includes('widgetOnly=1'),'explicit widget refresh must remain widget-only');
-assert(first.launches[0].includes('notify=0'),'widget-only refresh must never request Adhan notification delivery');
+assert(first.launches[0].includes('widgetOnly=1'),'explicit widget refresh must remain widget-only for Code 5');
+assert(first.launches[0].includes('notify=1'),'widget-only refresh must carry the real enabled Adhan state so legacy Code 3 cannot interpret a synthetic notify=0 as disabling Adhan');
 
 const reopened=boot(persisted);
 flushTimeouts(reopened);
 assert.strictEqual(reopened.launches.length,1,'an explicitly activated widget should refresh once on the next app start');
-assert(reopened.launches[0].includes('widgetOnly=1'),'automatic widget refresh must use the isolated widget-only bridge');
-assert(reopened.launches[0].includes('notify=0'),'automatic widget refresh must not request notification or exact-alarm access');
+assert(reopened.launches[0].includes('widgetOnly=1'),'automatic widget refresh must use the isolated widget-only bridge for Code 5');
+assert(reopened.launches[0].includes('notify=1'),'automatic widget refresh must preserve the real Adhan master state for legacy Code 3 compatibility');
 
 persisted.setItem(DELIVERY_KEY,'1');
 const delivery=boot(persisted);
@@ -100,4 +100,4 @@ assert.strictEqual(delivery.launches.length,1,'an activated Adhan schedule shoul
 assert(!delivery.launches[0].includes('widgetOnly=1'),'full Adhan refresh must remain distinct from widget-only refresh');
 assert(delivery.launches[0].includes('notify=1'),'full Adhan refresh must preserve the enabled delivery state');
 
-console.log('Prayer widget safe auto-sync: explicit activation -> widget-only startup refresh; Adhan delivery remains isolated: PASS');
+console.log('Prayer widget safe auto-sync: Code 5 widgetOnly isolation + legacy Code 3 Adhan-state preservation: PASS');
