@@ -72,6 +72,9 @@ jobs:
           replace_exact('source/tests/permissions-gnss-adhan-cycle.test.js',
               "assert(sw.includes(\"VERSION='qiblaastro-v5.73-azkar-reminder-20260828'\"),'Service worker must evict the stale offline/Adhan/Azkar cache');",
               "assert(sw.includes(\"VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'\"),'Service worker must evict the stale offline/Adhan/Azkar cache');")
+          replace_exact('source/tests/offline-complete-shell.test.js',
+              "assert(sw.includes(\"const VERSION='qiblaastro-v5.73-azkar-reminder-20260828'\"),'pre-AAB offline/Adhan/Azkar cache generation mismatch');",
+              "assert(sw.includes(\"const VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'\"),'Code 5 Native Adhan offline cache generation mismatch');")
       - name: Verify complete Code 5 contracts
         working-directory: source
         run: |
@@ -93,7 +96,7 @@ jobs:
           set -euo pipefail
           git config user.name 'msdgabr-sudo'
           git config user.email 'm.sd.gabr@gmail.com'
-          git add source/js/presentation/prayer/adhan-ui.js source/js/presentation/bootstrap.js source/service-worker.js source/tests/permissions-gnss-adhan-cycle.test.js
+          git add source/js/presentation/prayer/adhan-ui.js source/js/presentation/bootstrap.js source/service-worker.js source/tests/permissions-gnss-adhan-cycle.test.js source/tests/offline-complete-shell.test.js
           git diff --cached --quiet && { echo 'No patch changes to commit'; exit 1; }
           git commit -m 'Make Android Native the sole scheduled Adhan owner in Code 5'
           git push origin HEAD:fix/code5-native-adhan-owner
