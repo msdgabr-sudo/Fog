@@ -64,7 +64,10 @@ assert(permissions.includes("notifications:'contextual'"),'Location onboarding m
 // Existing Adhan permissions remain contextual in their own web/native modules.
 assert(adhanUi.includes('function requestNotificationPermission()'),'Adhan UI must retain its independent notification permission request');
 assert(adhanUi.includes('Notification.requestPermission()'),'Web notification permission must remain inside Adhan UI');
-assert(sync.includes("q.set('notify',widgetOnly?'0':(st.enabled?'1':'0'))"),'Native handoff must request notifications only for Adhan delivery, never widget-only refresh');
+assert(sync.includes("q.set('notify',st.enabled?'1':'0')"),'Every native handoff must carry the real Adhan master state; legacy code 3 does not understand widgetOnly and must never receive a synthetic notify=0 that disables Adhan');
+assert(!sync.includes("q.set('notify',widgetOnly?'0':"),'Widget-only sync must not synthesize notify=0 because legacy code 3 interprets it as disabling native Adhan');
+assert(nativeActivity.includes('widgetOnly'),'Code 5 native bridge must understand widgetOnly');
+assert(nativeActivity.includes('if(!widgetOnly)'),'Code 5 widget-only refresh must avoid mutating native Adhan delivery state');
 assert(nativeActivity.includes('"1".equals(data.getQueryParameter("notify"))'),'Android notification permission must remain conditional on enabled Adhan notifications');
 assert(nativeScheduler.includes('AlarmManager.RTC_WAKEUP')&&nativeScheduler.includes('setExactAndAllowWhileIdle')&&nativeScheduler.includes('canScheduleExactAlarms'),'Prayer-time Adhan must use the user-granted exact-alarm path for closed-app/Doze delivery');
 assert(nativeScheduler.includes('setAndAllowWhileIdle'),'Pre-alerts and devices without special exact-alarm access need an idle-safe fallback');
@@ -81,4 +84,5 @@ assert(!sw.includes("'./js/05-gnss.js'"),'Service worker must not activate the u
 
 console.log('Permissions cycle: explicit bounded Android location request -> immediate independent completion -> trusted existing GNSS: PASS');
 console.log('Adhan cycle: separate contextual permission -> exact RTC_WAKEUP -> receiver -> foreground bundled playback: PASS');
+console.log('Legacy transition: widget-only web sync preserves Code 3 native Adhan master state while Code 5 keeps widget-only isolation: PASS');
 console.log('Safety: retired GNSS state removed; no IP fallback and no Qibla/WMM/prayer/Falaki/raw-equation implementation added to onboarding: PASS');
