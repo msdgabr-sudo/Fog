@@ -2,10 +2,14 @@ package com.qiblalabs.azkar;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import com.qiblalabs.R;
@@ -14,12 +18,14 @@ import com.qiblalabs.nativebridge.NativeBridgeToken;
 /** User-initiated and per-install-authenticated bridge from the TWA into native Azkar reminders. */
 public final class AzkarReminderActivity extends Activity {
     private static final int REQ_NOTIFICATIONS = 7126;
-    private static final int MIN_INTERVAL_MINUTES = 5;
+    private static final int MIN_INTERVAL_MINUTES = 10;
     private static final int MAX_INTERVAL_MINUTES = 1440;
 
     private int pendingInterval = 10;
     private String pendingPhrase = "subhanallah";
     private String pendingText = "ذكر الله";
+    private boolean awaitingExactSettings;
+    private boolean exactSettingsPaused;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,14 +52,49 @@ public final class AzkarReminderActivity extends Activity {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIFICATIONS);
             return;
         }
-        startNativeReminder();
+        requestExactAlarmAccessOrStart();
     }
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != REQ_NOTIFICATIONS) return;
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) startNativeReminder();
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) requestExactAlarmAccessOrStart();
         else { Toast.makeText(this, R.string.azkar_permission_required, Toast.LENGTH_LONG).show(); finish(); }
+    }
+
+    private void requestExactAlarmAccessOrStart() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || AzkarReminderScheduler.canScheduleExact(this)) {
+            startNativeReminder();
+            return;
+        }
+        SharedPreferences prefs = getSharedPreferences(AzkarReminderScheduler.PREFS, Context.MODE_PRIVATE);
+        if (prefs.getBoolean(AzkarReminderScheduler.KEY_EXACT_PROMPTED, false)) {
+            startNativeReminder();
+            return;
+        }
+        try {
+            prefs.edit().putBoolean(AzkarReminderScheduler.KEY_EXACT_PROMPTED, true).apply();
+            awaitingExactSettings = true;
+            exactSettingsPaused = false;
+            Intent settings = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                    .setData(Uri.parse("package:" + getPackageName()));
+            startActivity(settings);
+        } catch (Exception ignored) {
+            startNativeReminder();
+        }
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        if (awaitingExactSettings) exactSettingsPaused = true;
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (awaitingExactSettings && exactSettingsPaused) {
+            awaitingExactSettings = false;
+            startNativeReminder();
+        }
     }
 
     private void startNativeReminder() {
