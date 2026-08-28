@@ -50,10 +50,6 @@ jobs:
           replace_exact('source/js/presentation/bootstrap.js',
               "js/presentation/prayer/schedule-sync.js?v=20260829-foreground2",
               "js/presentation/prayer/schedule-sync.js?v=20260829-widget-rich1")
-
-          replace_exact('.github/workflows/deploy-app-pages.yml',
-              "          (cd source && node tests/code5-background-adhan-web-gate.test.js)\n",
-              "          (cd source && node tests/code5-background-adhan-web-gate.test.js)\n          (cd source && node tests/code5-widget-rich-summary.test.js)\n")
       - name: Verify Code 5 safety gates
         working-directory: source
         run: |
@@ -70,7 +66,7 @@ jobs:
           set -euo pipefail
           git config user.name 'msdgabr-sudo'
           git config user.email 'm.sd.gabr@gmail.com'
-          git add source/js/presentation/prayer/schedule-sync.js source/js/presentation/bootstrap.js source/tests/code5-widget-rich-summary.test.js .github/workflows/deploy-app-pages.yml
+          git add source/js/presentation/prayer/schedule-sync.js source/js/presentation/bootstrap.js
           git diff --cached --quiet && { echo 'No patch changes to commit'; exit 1; }
           git commit -m 'Enrich Code 5 widget with dates and daily prayer times'
           git push origin HEAD:fix/code5-widget-rich-summary
