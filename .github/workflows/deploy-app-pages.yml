@@ -1,6 +1,8 @@
 name: Deploy app.qiblalabs.com
 
-# Active web release: QiblaAstro 4.1.7 / Android versionCode 4 candidate.
+# Prepared web release: QiblaAstro 4.1.7 / Android versionCode 5.
+# IMPORTANT: this workflow deploys only from main. Keeping these changes on the
+# release-preparation branch does NOT transfer app.qiblalabs.com or alter DNS.
 # Location onboarding remains independent from prayer notification permission.
 # Native prayer/Azkar/widget sources are packaged only by the Android build gate.
 
@@ -48,8 +50,11 @@ jobs:
           import json
           from pathlib import Path
           cfg = json.loads(Path("source/android-twa/twa-manifest.json").read_text(encoding="utf-8"))
+          assert cfg["packageId"] == "com.qiblalabs", cfg["packageId"]
+          assert cfg["host"] == "app.qiblalabs.com", cfg["host"]
           assert cfg["appVersion"] == "4.1.7", cfg["appVersion"]
-          assert cfg["appVersionCode"] == 4, cfg["appVersionCode"]
+          assert cfg["appVersionCode"] == 5, cfg["appVersionCode"]
+          assert cfg["minSdkVersion"] == 23, cfg["minSdkVersion"]
           PY
           grep -Fq "VERSION='qiblaastro-v5.73-azkar-reminder-20260828'" source/service-worker.js
           grep -Fq "PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'" source/service-worker.js
