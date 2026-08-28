@@ -52,16 +52,15 @@ jobs:
               "function startRuntimeScheduler(){if(nativeDeliveryOwner()){installSchedulerAdapter();return true;}if(runtimeTimer)return true;installSchedulerAdapter();runtimeTick();runtimeTimer=root.setInterval(runtimeTick,1000);")
 
           boot='source/js/presentation/bootstrap.js'
-          p=Path(boot); text=p.read_text(encoding='utf-8')
-          old="js/presentation/prayer/adhan-ui.js?v=20260829-code5-background1"
-          if text.count(old) != 2:
-              raise SystemExit(f'{boot}: expected two Adhan UI revision refs, found {text.count(old)}')
-          text=text.replace(old,"js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
-          oldsync="js/presentation/prayer/schedule-sync.js?v=20260829-code5-background1"
-          if text.count(oldsync) != 1:
-              raise SystemExit(f'{boot}: expected one schedule-sync revision ref, found {text.count(oldsync)}')
-          text=text.replace(oldsync,"js/presentation/prayer/schedule-sync.js?v=20260829-foreground2")
-          p.write_text(text,encoding='utf-8')
+          replace_exact(boot,
+              "js/presentation/prayer/adhan-ui.js?v=20260827-adhan-runtime1",
+              "js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
+          replace_exact(boot,
+              "js/presentation/prayer/adhan-ui.js?v=20260829-code5-background1",
+              "js/presentation/prayer/adhan-ui.js?v=20260829-native-owner1")
+          replace_exact(boot,
+              "js/presentation/prayer/schedule-sync.js?v=20260829-code5-background1",
+              "js/presentation/prayer/schedule-sync.js?v=20260829-foreground2")
 
           sw='source/service-worker.js'
           replace_exact(sw,
