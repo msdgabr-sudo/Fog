@@ -70,16 +70,17 @@ assert(code5Native.includes('widgetOnly="1".equals')&&code5Native.includes('if(w
 assert(code5Native.includes('if(!widgetOnly)e.putString("mode_"+id'),'Code 5 widget-only capability must preserve Adhan delivery choices when re-enabled after migration');
 
 // Legacy Code 3 AzkarReminderActivity accepts qiblaastro://azkar-reminder with
-// token + start/stop + interval + one of these stable phrase ids.
+// token + start/stop + interval + one of these stable phrase ids. Sending ten
+// minutes remains fully compatible because Code 3 accepts any interval >= 5.
 assert(azkar.includes('intent://azkar-reminder?token='),'Azkar bridge host/scheme contract missing');
 assert(azkar.includes('scheme=qiblaastro;package=com.qiblalabs;category=android.intent.category.BROWSABLE'),'Azkar intent must remain package-scoped');
 assert(azkar.includes("'&mode='+encodeURIComponent(mode)"),'Azkar start/stop mode missing');
-assert(azkar.includes("'&interval='+encodeURIComponent(String(minutes||10))"),'Azkar interval field missing');
+assert(azkar.includes("'&interval='+encodeURIComponent(String(Math.max(10,minutes||10)))"),'Azkar interval field missing');
 assert(azkar.includes("'&phrase='+encodeURIComponent(phraseId(text))"),'Azkar phrase field missing');
 for(const id of ['subhanallah','alhamdulillah','allahuakbar','lailahaillallah','astaghfirullah','astaghfirullahalazim','subhanallahwabihamdih','lahawla','hasbiyallah','salat']){
   assert(azkar.includes(`'${id}'`),`legacy Code 3 Azkar phrase id missing: ${id}`);
 }
-assert(azkar.includes('Math.max(5,n)'),'Azkar interval must not fall below Code 3 native minimum');
+assert(azkar.includes('Math.max(10,n)'),'Fog must clamp Android Azkar intervals to ten minutes while staying above the Code 3 native minimum');
 
 // Location remains a browser/TWA permission path, so both old and new wrappers
 // continue through Android Web/TWA location delegation without a new native API.
@@ -87,4 +88,4 @@ assert(permissions.includes('root.navigator.geolocation.getCurrentPosition('),'l
 assert(permissions.includes("typeof root.tryBrowserGPS==='function'"),'Fog Web must continue to hand granted location to the existing trusted GNSS lifecycle');
 
 console.log('Code 3 -> Fog Web cutover compatibility: PASS');
-console.log('Identity/DAL/token stable; Prayer/Adhan full sync compatible; independent widget-only sync fail-closed; Azkar compatible; delegated location preserved.');
+console.log('Identity/DAL/token stable; Prayer/Adhan full sync compatible; independent widget-only sync fail-closed; Azkar compatible at ten-minute floor; delegated location preserved.');
