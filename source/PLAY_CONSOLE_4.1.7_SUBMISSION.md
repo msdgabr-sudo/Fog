@@ -73,14 +73,51 @@ The release AAB is required to contain no native `.so` shared libraries. QiblaAs
 - Keep the already-proven Code 3 `assetlinks.json` certificate fingerprints unless the actual Play App Signing certificate changes in Play Console.
 - Do not replace Digital Asset Links with the Upload Key fingerprint merely because the AAB is signed with the Upload Key. Play App Signing can use a different app-signing certificate for installed builds.
 
-## Final local artifact
-Run only the repository-root guarded Windows script:
+## Preferred final path on the Windows computer — sign the already verified AAB
+The complete release workflow at source commit `eafcaf92eae8be276ad36f7884771a268ee1e968` built and structurally verified the unsigned Code 4 AAB. Its approved AAB SHA-256 is:
+
+`A7F87CAD4F398D107BC6B77F59C4C724A23D5F9CAC594568D3D1CE15DBC17BB6`
+
+This is the preferred final route because the application is not rebuilt on the user's computer; only the exact CI-proven AAB is verified and signed with the original Upload Key, which never leaves that computer.
+
+1. Download and extract the GitHub Actions artifact `QiblaAstro-4.1.7-code4-unsigned-AAB-proof` from the approved run. The extracted file must be named `QiblaAstro-4.1.7-code4-unsigned.aab`.
+2. Update/switch the local checkout to `pre-aab/offline-adhan-priority` so the guarded signing script is present.
+3. From the repository root run:
+
+```powershell
+.\sign-verified-code4-aab.ps1 `
+  -UnsignedAabPath "C:\PATH\TO\QiblaAstro-4.1.7-code4-unsigned.aab" `
+  -KeystorePath "D:\YOUR-SECURE-PATH\qiblaastro-upload.jks"
+```
+
+Use the actual local paths. Enter the keystore password only into the local `keytool`/`jarsigner` prompts; never put the password in a command, file, GitHub, or chat.
+
+The signing script fails closed unless all of these are true:
+- the unsigned AAB hash is byte-for-byte the approved CI artifact;
+- BundleConfig, Android manifest and DEX are present;
+- all four bundled Adhan resources are present;
+- no native `.so` library exists;
+- the keystore alias is `qiblaastro` and its certificate SHA-256 is the original approved Upload Key fingerprint;
+- `jarsigner` validates the final AAB;
+- the certificate read back from the signed AAB matches the approved Upload Key;
+- signature records remain present after signing.
+
+Successful output:
+- `dist/QiblaAstro-4.1.7-code4-final.aab` — upload this file to Google Play;
+- `dist/QiblaAstro-4.1.7-code4-final.aab.sha256`;
+- `dist/QiblaAstro-4.1.7-code4-SIGNING-REPORT.txt`.
+
+## Full local rebuild — secondary reproducibility path
+If an independent full Android rebuild is deliberately required, use the root guarded build instead:
 
 ```powershell
 .\build-final-signed-aab.ps1 -KeystorePath "D:\YOUR-SECURE-PATH\qiblaastro-upload.jks"
 ```
 
-The Google Play upload file is produced only after every local gate passes:
-`dist/QiblaAstro-4.1.7-code4-final.aab`
+That route additionally requires the complete Android/Bubblewrap/JDK/SDK toolchain and reruns the release build. It is useful for reproducibility, but it introduces more local-environment variables than signing the already verified CI AAB.
 
-Keep the generated `SHA256SUMS.txt` and `QiblaAstro-4.1.7-code4-RELEASE-REPORT.txt` with the release records.
+## Before Play publication
+- Upload only `QiblaAstro-4.1.7-code4-final.aab`, never the unsigned proof AAB.
+- Complete the Play Console foreground-service declaration for `mediaPlayback` and attach the real-device demonstration video.
+- Review the Play pre-launch/report warnings before promoting the release.
+- Keep the generated SHA-256 and signing/release report with the release records.
