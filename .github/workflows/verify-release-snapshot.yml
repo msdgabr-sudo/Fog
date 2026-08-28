@@ -107,6 +107,8 @@ jobs:
           node tests/prayer-midnight-refresh.test.js
           node tests/adhan-runtime-resilience.test.js
           node tests/azkar-web-reminder-runtime.test.js
+          node tests/azkar-native-top-bridge.test.js
+          node tests/native-token-fragment-compatibility.test.js
           node tests/offline-complete-shell.test.js
           node tests/offline-network-fallback.test.js
           node tests/i18n-roundtrip-safety.test.js
