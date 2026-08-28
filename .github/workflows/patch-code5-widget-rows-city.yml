@@ -1,4 +1,4 @@
-name: Patch Code 5 widget rows and city safely
+name: Verify Code 5 widget rows and city
 
 on:
   push:
@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch-and-verify:
+  verify:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,49 +21,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Apply guarded Web-only widget presentation patch
-        shell: python
-        run: |
-          from pathlib import Path
-
-          sync=Path('source/js/presentation/prayer/schedule-sync.js')
-          lines=sync.read_text(encoding='utf-8').splitlines()
-          indexes=[i for i,line in enumerate(lines) if line.startswith('function widgetPresentation(payload,hijriOverride)')]
-          if len(indexes)!=1:
-              raise SystemExit(f'expected one widgetPresentation, found {len(indexes)}')
-          i=indexes[0]
-          lines[i:i+1]=[
-            "function widgetLocationLabel(loc){var values=[];if(loc&&loc.mode==='manual')values.push(loc.label);try{var api=root.QiblaLocationLabel;if(api&&typeof api.getLabel==='function')values.push(api.getLabel());}catch(_){}try{var el=root.document&&root.document.getElementById('prayer-location-label');if(el)values.push(el.textContent);}catch(_){}values.push(loc&&loc.label);for(var i=0;i<values.length;i++){var s=cleanWidgetText(values[i]);if(!s||s==='الموقع الافتراضي'||s==='GPS'||s==='موقعك الحالي'||s.indexOf('موقعك الحالي ·')===0)continue;return s.split(/[،,]/)[0].trim().slice(0,32);}return cleanWidgetText(loc&&loc.label||'موقعك الحالي').replace(/\\s*·\\s*GPS$/,'').slice(0,32);}",
-            "function widgetHijriShort(value){return cleanWidgetText(value).replace(/\\s*هـ\\s*$/,'').trim();}",
-            "function widgetPrayerRow(name,value){return '\\u200F'+name+' \\u200E'+widgetMinute(value);}",
-            "function widgetPresentation(payload,hijriOverride){payload=payload||{};var loc=payload.loc||{},times=payload.times||{},hijri='';if(hijriOverride!==undefined&&hijriOverride!==null)hijri=cleanWidgetText(hijriOverride);else try{var h=root.document&&root.document.getElementById('pr-h');hijri=cleanWidgetText(h&&h.textContent?h.textContent:'');}catch(_){}var tz=payload.plan&&payload.plan.timeZone||loc.timeZone||'',city=widgetLocationLabel(loc),gregorian=widgetGregorianDate(tz),dateLine=[city,gregorian,widgetHijriShort(hijri)].filter(Boolean).join(' • ');if(dateLine.length>64)dateLine=dateLine.slice(0,64).replace(/[•·\\s]+$/,'');var rows=[widgetPrayerRow('الفجر',times.fajr),widgetPrayerRow('الظهر',times.dhuhr),widgetPrayerRow('العصر',times.asr),widgetPrayerRow('المغرب',times.maghrib),widgetPrayerRow('العشاء',times.isha)].join('\\u2028');if(rows.length>80)throw new Error('Widget prayer rows exceed native safeText limit');return{city:dateLine,summary:rows};}"
-          ]
-          sync.write_text('\n'.join(lines)+'\n',encoding='utf-8')
-
-          boot=Path('source/js/presentation/bootstrap.js')
-          text=boot.read_text(encoding='utf-8')
-          old='js/presentation/prayer/schedule-sync.js?v=20260829-widget-rich1'
-          new='js/presentation/prayer/schedule-sync.js?v=20260829-widget-rows2'
-          if text.count(old)!=1:
-              raise SystemExit(f'bootstrap expected one old sync revision, found {text.count(old)}')
-          boot.write_text(text.replace(old,new),encoding='utf-8')
-      - name: Verify Code 5 safety gates
+      - name: Verify final Code 5 widget and release safety gates
         working-directory: source
         run: |
           set -euo pipefail
           node tests/code5-widget-rich-summary.test.js
+          node tests/code5-native-adhan-owner.test.js
           node tests/code5-background-adhan-web-gate.test.js
           node tests/code3-web-cutover-compatibility.test.js
           node tests/prayer-midnight-refresh.test.js
+          node tests/azkar-web-reminder-runtime.test.js
+          node tests/azkar-native-top-bridge.test.js
           node tests/offline-complete-shell.test.js
           node tests/offline-network-fallback.test.js
           node tests/android-release-version.test.js
-      - name: Commit guarded patch
-        run: |
-          set -euo pipefail
-          git config user.name 'msdgabr-sudo'
-          git config user.email 'm.sd.gabr@gmail.com'
-          git add source/js/presentation/prayer/schedule-sync.js source/js/presentation/bootstrap.js
-          git diff --cached --quiet && { echo 'No patch changes to commit'; exit 1; }
-          git commit -m 'Clean Code 5 widget rows and resolve city label'
-          git push origin HEAD:fix/code5-widget-rows-city
