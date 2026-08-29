@@ -1,9 +1,8 @@
 name: Deploy app.qiblalabs.com
 
-# Prepared web release: QiblaAstro 4.1.7 / Android versionCode 5.
-# IMPORTANT: this workflow deploys only from main.
-# Location onboarding remains independent from prayer notification permission.
-# Native prayer/Azkar/widget sources are packaged only by the Android build gate.
+# Production web release gate.
+# Every source change must pass the core scientific/runtime/offline suite before
+# GitHub Pages can deploy. Pull requests run verification only; they never deploy.
 
 on:
   push:
@@ -11,29 +10,44 @@ on:
       - main
     paths:
       - 'source/**'
+      - 'release-config.json'
+      - '.github/workflows/deploy-app-pages.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'source/**'
+      - 'release-config.json'
       - '.github/workflows/deploy-app-pages.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  verify:
+    name: Production release gates
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout release snapshot
+      - name: Checkout exact candidate snapshot
         uses: actions/checkout@v4
 
-      - name: Verify standalone web release
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Verify single release configuration
+        run: |
+          set -euo pipefail
+          python3 source/tools/verify_release_config.py
+
+      - name: Verify standalone web release boundaries
         shell: bash
         run: |
           set -euo pipefail
@@ -43,21 +57,8 @@ jobs:
           test -f source/CNAME
           test -f source/.nojekyll
           test -f source/.well-known/assetlinks.json
-          test "$(tr -d '\r\n' < source/CNAME)" = "app.qiblalabs.com"
-          test "$(tr -d '\r\n' < source/.release-source-sha)" = "6e49775df5742413371a4165ea985173c43f5f5e"
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          cfg = json.loads(Path("source/android-twa/twa-manifest.json").read_text(encoding="utf-8"))
-          assert cfg["packageId"] == "com.qiblalabs", cfg["packageId"]
-          assert cfg["host"] == "app.qiblalabs.com", cfg["host"]
-          assert cfg["appVersion"] == "4.1.7", cfg["appVersion"]
-          assert cfg["appVersionCode"] == 5, cfg["appVersionCode"]
-          assert cfg["minSdkVersion"] == 23, cfg["minSdkVersion"]
-          PY
-          grep -Fq "VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'" source/service-worker.js
-          grep -Fq "PERMISSIONS_RELEASE='prayer-exact-user-grant-20260826'" source/service-worker.js
-          grep -Fq "OFFLINE_RELEASE='native-adhan-owner-20260829'" source/service-worker.js
+          python3 source/tools/pre_apk_check.py
+          python3 source/android-twa/check_twa_config.py
           grep -Fq "permissions-onboarding.js?v=20260819-code3-location-only1" source/js/presentation/bootstrap.js
           grep -Fq "qiblaastro:permissions-onboarding:v3-location-only" source/js/presentation/permissions-onboarding.js
           ! grep -Fq "prepareAdhanStage" source/js/presentation/permissions-onboarding.js
@@ -67,22 +68,27 @@ jobs:
             echo 'ERROR: signing/private key material found in web release.' >&2
             exit 1
           fi
-          (cd source && node tests/android-release-version.test.js)
-          (cd source && node tests/pwa-standalone-readiness.test.js)
-          (cd source && node tests/offline-complete-shell.test.js)
-          (cd source && node tests/offline-network-fallback.test.js)
-          (cd source && node tests/adhan-runtime-resilience.test.js)
-          (cd source && node tests/code5-background-adhan-web-gate.test.js)
-          (cd source && node tests/code5-widget-rich-summary.test.js)
-          (cd source && node tests/code5-native-adhan-owner.test.js)
-          (cd source && node tests/prayer-midnight-refresh.test.js)
-          (cd source && node tests/azkar-web-reminder-runtime.test.js)
-          (cd source && node tests/azkar-native-top-bridge.test.js)
-          (cd source && node tests/azkar-selection-persistence.test.js)
-          (cd source && node tests/native-token-fragment-compatibility.test.js)
-          # Migration safety: deployment is blocked if Fog Web can disable or
-          # break the still-installed versionCode 3 wrapper during rollout.
-          (cd source && node tests/code3-web-cutover-compatibility.test.js)
+
+      - name: Run production scientific and runtime suite
+        run: |
+          set -euo pipefail
+          python3 source/tools/run_release_test_suite.py --profile web
+
+  deploy:
+    name: Deploy verified GitHub Pages release
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout verified release snapshot
+        uses: actions/checkout@v4
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
