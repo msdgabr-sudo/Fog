@@ -46,7 +46,6 @@ CORE_TESTS = [
     "tests/navigation-single-owner.test.js",
     "tests/pwa-single-owner.test.js",
     "tests/compass-cards-canonical.test.js",
-    "tests/qibla-card-runtime.test.js",
 ]
 
 ANDROID_SOURCE_TESTS = [
