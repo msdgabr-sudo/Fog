@@ -4,6 +4,7 @@ const fs=require('fs');
 const read=p=>fs.readFileSync(p,'utf8');
 const bridge=read('js/azkar-native-reminders.js');
 const html=read('pages/azkar.html');
+const css=read('css/azkar-final-tuning.css');
 const scheduler=read('android-twa/native/azkar-reminders/AzkarReminderScheduler.java');
 assert(bridge.includes("SELECTION_KEY='qiblaastro:azkar-reminder-selection:v1'"),'Azkar UI selection persistence key missing');
 assert(bridge.includes("STORAGE_KEY='qiblaastro:native-azkar-reminder:v1'"),'Native running-state key must remain unchanged');
@@ -13,5 +14,9 @@ assert(bridge.includes('applySelection(running)'),'Running Native reminder must 
 assert(html.includes('data-qibla-azkar-selection-sync'),'Current Code 5 page must contain cache-safe selection restoration');
 assert(html.includes('لضمان عمل التذكير دون إنترنت والتطبيق مغلق'),'Offline/closed-app battery note missing');
 assert(html.includes('على «لا قيود»'),'Battery note must name the required unrestricted setting');
+assert(html.includes('azkar-final-tuning.css?v=20260829-battery-note1'),'Azkar page must request the visible battery-note stylesheet revision');
+assert(html.includes('#azAudio .az-audio-footnote{display:block!important;'),'Inline safety rule must force the battery note visible');
+assert(css.includes('#azAudio .az-audio-footnote{display:block!important}'),'Final Azkar tuning must not hide the battery note');
+assert(!css.includes('.az-audio-footnote{display:none!important}'),'Legacy battery-note hide rule must not return');
 assert(scheduler.includes('setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP'),'Native reminder scheduling must remain untouched');
-console.log('Azkar selected phrase + interval persistence and battery note: PASS');
+console.log('Azkar selected phrase + interval persistence and visible battery note: PASS');
