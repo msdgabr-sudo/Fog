@@ -9,7 +9,7 @@ const childSource=fs.readFileSync('js/azkar-native-reminders.js','utf8');
 const pageSource=fs.readFileSync('pages/azkar.html','utf8');
 const serviceWorker=fs.readFileSync('service-worker.js','utf8');
 
-assert(pageSource.includes('azkar-native-reminders.js?v=20260828-topbridge1'),'Azkar page must request the top-level native bridge release');
+assert(pageSource.includes('azkar-native-reminders.js?v=20260829-selection1'),'Azkar page must request the selection-aware native bridge release');
 assert(serviceWorker.includes("'./js/azkar-native-reminders.js'"),'native Azkar bridge must remain in the offline App Shell');
 assert(serviceWorker.includes("'./js/presentation/azkar/host.js'"),'top-level Azkar host must remain in the offline App Shell');
 assert(serviceWorker.includes("if(isRefreshableCode(url)){\n    event.respondWith(networkFirst(request, APP_CACHE));"),'online JS/HTML refresh must remain network-first so the bridge hotfix reaches installed clients');
@@ -42,15 +42,16 @@ let clickHandler=null;
 let launchedRequest=null;
 const childLocal=storage();
 const childSession=storage({'qiblaastro:twa':'1'});
-const phrase={value:'سبحان الله'};
-const intervalButton={textContent:'5 دقيقة'};
+const phrase={value:'سبحان الله',options:[{value:'سبحان الله'}]};
+const intervalButton={textContent:'5 دقيقة',classList:{toggle(){}}};
 const toggle={disabled:false,textContent:'بدء التنبيه',classList:{toggle(){},contains(){return false;}},closest(){return null;}};
 const status={textContent:''},summary={textContent:''};
 const childDocument={
   readyState:'complete',
-  addEventListener(type,fn){if(type==='click')clickHandler=fn;},
+  addEventListener(type,fn,options){if(type==='click'&&options===true)clickHandler=fn;},
   getElementById(id){return {azAudioPhrase:phrase,azAudioToggle:toggle,azAudioState:status,azAudioSummary:summary}[id]||null;},
-  querySelector(selector){return selector==='#azIntervals .az-interval.is-on'?intervalButton:null;}
+  querySelector(selector){return selector==='#azIntervals .az-interval.is-on'?intervalButton:null;},
+  querySelectorAll(){return[];}
 };
 const trustedTop={
   location:{hash:'',search:'?twa=1'},
@@ -61,7 +62,7 @@ const trustedTop={
   }
 };
 const childContext={
-  console,URLSearchParams,encodeURIComponent,Number,Math,Object,String,JSON,
+  console,URLSearchParams,encodeURIComponent,Number,Math,Object,String,JSON,Date,
   location:{hash:'',search:'?twa=1'},
   document:childDocument,
   sessionStorage:childSession,
@@ -82,5 +83,7 @@ clickHandler(event);
 assert.deepStrictEqual(JSON.parse(JSON.stringify(launchedRequest)),{mode:'start',interval:5,phrase:'subhanallah'},'iframe must delegate the selected reminder to the top-level host');
 const saved=JSON.parse(childLocal.getItem('qiblaastro:native-azkar-reminder:v1'));
 assert(saved&&saved.running===true&&saved.interval===5&&saved.phrase==='subhanallah','UI state must be committed only after successful native launch');
+const selection=JSON.parse(childLocal.getItem('qiblaastro:azkar-reminder-selection:v1'));
+assert(selection&&selection.text==='سبحان الله'&&selection.interval===5,'selected phrase and interval must be persisted after Native start');
 
-console.log('Azkar native bridge: iframe click -> trusted top-level TWA -> package-scoped Android intent: PASS');
+console.log('Azkar native bridge: iframe click -> trusted top-level TWA -> package-scoped Android intent + persisted selection: PASS');
