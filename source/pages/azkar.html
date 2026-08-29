@@ -46,6 +46,20 @@
   <script src="../js/azkar-dua-overlay.js?v=20260809-0132"></script>
   <script src="../js/azkar-alert-audio-map.js?v=20260809-0132"></script>
   <script src="../js/azkar-new.js?v=20260828-web-reminder1"></script>
+  <script data-qibla-azkar-selection-sync>
+  (function(){
+    'use strict';
+    var RUN='qiblaastro:native-azkar-reminder:v1',SEL='qiblaastro:azkar-reminder-selection:v1';
+    function read(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(_){return null;}}
+    function write(v){try{localStorage.setItem(SEL,JSON.stringify(v));}catch(_){}}
+    function current(){var s=document.getElementById('azAudioPhrase'),b=document.querySelector('#azIntervals .az-interval.is-on'),n=b?parseInt(b.textContent,10):10;return{text:s&&s.value?s.value:'سبحان الله',interval:Number.isFinite(n)?n:10};}
+    function apply(v){if(!v)return;var s=document.getElementById('azAudioPhrase');if(s&&v.text){for(var i=0;i<s.options.length;i++){if(s.options[i].value===v.text){s.value=v.text;break;}}var p=document.getElementById('azAudioPreview');if(p)p.textContent=s.value;}var n=parseInt(v.interval,10);if(Number.isFinite(n)){document.querySelectorAll('#azIntervals .az-interval').forEach(function(b){b.classList.toggle('is-on',parseInt(b.textContent,10)===n);});}}
+    function restore(){var r=read(RUN),v=r&&r.running?r:read(SEL);apply(v);if(r&&r.running)write({text:r.text,interval:r.interval});}
+    document.addEventListener('change',function(e){if(e.target&&e.target.id==='azAudioPhrase')setTimeout(function(){write(current());},0);});
+    document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#azIntervals .az-interval'))setTimeout(function(){write(current());},0);if(e.target&&e.target.closest&&e.target.closest('#azAudioToggle'))setTimeout(function(){var r=read(RUN);write(r&&r.running?{text:r.text,interval:r.interval}:current());},80);});
+    setTimeout(restore,120);
+  })();
+  </script>
   <script src="../js/azkar-native-reminders.js?v=20260829-selection1"></script>
   <script src="../js/azkar-final-ui.js?v=20260809-0132"></script>
 </body>
