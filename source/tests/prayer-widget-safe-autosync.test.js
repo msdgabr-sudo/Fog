@@ -104,12 +104,19 @@ assert(authorized.launches[0].includes('notify=1'),'legacy-safe full sync must c
 flushTimeouts(authorized);
 assert.strictEqual(authorized.launches.length,1,'startup refresh must deduplicate the already-sent authorized delivery state');
 
+// Passive startup/focus/poll navigation is intentionally disabled even after the
+// user has previously activated native Adhan delivery. This prevents Android
+// intent navigation from stealing TWA focus while loading. An explicit user sync
+// remains allowed and must preserve the full Adhan delivery state.
 const deliveryStore=storage({[DELIVERY_KEY]:'1'});
 const delivery=boot(deliveryStore);
 flushTimeouts(delivery);
-assert.strictEqual(delivery.launches.length,1,'an activated Adhan schedule should use one full native refresh');
+assert.strictEqual(delivery.launches.length,0,'an activated Adhan schedule must not auto-launch Android navigation on startup');
+assert.strictEqual(delivery.context.QiblaPrayerNativeSync.sync(),true,'explicit user prayer sync must remain available');
+assert.strictEqual(delivery.launches.length,1,'explicit user prayer sync should launch exactly one native refresh');
 assert(!delivery.launches[0].includes('widgetOnly=1'),'full Adhan refresh must remain legacy-compatible during migration');
 assert(delivery.launches[0].includes('notify=1'),'full Adhan refresh must preserve the enabled delivery state');
 
 assert(source.includes('var LEGACY_CODE3_MIGRATION_GUARD=true'),'Code 3 migration guard must remain explicitly enabled until the old wrapper is retired');
-console.log('Prayer widget migration safety: independent widget-only handoff blocked; authorized Code 3/5 full sync preserved: PASS');
+assert(source.includes('var AUTO_NATIVE_NAVIGATION=false'),'passive Android navigation must remain disabled during normal startup/focus/poll cycles');
+console.log('Prayer widget migration safety: passive native navigation blocked; explicit authorized Code 3/5 full sync preserved: PASS');
