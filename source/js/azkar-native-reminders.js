@@ -3,7 +3,7 @@
  */
 (function(root){
 'use strict';
-var STORAGE_KEY='qiblaastro:native-azkar-reminder:v1',TOKEN_KEY='qiblaastro:native-token';
+var STORAGE_KEY='qiblaastro:native-azkar-reminder:v1',SELECTION_KEY='qiblaastro:azkar-reminder-selection:v1',TOKEN_KEY='qiblaastro:native-token';
 var PHRASES={'سبحان الله':'subhanallah','الحمد لله':'alhamdulillah','الله أكبر':'allahuakbar','لا إله إلا الله':'lailahaillallah','أستغفر الله':'astaghfirullah','أستغفر الله العظيم':'astaghfirullahalazim','سبحان الله وبحمده':'subhanallahwabihamdih','لا حول ولا قوة إلا بالله':'lahawla','حسبي الله':'hasbiyallah','اللهم صل وسلم على نبينا محمد':'salat'};
 function parentPart(name){try{return root.parent&&root.parent!==root?String(root.parent.location[name]||''):'';}catch(_){return '';}}
 function topPart(name){try{return root.top&&root.top!==root?String(root.top.location[name]||''):'';}catch(_){return '';}}
@@ -45,13 +45,61 @@ function launch(mode,minutes,text){
   var token=captureToken();if(!token)return false;
   return navigateTop(packageIntentUri(mode,minutes,text,token));
 }
-function readState(){try{return JSON.parse(root.localStorage.getItem(STORAGE_KEY)||'null');}catch(_){return null;}}
-function writeState(value){try{if(value)root.localStorage.setItem(STORAGE_KEY,JSON.stringify(value));else root.localStorage.removeItem(STORAGE_KEY);}catch(_){}}
+function readJson(key){try{return JSON.parse(root.localStorage.getItem(key)||'null');}catch(_){return null;}}
+function writeJson(key,value){try{if(value)root.localStorage.setItem(key,JSON.stringify(value));else root.localStorage.removeItem(key);}catch(_){}}
+function readState(){return readJson(STORAGE_KEY);}
+function writeState(value){writeJson(STORAGE_KEY,value);}
+function readAudioSelection(){return readJson(SELECTION_KEY);}
+function saveAudioSelection(value){
+  value=value||{};
+  var text=PHRASES[value.text]?value.text:selectedText(),interval=parseInt(value.interval,10);
+  if(!Number.isFinite(interval))interval=selectedInterval();
+  writeJson(SELECTION_KEY,{text:text,interval:Math.max(5,interval),phrase:phraseId(text),savedAt:Date.now()});
+}
+function applySelection(value){
+  if(!value)return;
+  var select=root.document.getElementById('azAudioPhrase'),text=String(value.text||'');
+  if(select&&text&&PHRASES[text]){
+    var found=false;for(var i=0;i<select.options.length;i++){if(select.options[i].value===text){found=true;break;}}
+    if(found)select.value=text;
+    var preview=root.document.getElementById('azAudioPreview');if(preview)preview.textContent=select.value||text;
+  }
+  var interval=parseInt(value.interval,10);if(!Number.isFinite(interval))return;
+  var buttons=root.document.querySelectorAll('#azIntervals .az-interval');
+  for(var j=0;j<buttons.length;j++)buttons[j].classList.toggle('is-on',parseInt(buttons[j].textContent,10)===interval);
+}
+function currentSelection(){var text=selectedText(),interval=selectedInterval();return{text:text,interval:interval,phrase:phraseId(text)};}
 function setUi(running,state){var btn=root.document.getElementById('azAudioToggle'),status=root.document.getElementById('azAudioState'),summary=root.document.getElementById('azAudioSummary');if(btn){btn.textContent=running?'إيقاف التنبيه':'بدء التنبيه';btn.classList.toggle('is-stop',!!running);btn.disabled=false;}var panel=btn&&btn.closest('.az-audio-panel'),row=panel&&panel.querySelector('.az-audio-status');if(row)row.classList.toggle('is-running',!!running);if(status)status.textContent=running?'يعمل':'متوقف';if(summary&&state&&running)summary.textContent=(state.text||'الذكر المختار')+' — كل '+state.interval+' دقيقة';}
 function clearStaleState(){writeState(null);setUi(false,null);}
 function topBridgeReady(){try{var topWin=root.top,host=topWin&&topWin.QiblaAzkarHost;return !!(topWin&&topWin!==root&&host&&typeof host.nativeReady==='function'&&host.nativeReady());}catch(_){return false;}}
 function nativeReady(){return topBridgeReady()||!!captureToken();}
-function restoreUi(){if(!isNativeTwa())return;if(!nativeReady()){clearStaleState();return;}var s=readState();if(s&&s.running)setUi(true,s);else setUi(false,null);}
-function intercept(event){if(!isNativeTwa())return;var btn=event.target&&event.target.closest?event.target.closest('#azAudioToggle'):null;if(!btn)return;event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();var prior=readState();if(prior&&prior.running){if(launch('stop',prior.interval||10,prior.text||'ذكر الله'))clearStaleState();return;}if(btn.disabled)return;var text=selectedText(),interval=selectedInterval(),state={running:true,text:text,interval:interval,phrase:phraseId(text),startedAt:Date.now()};var launched=launch('start',interval,text);if(!launched){clearStaleState();return;}writeState(state);setUi(true,state);}
-root.document.addEventListener('click',intercept,true);if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',function(){captureToken();setTimeout(restoreUi,50);},{once:true});else{captureToken();setTimeout(restoreUi,50);}root.QiblaAzkarNativeReminder=Object.freeze({isNativeTwa:isNativeTwa,getState:readState,stop:function(){var s=readState();if(s&&launch('stop',s.interval,s.text))clearStaleState();return true;}});
+function restoreUi(){
+  if(!isNativeTwa())return;
+  if(!nativeReady()){clearStaleState();return;}
+  var running=readState(),saved=readAudioSelection();
+  if(running&&running.running){applySelection(running);saveAudioSelection(running);setUi(true,running);}
+  else{applySelection(saved);setUi(false,null);}
+}
+function rememberSelectionSoon(event){
+  var target=event&&event.target;if(!target)return;
+  var relevant=target.id==='azAudioPhrase'||(target.closest&&target.closest('#azIntervals .az-interval'));
+  if(!relevant)return;
+  setTimeout(function(){saveAudioSelection(currentSelection());},0);
+}
+function intercept(event){
+  if(!isNativeTwa())return;
+  var btn=event.target&&event.target.closest?event.target.closest('#azAudioToggle'):null;if(!btn)return;
+  event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();
+  var prior=readState();
+  if(prior&&prior.running){var keep=currentSelection();saveAudioSelection(keep);if(launch('stop',prior.interval||10,prior.text||'ذكر الله'))clearStaleState();return;}
+  if(btn.disabled)return;
+  var text=selectedText(),interval=selectedInterval(),state={running:true,text:text,interval:interval,phrase:phraseId(text),startedAt:Date.now()};
+  var launched=launch('start',interval,text);if(!launched){clearStaleState();return;}
+  writeState(state);saveAudioSelection(state);setUi(true,state);
+}
+root.document.addEventListener('click',intercept,true);
+root.document.addEventListener('change',rememberSelectionSoon,false);
+root.document.addEventListener('click',rememberSelectionSoon,false);
+if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',function(){captureToken();setTimeout(restoreUi,50);},{once:true});else{captureToken();setTimeout(restoreUi,50);}
+root.QiblaAzkarNativeReminder=Object.freeze({isNativeTwa:isNativeTwa,getState:readState,getSelection:readAudioSelection,stop:function(){var s=readState();if(s&&launch('stop',s.interval,s.text)){saveAudioSelection(currentSelection());clearStaleState();}return true;}});
 })(typeof globalThis!=='undefined'?globalThis:window);
