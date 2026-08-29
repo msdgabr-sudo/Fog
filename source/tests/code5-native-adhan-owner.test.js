@@ -20,7 +20,7 @@ assert(ui.includes("result==='native'?'إشعارات Android هي المستخ�
 assert(sync.includes('var AUTO_NATIVE_NAVIGATION=false;'),'Passive Web-to-Android intent navigation must remain disabled');
 assert(sync.includes("function explicitSync(){return nativeSync('explicit');}"),'Explicit user settings must still arm Native prayer delivery');
 assert(bootstrap.includes('adhan-ui.js?v=20260829-native-owner1'),'Bootstrap must request the Native-owner Adhan UI revision');
-assert(bootstrap.includes('schedule-sync.js?v=20260829-widget-rows2'),'Bootstrap must request the foreground-stable widget-row prayer sync revision');
+assert(bootstrap.includes('schedule-sync.js?v=20260829-widget-clean12'),'Bootstrap must request the clean 12-hour widget prayer sync revision');
 assert(sw.includes("VERSION='qiblaastro-v5.74-native-adhan-owner-20260829'"),'Offline cache generation must advance for Native Adhan ownership');
 assert(sw.includes("OFFLINE_RELEASE='native-adhan-owner-20260829'"),'Offline release marker must describe the new Adhan ownership contract');
 assert(scheduler.includes('setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)'),'Prayer time must remain exact when Android grants access');
