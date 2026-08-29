@@ -3,7 +3,7 @@
 #azReader{overflow:hidden}
 .az-dhikr-card{height:min(71vh,720px)!important}
 .az-dhikr-scroller{overflow:hidden!important}
-.az-audio-footnote{display:none!important}
+#azAudio .az-audio-footnote{display:block!important}
 
 /* Back controls: clearer touch target, same visual language */
 .az-back-btn{width:48px!important;height:48px!important;min-width:48px!important;border-radius:16px!important;border:1px solid rgba(255,255,255,.22)!important;background:rgba(255,255,255,.10)!important;box-shadow:0 8px 24px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.16)!important;display:grid!important;place-items:center!important;font-size:25px!important;font-weight:800!important;line-height:1!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .16s ease,background .16s ease,border-color .16s ease}
