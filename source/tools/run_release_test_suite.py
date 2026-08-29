@@ -64,11 +64,18 @@ def main() -> int:
     parser.add_argument("--profile", choices=("web", "android"), default="web")
     args = parser.parse_args()
 
+    syntax_gate = SOURCE_ROOT / "tools" / "repository_syntax_check.py"
     config_gate = SOURCE_ROOT / "tools" / "verify_release_config.py"
+    if not syntax_gate.is_file():
+        print("ERROR: missing tools/repository_syntax_check.py", file=sys.stderr)
+        return 1
     if not config_gate.is_file():
         print("ERROR: missing tools/verify_release_config.py", file=sys.stderr)
         return 1
 
+    # Syntax is checked first so malformed tracked source/configuration can never
+    # progress into scientific/runtime tests or a deployment/build stage.
+    run([sys.executable, "tools/repository_syntax_check.py"])
     run([sys.executable, "tools/verify_release_config.py"])
     tests = list(CORE_TESTS)
     if args.profile == "android":
@@ -85,7 +92,10 @@ def main() -> int:
             return 1
         run(["node", test])
 
-    print(f"PASS: QiblaAstro {args.profile} release suite completed ({len(tests)} Node gates + release configuration gate)")
+    print(
+        f"PASS: QiblaAstro {args.profile} release suite completed "
+        f"({len(tests)} Node gates + repository syntax + release configuration gates)"
+    )
     return 0
 
 
