@@ -1,56 +1,59 @@
 # QiblaAstro ELITE — Android TWA build workspace
 
-This directory is intentionally isolated from the web application's runtime engines.
+This directory is intentionally isolated from the Web application's runtime/scientific engines.
 
-## Frozen Google Play update identity
+## Current Google Play update identity
+
 - Origin: `https://app.qiblalabs.com`
 - Package ID: `com.qiblalabs`
 - App name: `QiblaAstro ELITE`
 - Version name: `4.1.7`
-- Version code: `4`
-- Previous published Play version: `3.1.0` (code `3`) with the same package ID
+- Version code: `5`
+- Previous published baseline: `3.1.0` (code `3`) with the same package ID
+- Minimum SDK: `23`
+- Compile SDK: `36`
+- Target SDK: `36`
 - Release policy: no ads / no `AD_ID`
 
+The approved native source snapshot used for the signed Code 5 release is:
+
+`937bea4b3a0d424177a35386a00bbccce1605895`
+
 ## Hard safety boundaries
+
 1. Never commit a `.jks` / `.keystore`, passwords, Play service-account JSON, or signing secrets.
-2. **This is an update to an existing Google Play app. Do not generate or substitute a new Upload Key.** Use only the original approved Upload Key. The guarded root build script verifies its SHA-256 certificate fingerprint before signing.
-3. Keep the Upload Key outside the entire Git repository. Supply its external Windows path only when running the final root build script.
-4. With Play App Signing, the certificate that signs APKs delivered to users can be different from the Upload Key certificate. `assetlinks.json` must contain the certificate fingerprint(s) that actually sign installed builds; do not replace the already-proven Code 3 values with the Upload Key fingerprint.
-5. Do not publish a guessed or placeholder fingerprint.
-6. Bubblewrap 1.24.1 can generate a lower target SDK. This project must enforce Android 16 / API 36 before submission. `check_generated_release_identity.py` fails if package/version/min/compile/target SDK drift.
-7. `check_aab_release.py` fails if any native `.so` library enters the AAB. The current wrapper needs no native shared libraries; this fail-closed rule prevents an unnoticed Android 16 KB page-size compatibility regression.
-8. Actual prayer events use user-granted `SCHEDULE_EXACT_ALARM`; the Play-restricted `USE_EXACT_ALARM` permission is forbidden by the release gate.
-9. Full Adhan playback is bundled locally and runs only through a declared `mediaPlayback` foreground service with the required foreground-service permissions.
-10. Do not modify web Qibla/astronomy/GNSS/camera engines from this Android workspace.
+2. This is an update to an existing Google Play app. Never generate or substitute a new Upload Key without an explicit key-rotation process.
+3. Keep the Upload Key outside the entire Git repository.
+4. With Play App Signing, the certificate that signs APKs delivered to users can differ from the Upload Key certificate. Preserve the proven Digital Asset Links fingerprints unless a certificate-rotation audit explicitly changes them.
+5. Do not publish guessed or placeholder fingerprints.
+6. API 36 enforcement and the no-native-`.so` release checks remain fail-closed requirements.
+7. Actual prayer events may use user-granted `SCHEDULE_EXACT_ALARM`; the Play-restricted `USE_EXACT_ALARM` permission remains forbidden unless separately approved.
+8. Full Adhan playback is bundled locally and uses the reviewed native foreground media-playback path.
+9. Do not modify Web Qibla/astronomy/GNSS/camera engines from this Android workspace.
 
-## Authoritative final Windows build
-The only approved signed-release entry point is the repository-root script:
+## Current Code 5 signing boundary
 
-```powershell
-.\build-final-signed-aab.ps1 -KeystorePath "D:\YOUR-SECURE-PATH\qiblaastro-upload.jks"
-```
+`sign-verified-code5-aab.ps1` is the dedicated Code 5 signing tool. It is intentionally pinned to the exact approved CI-built unsigned Code 5 AAB and the approved Upload Key certificate.
 
-Use the real path of the **existing original** Upload Key on your computer. The example path above is not a required location.
+It does **not** rebuild the application. It must not be pointed at an arbitrary or newly built AAB.
 
-The script fails closed unless all of the following pass:
-- correct `msdgabr-sudo/Fog` checkout and `pre-aab/offline-adhan-priority` branch;
-- clean Git working tree;
-- original Upload Key alias and certificate fingerprint;
-- source identity, offline and Adhan tests;
-- generated package `com.qiblalabs`, version `4.1.7` / code `4`;
-- min SDK 23, compile SDK 36, target SDK 36;
-- reviewed native prayer/Adhan/widget integration;
-- merged Android permission policy;
-- unsigned and signed AAB structural checks;
-- no native `.so` files in the AAB;
-- AAB jarsigner verification and APK apksigner verification;
-- final SHA-256 hashes and an auditable release report.
+The old repository-root `build-final-signed-aab.ps1` path is retired and fail-closed because it represented the obsolete Code 4 / old release-branch process.
 
-Successful output is written to `dist/`:
-- `QiblaAstro-4.1.7-code4-final.aab` — the Google Play upload artifact;
-- `QiblaAstro-4.1.7-code4-final.apk` — local/device validation artifact;
-- `SHA256SUMS.txt`;
-- `QiblaAstro-4.1.7-code4-RELEASE-REPORT.txt`.
+Do not rebuild or re-sign Code 5 merely because Web/PWA files changed after the approved native source snapshot.
 
-## Structural CI build
-GitHub Actions builds an **unsigned proof AAB** from the exact triggering release-candidate commit. It is a structural and regression gate only; it is never a substitute for the locally signed Google Play artifact because the Upload Key must not be stored in GitHub.
+## Future native Android release
+
+Any future native change requires all of the following before Google Play upload:
+
+- a higher `versionCode` than 5;
+- reviewed changes in the Android/native source;
+- successful current release/security gates;
+- a newly generated and verified unsigned AAB proof;
+- a newly approved signing procedure for that exact artifact;
+- structural verification, signature verification, and SHA-256 recording.
+
+Do not reuse the pinned Code 5 signer for a future Code 6+ artifact.
+
+## CI verification
+
+`.github/workflows/verify-release-snapshot.yml` is the unsigned Android/release proof gate. It verifies the triggering current-source snapshot and may build an unsigned AAB artifact. GitHub Actions is not the signing authority; Upload Key material remains local and external.

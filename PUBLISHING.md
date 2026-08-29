@@ -1,71 +1,60 @@
 # QiblaAstro publishing source
 
-Current Fog release candidate: version `4.1.7` / `versionCode` `5`, on `pre-aab/offline-adhan-priority`.
+## Current production authority
 
-## Current live ownership — do not change during preparation
+The authoritative repository is `msdgabr-sudo/Fog`.
 
-Production web publishing for `app.qiblalabs.com` is still owned by `msdgabr-sudo/q-app-an` until the explicit Pages/domain cutover step.
-
-Current live rollback checkpoint (verified before cutover preparation):
-
-- Repository/branch: `msdgabr-sudo/q-app-an` / `main`
-- Commit: `c38eaf03a9fcfd9fd8197a0865cd4ff4f927cbac`
-- Commit message: `restore: return to pre-camera-permission state 304b21d`
-
-Historical/current closed-test baseline:
-
-- Android release: `3.1.0` (`versionCode` 3)
-- Historical release source branch: `release/aab-3.1.0`
-- Frozen upstream source SHA recorded in `source/.release-source-sha`: `6e49775df5742413371a4165ea985173c43f5f5e`
-- Custom domain: `app.qiblalabs.com`
-- Android package: `com.qiblalabs`
-
-## Prepared Fog target
-
-Fog is being prepared to become the single authoritative source for both the web/PWA and Android release line:
-
+- Working/deployment branch: `main`
 - Web root: `source/`
-- Host: `app.qiblalabs.com`
-- Package: `com.qiblalabs`
-- Version name: `4.1.7`
-- Version code: `5`
-- `source/CNAME` is already `app.qiblalabs.com`.
-- `source/.well-known/assetlinks.json` must retain the existing Google Play App Signing fingerprints.
-- Upload/signing keys and other secrets must remain outside every repository.
+- Production host: `https://app.qiblalabs.com`
+- Android package: `com.qiblalabs`
+- Current release: `4.1.7`
+- Current Android versionCode: `5`
+- GitHub Pages deployment: `.github/workflows/deploy-app-pages.yml` from `main` only
+
+`msdgabr-sudo/q-app-an` is historical rollback/reference material. It is not the current publishing owner and must not receive normal product changes or production deployment work.
+
+## Current Code 5 Android release
+
+The approved Code 5 native source snapshot used for the signed 4.1.7 release is:
+
+`937bea4b3a0d424177a35386a00bbccce1605895`
+
+The repository contains `sign-verified-code5-aab.ps1`, which is intentionally pinned to the exact approved unsigned Code 5 AAB and approved Upload Key identity. It signs that verified artifact only; it does not rebuild application source.
+
+Do not rebuild or re-sign Code 5 merely for Web/PWA changes. A future native Android change requires a separately reviewed release with a higher `versionCode` and a newly verified unsigned artifact.
+
+The old generic `build-final-signed-aab.ps1` entry point is retired and must remain fail-closed so it cannot accidentally rebuild the obsolete Code 4 release line.
 
 ## Code 3 migration safety
 
-During the closed-test rollout, some devices can temporarily remain on versionCode 3 while the same origin serves the newer Fog Web/PWA.
+The Web runtime currently retains the explicit `LEGACY_CODE3_MIGRATION_GUARD=true` in `source/js/presentation/prayer/schedule-sync.js` while migration compatibility is still intentionally preserved.
 
-The frozen Code 3 Android contract was reviewed against `msdgabr-sudo/q-app-an@228c2f91f9ae794fdb25560271bf67612309e94d`.
+This guard is runtime compatibility only. It does not make Code 3 the release source and it does not make `q-app-an` the publishing repository.
 
-The release branch therefore keeps an explicit `LEGACY_CODE3_MIGRATION_GUARD=true` in `source/js/presentation/prayer/schedule-sync.js`:
+Removal of the guard must be a separate reviewed Web change after the remaining Code 3 population is considered retired.
 
-- normal authenticated Prayer/Adhan full sync remains available to both Code 3 and Code 5;
-- independent `widgetOnly` handoff is temporarily blocked because Code 3 does not understand that field and could otherwise mutate native Adhan state;
-- a widget refresh may reuse the normal full sync only after the user already has an explicit/authorized prayer-delivery state;
-- the Code 5 native `widgetOnly` capability remains present but dormant until Code 3 is retired;
-- Azkar keeps the Code 3-compatible `qiblaastro://azkar-reminder` token/start/stop/interval/phrase contract;
-- location remains on the delegated browser/TWA geolocation path;
-- Digital Asset Links and package identity remain unchanged.
+## Protected publishing invariants
 
-Both release CI and the Pages deployment workflow run `tests/code3-web-cutover-compatibility.test.js`, so a future incompatible Web change blocks the release/deployment gate.
+Repository/publishing maintenance must not casually alter:
 
-## Cutover rule
+- computational Qibla / QT mathematics;
+- WMM2025 mathematics;
+- digital-compass mathematics;
+- astronomical verification/camera calculations;
+- prayer-time calculation equations;
+- trusted GNSS security policy;
+- native Adhan/Azkar scheduling behavior;
+- Digital Asset Links certificate fingerprints.
 
-Preparing this branch must not itself move the custom domain, alter DNS, or deploy Fog as production.
+Signing keys, passwords, service-account credentials, and keystores remain external to GitHub.
 
-The intended order is:
+## Historical provenance
 
-1. Keep the existing closed-testing track active; do not delete versionCode 3 and do not stop the track.
-2. Publish the already signed versionCode 5 / version 4.1.7 AAB to that same closed-testing track.
-3. Confirm on at least one test device that Google Play has updated the installed wrapper from Code 3 to Code 5 and that the app opens correctly.
-4. Transfer GitHub Pages/custom-domain ownership for `app.qiblalabs.com` from `q-app-an` to Fog while `LEGACY_CODE3_MIGRATION_GUARD` remains enabled. This allows Code 5 to receive the authoritative Fog Web while remaining Code 3 testers are protected during the transition.
-5. On Code 5, validate the full combined release with priority on offline startup/reload, actual-time Adhan, advance prayer alerts, closed-app/Doze delivery, location/GNSS, camera/astronomical verification, and TWA fullscreen/Digital Asset Links verification.
-6. Also smoke-test a remaining Code 3 device if available: app open, location, Prayer/Adhan existing state, Azkar reminder, and no unexpected Adhan state change.
-7. Verify HTTPS, CNAME, Digital Asset Links, online load and offline reload before considering the Pages cutover complete.
-8. After the closed-test population has moved off Code 3, remove/disable the migration guard in a separately reviewed Web change and re-enable independent Code 5 `widgetOnly` synchronization.
+`source/.release-source-sha` records the historical Mizan handoff baseline:
 
-If a Pages cutover fails, the recorded `q-app-an/main` checkpoint above is the known rollback source; rollback still requires restoring Pages/custom-domain ownership deliberately rather than blindly rewriting DNS.
+`6e49775df5742413371a4165ea985173c43f5f5e`
 
-The root `.github/workflows/deploy-app-pages.yml` publishes only `source/` and remains `main`-triggered. Changes on `pre-aab/offline-adhan-priority` are preparation only and do not deploy the custom domain.
+It is a provenance marker only. It is not an instruction to overwrite current `Fog/main/source` with the old Mizan snapshot.
+
+For rollback investigation, preserve `q-app-an` and historical branches/tags as read-only evidence unless the repository owner explicitly authorizes their removal.
