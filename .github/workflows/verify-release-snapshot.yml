@@ -6,6 +6,7 @@ name: Verify current Android release snapshot
 # This workflow verifies the exact triggering commit and builds an unsigned AAB
 # proof only. It never signs. The frozen signed-Code5 proof script remains
 # intentionally pinned to its already-approved artifact hash and source commit.
+# A push on main must be traceable to a merged PR before any release-proof work runs.
 
 on:
   push:
@@ -17,6 +18,7 @@ on:
       - 'source/tools/**'
       - 'source/.release-source-sha'
       - 'release-config.json'
+      - '.github/scripts/verify_main_pr_merge.py'
       - '.github/workflows/verify-release-snapshot.yml'
       - 'build-final-signed-aab.ps1'
       - 'sign-verified-code5-aab.ps1'
@@ -26,13 +28,31 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 env:
   HISTORICAL_SOURCE_SHA: 6e49775df5742413371a4165ea985173c43f5f5e
   BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
 
 jobs:
+  main-lineage:
+    name: Main merged-PR lineage
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact triggering Fog snapshot
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Block direct main commits from release proof
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify_main_pr_merge.py
+
   windows-release-script-syntax:
+    needs: main-lineage
     runs-on: windows-latest
     steps:
       - name: Checkout exact triggering Fog snapshot
@@ -67,6 +87,7 @@ jobs:
           }
 
   verify-and-build:
+    needs: main-lineage
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact triggering Fog snapshot

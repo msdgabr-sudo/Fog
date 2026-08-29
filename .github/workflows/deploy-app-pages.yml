@@ -5,6 +5,8 @@ name: Deploy app.qiblalabs.com
 # GitHub Pages can deploy. Pull requests run verification only; they never deploy.
 # PR verification intentionally has no path filter so Branch Protection can require
 # this check for every merge without leaving documentation-only PRs permanently pending.
+# Production main commits must also be traceable to a merged PR; direct-main pushes
+# may exist in Git history if server protection is unavailable, but cannot deploy.
 
 on:
   push:
@@ -13,6 +15,7 @@ on:
     paths:
       - 'source/**'
       - 'release-config.json'
+      - '.github/scripts/verify_main_pr_merge.py'
       - '.github/workflows/deploy-app-pages.yml'
   pull_request:
     branches:
@@ -21,6 +24,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: pages-${{ github.event_name }}-${{ github.ref }}
@@ -33,6 +37,14 @@ jobs:
     steps:
       - name: Checkout exact candidate snapshot
         uses: actions/checkout@v4
+
+      - name: Require merged PR lineage for production main
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify_main_pr_merge.py
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -74,7 +86,7 @@ jobs:
 
   deploy:
     name: Deploy verified GitHub Pages release
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify
     runs-on: ubuntu-latest
     permissions:
