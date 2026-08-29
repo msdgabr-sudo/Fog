@@ -208,3 +208,86 @@
 #page-home .qa-actions-grid:last-of-type{
   margin-bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 24px))!important;
 }
+
+/* v5.75 — English home/action height parity with the approved Arabic layout.
+   English has two naturally wrapping labels (Astronomical verification and
+   Prayer times and Adhan). Keep the exact Arabic row heights and fit those
+   labels inside them instead of allowing min-height to push the last row under
+   Android navigation. Arabic and every other language remain untouched. */
+html[data-mizan-lang="en"] #page-home .qa-actions-primary .qa-service-card{
+  height:96px!important;
+  min-height:96px!important;
+  max-height:96px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-grid .qa-service-card{
+  height:82px!important;
+  min-height:82px!important;
+  max-height:82px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-service-card strong{
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  text-wrap:balance;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify .qa-service-icon{
+  width:50px!important;
+  height:50px!important;
+  margin-bottom:2px!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify strong{
+  font-size:.64rem!important;
+  line-height:1.02!important;
+  max-height:2.08em!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify small{
+  font-size:.36rem!important;
+  line-height:1.05!important;
+  margin-top:1px!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer .qa-service-icon{
+  width:43px!important;
+  height:43px!important;
+  margin-bottom:2px!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer strong{
+  font-size:.53rem!important;
+  line-height:1.05!important;
+  max-height:2.12em!important;
+}
+html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer small{
+  font-size:.34rem!important;
+  line-height:1.05!important;
+  margin-top:1px!important;
+}
+
+@media(max-width:380px){
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .qa-service-card{height:92px!important;min-height:92px!important;max-height:92px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-grid .qa-service-card{height:80px!important;min-height:80px!important;max-height:80px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify .qa-service-icon{width:47px!important;height:47px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify strong{font-size:.60rem!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer .qa-service-icon{width:41px!important;height:41px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer strong{font-size:.50rem!important}
+}
+
+@media(max-height:760px){
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .qa-service-card{height:84px!important;min-height:84px!important;max-height:84px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-grid .qa-service-card{height:72px!important;min-height:72px!important;max-height:72px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify .qa-service-icon{width:40px!important;height:40px!important;margin-bottom:1px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify strong{font-size:.56rem!important;line-height:1!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify small{font-size:.32rem!important;margin-top:0!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer .qa-service-icon{width:34px!important;height:34px!important;margin-bottom:1px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer strong{font-size:.46rem!important;line-height:1.02!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer small{font-size:.29rem!important;margin-top:0!important}
+}
+
+@media(max-height:700px){
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .qa-service-card{height:78px!important;min-height:78px!important;max-height:78px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-grid .qa-service-card{height:68px!important;min-height:68px!important;max-height:68px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-primary .astro-verify .qa-service-icon{width:36px!important;height:36px!important}
+  html[data-mizan-lang="en"] #page-home .qa-actions-faith .qa-service-card.prayer .qa-service-icon{width:31px!important;height:31px!important}
+}
