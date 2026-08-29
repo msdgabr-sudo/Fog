@@ -19,6 +19,7 @@
     #azkarApp .az-view{max-height:100dvh!important;overflow:hidden!important}
     #azkarApp .az-dhikr-scroller{overscroll-behavior:contain}
     #azAudio .az-audio-status{display:none!important}
+    #azAudio .az-audio-footnote{font-size:.72rem;line-height:1.8;text-align:center;color:#607873;margin:14px 5px 0;font-weight:600}
   </style>
 </head>
 <body>
@@ -37,7 +38,7 @@
     </section>
     <section id="azAudio" class="az-view az-audio" aria-label="تنبيه الأذكار بالصوت">
       <header class="az-sub-head"><button id="azAudioBack" class="az-icon-btn az-back-btn" type="button" aria-label="العودة إلى شاشة الأذكار"><span aria-hidden="true">→</span></button><div><span class="az-reader-kicker">تذكير هادئ</span><h2>تنبيه الأذكار بالصوت</h2></div><span class="az-head-spacer"></span></header>
-      <div class="az-audio-panel"><div class="az-audio-mark" aria-hidden="true">◉</div><p class="az-audio-intro">اختر ذكرًا قصيرًا، ثم اختر كل كم دقيقة تريد سماعه مرة واحدة.</p><label class="az-field-label" for="azAudioPhrase">الذكر</label><select id="azAudioPhrase" class="az-select"></select><div class="az-preview-row"><span id="azAudioPreview">سبحان الله</span><button id="azPreviewBtn" type="button" class="az-preview-btn az-speaker-btn" aria-label="استماع إلى الذكر المختار" title="استماع"><span aria-hidden="true">🔊</span></button></div><span class="az-field-label">الفاصل الزمني</span><div id="azIntervals" class="az-interval-grid"></div><button id="azAudioToggle" class="az-primary-btn" type="button">بدء التنبيه</button><p class="az-audio-footnote">لضمان عمل التذكير دون إنترنت وفي الخلفية، اضبط استخدام البطارية للتطبيق على «لا قيود».</p><div class="az-audio-status" aria-hidden="true"><span class="az-status-dot"></span><div><strong id="azAudioState">متوقف</strong><small id="azAudioSummary">اختر الذكر والفاصل الزمني</small></div></div></div>
+      <div class="az-audio-panel"><div class="az-audio-mark" aria-hidden="true">◉</div><p class="az-audio-intro">اختر ذكرًا قصيرًا، ثم اختر كل كم دقيقة تريد سماعه مرة واحدة.</p><label class="az-field-label" for="azAudioPhrase">الذكر</label><select id="azAudioPhrase" class="az-select"></select><div class="az-preview-row"><span id="azAudioPreview">سبحان الله</span><button id="azPreviewBtn" type="button" class="az-preview-btn az-speaker-btn" aria-label="استماع إلى الذكر المختار" title="استماع"><span aria-hidden="true">🔊</span></button></div><span class="az-field-label">الفاصل الزمني</span><div id="azIntervals" class="az-interval-grid"></div><button id="azAudioToggle" class="az-primary-btn" type="button">بدء التنبيه</button><p class="az-audio-footnote">لضمان عمل التذكير دون إنترنت والتطبيق مغلق، اجعل استخدام البطارية لـ QiblaAstro على «لا قيود».</p><div class="az-audio-status" aria-hidden="true"><span class="az-status-dot"></span><div><strong id="azAudioState">متوقف</strong><small id="azAudioSummary">اختر الذكر والفاصل الزمني</small></div></div></div>
     </section>
   </main>
   <script src="../js/azkar-data.js?v=20260809-0132"></script>
@@ -45,7 +46,7 @@
   <script src="../js/azkar-dua-overlay.js?v=20260809-0132"></script>
   <script src="../js/azkar-alert-audio-map.js?v=20260809-0132"></script>
   <script src="../js/azkar-new.js?v=20260828-web-reminder1"></script>
-  <script src="../js/azkar-native-reminders.js?v=20260828-topbridge1"></script>
+  <script src="../js/azkar-native-reminders.js?v=20260829-selection1"></script>
   <script src="../js/azkar-final-ui.js?v=20260809-0132"></script>
 </body>
 </html>
