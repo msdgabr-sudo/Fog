@@ -2,6 +2,7 @@
 """QiblaAstro ELITE pre-APK release gate.
 
 Read-only validation. It does not modify application files.
+Release identity is owned by the repository-root release-config.json.
 """
 from __future__ import annotations
 
@@ -10,14 +11,28 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-EXPECTED_PACKAGE = "com.qiblalabs"
-EXPECTED_APP_NAME = "QiblaAstro ELITE"
-EXPECTED_WEB_MANIFEST_NAME = "QiblaAstro ELITE — بوصلة القبلة الفلكية"
-EXPECTED_VERSION_NAME = "4.1.7"
-EXPECTED_VERSION_CODE = "5"
-EXPECTED_GA4 = "G-1D1GKVZB74"
-EXPECTED_DOMAIN = "app.qiblalabs.com"
-EXPECTED_SW_VERSION = "qiblaastro-v5.74-native-adhan-owner-20260829"
+REPO_ROOT = ROOT.parent
+RELEASE_CONFIG_PATH = REPO_ROOT / "release-config.json"
+
+try:
+    RELEASE = json.loads(RELEASE_CONFIG_PATH.read_text(encoding="utf-8"))
+except Exception as exc:
+    print(f"ERROR: cannot read release-config.json: {exc}", file=sys.stderr)
+    raise SystemExit(1)
+
+PRODUCT = RELEASE.get("product") or {}
+ANDROID = RELEASE.get("android") or {}
+WEB = RELEASE.get("web") or {}
+SERVICE_WORKER = RELEASE.get("serviceWorker") or {}
+
+EXPECTED_PACKAGE = ANDROID.get("packageId")
+EXPECTED_APP_NAME = PRODUCT.get("name")
+EXPECTED_WEB_MANIFEST_NAME = PRODUCT.get("webManifestName")
+EXPECTED_VERSION_NAME = ANDROID.get("versionName")
+EXPECTED_VERSION_CODE = str(ANDROID.get("versionCode"))
+EXPECTED_GA4 = WEB.get("ga4MeasurementId")
+EXPECTED_DOMAIN = WEB.get("host")
+EXPECTED_SW_VERSION = SERVICE_WORKER.get("version")
 
 errors: list[str] = []
 notes: list[str] = []
@@ -32,9 +47,23 @@ def read_text(rel: str) -> str:
     if not path.is_file(): return ""
     return path.read_text(encoding="utf-8", errors="replace")
 
+for value, label in [
+    (EXPECTED_PACKAGE, "release package ID"),
+    (EXPECTED_APP_NAME, "release app name"),
+    (EXPECTED_WEB_MANIFEST_NAME, "release web manifest name"),
+    (EXPECTED_VERSION_NAME, "release version name"),
+    (EXPECTED_GA4, "release GA4 measurement ID"),
+    (EXPECTED_DOMAIN, "release domain"),
+    (EXPECTED_SW_VERSION, "release service-worker version"),
+]:
+    if not isinstance(value, str) or not value:
+        fail(f"release-config.json missing valid {label}")
+if EXPECTED_VERSION_CODE in ("None", ""):
+    fail("release-config.json missing valid release version code")
+
 identity = read_text("PRE_APK_ANDROID_IDENTITY.md")
 for value, label in [(EXPECTED_PACKAGE,"Package ID"),(EXPECTED_APP_NAME,"app name"),(EXPECTED_VERSION_NAME,"version name"),(EXPECTED_VERSION_CODE,"version code"),(EXPECTED_GA4,"GA4 measurement ID")]:
-    if value not in identity: fail(f"identity freeze does not contain expected {label}: {value}")
+    if value and value not in identity: fail(f"identity freeze does not contain expected {label}: {value}")
 
 twa_path=require_file("android-twa/twa-manifest.json")
 if twa_path.is_file():
@@ -66,8 +95,8 @@ if manifest:
         if not src: fail(f"manifest missing icon {key[0]} purpose={key[1]}")
         elif not (ROOT/src).is_file(): fail(f"manifest icon path does not exist: {src}")
 index_html=read_text("index.html"); home_final=read_text("js/home-final.js"); tracker=read_text("js/analytics/privacy-safe-screen-tracker.js"); navigation=read_text("js/06-navigation.js"); service_worker=read_text("service-worker.js")
-if f"gtag/js?id={EXPECTED_GA4}" not in index_html: fail("index.html does not load the approved GA4 measurement ID")
-if f"GA_ID='{EXPECTED_GA4}'" not in home_final and f'GA_ID="{EXPECTED_GA4}"' not in home_final: fail("home-final.js does not initialize the approved GA4 measurement ID")
+if EXPECTED_GA4 and f"gtag/js?id={EXPECTED_GA4}" not in index_html: fail("index.html does not load the approved GA4 measurement ID")
+if EXPECTED_GA4 and f"GA_ID='{EXPECTED_GA4}'" not in home_final and f'GA_ID="{EXPECTED_GA4}"' not in home_final: fail("home-final.js does not initialize the approved GA4 measurement ID")
 for forbidden in ["latitude","longitude","coords.latitude","coords.longitude","camera frame"]:
     marker="Google Analytics 4"; ga_block=home_final[home_final.find(marker):] if marker in home_final else ""
     if forbidden.lower() in ga_block.lower(): fail(f"GA telemetry block contains sensitive-location/camera token: {forbidden}")
@@ -84,7 +113,7 @@ if "./js/i18n/prayer-phrases.js" not in service_worker: fail("service worker doe
 if "./js/presentation/quran/back-history.js" not in service_worker: fail("service worker does not precache the modern Quran nested Back bridge")
 if "./js/presentation/azkar/back-history.js" not in service_worker: fail("service worker does not precache the modern Azkar nested Back bridge")
 if "./js/presentation/prayer/native-plan.js" not in service_worker: fail("service worker does not precache the native prayer date-plan bridge")
-if EXPECTED_SW_VERSION not in service_worker: fail(f"service worker version must be {EXPECTED_SW_VERSION}")
+if EXPECTED_SW_VERSION and EXPECTED_SW_VERSION not in service_worker: fail(f"service worker version must be {EXPECTED_SW_VERSION}")
 notes.append("GA4 screen analytics is non-essential and limited to stable screen names, surface type, views and active-screen duration")
 notes.append("Application functionality must remain independent of analytics/cookie consent")
 notes.append("This web/TWA tracker adds no Firebase SDK, AD_ID permission or new Android runtime permission dialog")
@@ -101,7 +130,7 @@ assetlinks=ROOT/".well-known"/"assetlinks.json"
 if assetlinks.exists():
     text=assetlinks.read_text(encoding="utf-8",errors="replace")
     if any(token in text for token in ["PLACEHOLDER","YOUR_SHA","SHA256_HERE","TODO"]): fail("production .well-known/assetlinks.json contains a placeholder fingerprint")
-    if EXPECTED_PACKAGE not in text: fail("assetlinks.json does not contain the approved Package ID")
+    if EXPECTED_PACKAGE and EXPECTED_PACKAGE not in text: fail("assetlinks.json does not contain the approved Package ID")
     notes.append("assetlinks.json exists: certificate fingerprints still require external HTTPS verification")
 else: notes.append("assetlinks.json absent")
 print("QiblaAstro ELITE — Pre-APK Gate"); print("="*36)
