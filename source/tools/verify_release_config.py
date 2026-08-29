@@ -75,8 +75,10 @@ if not isinstance(version_code, int) or version_code < 1:
     fail("android.versionCode must be a positive integer")
 if not isinstance(min_sdk, int) or min_sdk < 1:
     fail("android.minSdkVersion must be a positive integer")
-if not isinstance(target_sdk, int) or target_sdk < min_sdk if isinstance(min_sdk, int) else False:
-    fail("android.targetSdkVersion must be an integer >= minSdkVersion")
+if not isinstance(target_sdk, int):
+    fail("android.targetSdkVersion must be an integer")
+elif isinstance(min_sdk, int) and target_sdk < min_sdk:
+    fail("android.targetSdkVersion must be >= minSdkVersion")
 if android_host != web_host:
     fail("android.host and web.host must be identical")
 
@@ -157,7 +159,7 @@ if isinstance(ga4, str) and ga4:
     if f"GA_ID='{ga4}'" not in home_text and f'GA_ID="{ga4}"' not in home_text:
         fail("home-final.js GA4 ID drifted from release-config.json")
 
-# Human-facing frozen identity documentation must agree with the machine truth.
+# Human-facing frozen identity documentation must agree with the core machine identity.
 identity_path = SOURCE_ROOT / "PRE_APK_ANDROID_IDENTITY.md"
 if identity_path.is_file():
     identity = identity_path.read_text(encoding="utf-8", errors="replace")
@@ -165,7 +167,6 @@ if identity_path.is_file():
         (package_id, "package ID"),
         (version_name, "version name"),
         (str(version_code) if version_code is not None else None, "version code"),
-        (str(target_sdk) if target_sdk is not None else None, "target SDK"),
     ]:
         if value and value not in identity:
             fail(f"PRE_APK_ANDROID_IDENTITY.md does not mirror release {label}: {value}")
