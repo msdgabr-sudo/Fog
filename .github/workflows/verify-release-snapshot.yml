@@ -1,10 +1,11 @@
-name: Verify current Code 5 Android release snapshot
+name: Verify current Android release snapshot
 
 # CURRENT ANDROID RELEASE PROOF GATE
 # ----------------------------------
-# Fog/main is the authoritative source. This workflow verifies the exact commit
-# that triggered the run and builds an unsigned AAB proof only. It never signs.
-# source/.release-source-sha remains a historical provenance marker only.
+# Fog/main is authoritative. release-config.json owns current release identity.
+# This workflow verifies the exact triggering commit and builds an unsigned AAB
+# proof only. It never signs. The frozen signed-Code5 proof script remains
+# intentionally pinned to its already-approved artifact hash and source commit.
 
 on:
   push:
@@ -15,6 +16,7 @@ on:
       - 'source/tests/**'
       - 'source/tools/**'
       - 'source/.release-source-sha'
+      - 'release-config.json'
       - '.github/workflows/verify-release-snapshot.yml'
       - 'build-final-signed-aab.ps1'
       - 'sign-verified-code5-aab.ps1'
@@ -77,6 +79,30 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
+      - name: Load authoritative release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 source/tools/verify_release_config.py
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          release=json.loads(Path('release-config.json').read_text(encoding='utf-8'))
+          artifacts=release['artifacts']
+          android=release['android']
+          values={
+              'AAB_FILENAME': artifacts['unsignedAab'],
+              'AAB_ARTIFACT_NAME': artifacts['unsignedAabProofName'],
+              'RELEASE_VERSION_NAME': android['versionName'],
+              'RELEASE_VERSION_CODE': android['versionCode'],
+              'RELEASE_PACKAGE_ID': android['packageId'],
+              'RELEASE_TARGET_SDK': android['targetSdkVersion'],
+          }
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
+              for key,value in values.items():
+                  handle.write(f'{key}={value}\n')
+          PY
+
       - name: Verify historical provenance marker and absence of secrets
         run: |
           set -euo pipefail
@@ -88,56 +114,18 @@ jobs:
           fi
           echo 'Historical provenance marker verified. Triggering Fog commit remains authoritative.'
 
-      - name: Verify current Code 5 manifest identity
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          cfg = json.loads(Path('source/android-twa/twa-manifest.json').read_text(encoding='utf-8'))
-          assert cfg['packageId'] == 'com.qiblalabs', cfg['packageId']
-          assert cfg['host'] == 'app.qiblalabs.com', cfg['host']
-          assert cfg['appVersion'] == '4.1.7', cfg['appVersion']
-          assert cfg['appVersionCode'] == 5, cfg['appVersionCode']
-          assert cfg['minSdkVersion'] == 23, cfg['minSdkVersion']
-          PY
-
       - name: Run current release-source gates
         working-directory: source
         run: |
           set -euo pipefail
           python3 tools/pre_apk_check.py
           python3 android-twa/check_twa_config.py
-          node tests/android-release-version.test.js
-          python3 android-twa/test_native_integrations.py
-          node tests/wmm2025-official-gate.js
-          node tests/wmm2025-global-coverage.test.js
-          node tests/wmm2025-runtime-integration.test.js
-          node tests/prayer-global-methods.test.js
-          node tests/prayer-global-runtime-integration.test.js
-          node tests/local-timezone-adapter.test.js
-          node tests/timezone-production-wiring.test.js
-          node tests/trusted-location-runtime-sync.test.js
-          node tests/prayer-midnight-refresh.test.js
-          node tests/adhan-runtime-resilience.test.js
-          node tests/azkar-web-reminder-runtime.test.js
-          node tests/azkar-native-top-bridge.test.js
-          node tests/native-token-fragment-compatibility.test.js
-          node tests/offline-complete-shell.test.js
-          node tests/offline-network-fallback.test.js
-          node tests/i18n-roundtrip-safety.test.js
-          node tests/a2-phone-ui-regressions.test.js
-          node tests/permissions-gnss-adhan-cycle.test.js
-          node tests/prayer-widget-safe-autosync.test.js
-          node tests/code3-web-cutover-compatibility.test.js
-          node tests/astronomical-verification-store-persistence.test.js
-          node tests/native-android-localization-security.test.js
-          node tests/pre-native-release-readiness.test.js
+          python3 tools/run_release_test_suite.py --profile android
 
       - name: Pull pinned Bubblewrap toolchain
         run: docker pull "$BUBBLEWRAP_IMAGE"
 
-      - name: Generate Android project from current Code 5 TWA manifest
+      - name: Generate Android project from current TWA manifest
         run: |
           set -euo pipefail
           docker run --rm -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
@@ -145,7 +133,7 @@ jobs:
           test -x source/android-twa/gradlew
           test -f source/android-twa/app/src/main/AndroidManifest.xml
 
-      - name: Enforce API 36 and inject approved native features
+      - name: Enforce target API and inject approved native features
         run: |
           set -euo pipefail
           python3 source/android-twa/ensure_target_api_36.py
@@ -154,7 +142,7 @@ jobs:
           python3 source/android-twa/check_release_integration.py
           (cd source && node tests/native-android-localization-security.test.js)
 
-      - name: Build unsigned Code 5 release AAB
+      - name: Build unsigned current release AAB
         run: |
           set -euo pipefail
           docker run --rm --entrypoint bash -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
@@ -174,7 +162,7 @@ jobs:
           '
           sudo chown -R "$(id -u):$(id -g)" source/android-twa
 
-      - name: Verify and stage unsigned Code 5 AAB proof
+      - name: Verify and stage unsigned AAB proof
         run: |
           set -euo pipefail
           CANDIDATE=''
@@ -185,16 +173,16 @@ jobs:
           done
           test -n "$CANDIDATE"
           mkdir -p dist
-          cp "$CANDIDATE" dist/QiblaAstro-4.1.7-code5-unsigned.aab
-          python3 source/android-twa/check_aab_release.py dist/QiblaAstro-4.1.7-code5-unsigned.aab
-          sha256sum dist/QiblaAstro-4.1.7-code5-unsigned.aab | tee dist/QiblaAstro-4.1.7-code5-unsigned.aab.sha256
+          cp "$CANDIDATE" "dist/$AAB_FILENAME"
+          python3 source/android-twa/check_aab_release.py "dist/$AAB_FILENAME"
+          sha256sum "dist/$AAB_FILENAME" | tee "dist/$AAB_FILENAME.sha256"
 
-      - name: Upload unsigned Code 5 AAB proof artifact
+      - name: Upload unsigned AAB proof artifact
         uses: actions/upload-artifact@v6
         with:
-          name: QiblaAstro-4.1.7-code5-unsigned-AAB-proof
+          name: ${{ env.AAB_ARTIFACT_NAME }}
           path: |
-            dist/QiblaAstro-4.1.7-code5-unsigned.aab
-            dist/QiblaAstro-4.1.7-code5-unsigned.aab.sha256
+            dist/${{ env.AAB_FILENAME }}
+            dist/${{ env.AAB_FILENAME }}.sha256
           if-no-files-found: error
           retention-days: 14
