@@ -1,20 +1,21 @@
-name: Verify pre-AAB release candidate and build unsigned AAB
+name: Verify current Code 5 Android release snapshot
 
-# PRE-AAB RELEASE-CANDIDATE GATE
-# ------------------------------
-# This branch is intentionally isolated from `main`. The workflow must verify
-# and build the exact commit that triggered the run, never the older main tip.
+# CURRENT ANDROID RELEASE PROOF GATE
+# ----------------------------------
+# Fog/main is the authoritative source. This workflow verifies the exact commit
+# that triggered the run and builds an unsigned AAB proof only. It never signs.
 # source/.release-source-sha remains a historical provenance marker only.
 
 on:
   push:
     branches:
-      - pre-aab/offline-adhan-priority
+      - main
     paths:
-      - 'source/**'
+      - 'source/android-twa/**'
+      - 'source/tests/**'
+      - 'source/.release-source-sha'
       - '.github/workflows/verify-release-snapshot.yml'
       - 'build-final-signed-aab.ps1'
-      - 'sign-verified-code4-aab.ps1'
       - 'sign-verified-code5-aab.ps1'
       - 'RELEASE_SOURCE.md'
       - 'REPOSITORY_STATE.md'
@@ -24,27 +25,25 @@ permissions:
   contents: read
 
 env:
-  SOURCE_SHA: 6e49775df5742413371a4165ea985173c43f5f5e
+  HISTORICAL_SOURCE_SHA: 6e49775df5742413371a4165ea985173c43f5f5e
   BUBBLEWRAP_IMAGE: ghcr.io/googlechromelabs/bubblewrap@sha256:01b3d5cdcdb670edd8ee00654c36f978896da78dfd7cc7e62814b83268c6f53b
 
 jobs:
   windows-release-script-syntax:
     runs-on: windows-latest
     steps:
-      - name: Checkout exact triggering release candidate
+      - name: Checkout exact triggering Fog snapshot
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
-      - name: Parse guarded Windows release scripts with PowerShell AST
+      - name: Parse current guarded Windows release scripts with PowerShell AST
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $scripts = @(
-            '.\sign-verified-code4-aab.ps1',
             '.\sign-verified-code5-aab.ps1',
-            '.\build-final-signed-aab.ps1',
-            '.\source\android-twa\build_signed_release.ps1'
+            '.\build-final-signed-aab.ps1'
           )
           foreach ($script in $scripts) {
             if (-not (Test-Path -LiteralPath $script -PathType Leaf)) {
@@ -67,7 +66,7 @@ jobs:
   verify-and-build:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout exact triggering release candidate
+      - name: Checkout exact triggering Fog snapshot
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
@@ -77,18 +76,32 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Verify baseline provenance marker and absence of secrets
+      - name: Verify historical provenance marker and absence of secrets
         run: |
           set -euo pipefail
           test -f source/.release-source-sha
-          test "$(tr -d '\r\n' < source/.release-source-sha)" = "$SOURCE_SHA"
+          test "$(tr -d '\r\n' < source/.release-source-sha)" = "$HISTORICAL_SOURCE_SHA"
           if find source -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname '*.p12' -o -iname '*.pfx' -o -iname '*service-account*.json' \) -print -quit | grep -q .; then
             echo 'ERROR: secret material is forbidden in the release repository.' >&2
             exit 1
           fi
-          echo 'Baseline provenance marker verified. Triggering release-candidate commit remains authoritative.'
+          echo 'Historical provenance marker verified. Triggering Fog commit remains authoritative.'
 
-      - name: Run release-candidate source gates
+      - name: Verify current Code 5 manifest identity
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('source/android-twa/twa-manifest.json').read_text(encoding='utf-8'))
+          assert cfg['packageId'] == 'com.qiblalabs', cfg['packageId']
+          assert cfg['host'] == 'app.qiblalabs.com', cfg['host']
+          assert cfg['appVersion'] == '4.1.7', cfg['appVersion']
+          assert cfg['appVersionCode'] == 5, cfg['appVersionCode']
+          assert cfg['minSdkVersion'] == 23, cfg['minSdkVersion']
+          PY
+
+      - name: Run current release-source gates
         working-directory: source
         run: |
           set -euo pipefail
@@ -123,7 +136,7 @@ jobs:
       - name: Pull pinned Bubblewrap toolchain
         run: docker pull "$BUBBLEWRAP_IMAGE"
 
-      - name: Generate Android project from release-candidate TWA manifest
+      - name: Generate Android project from current Code 5 TWA manifest
         run: |
           set -euo pipefail
           docker run --rm -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" update --manifest twa-manifest.json --skipVersionUpgrade
@@ -140,7 +153,7 @@ jobs:
           python3 source/android-twa/check_release_integration.py
           (cd source && node tests/native-android-localization-security.test.js)
 
-      - name: Build unsigned release AAB
+      - name: Build unsigned Code 5 release AAB
         run: |
           set -euo pipefail
           docker run --rm --entrypoint bash -v "$PWD/source/android-twa:/app" -w /app "$BUBBLEWRAP_IMAGE" -lc '
@@ -160,7 +173,7 @@ jobs:
           '
           sudo chown -R "$(id -u):$(id -g)" source/android-twa
 
-      - name: Verify and stage unsigned AAB artifact
+      - name: Verify and stage unsigned Code 5 AAB proof
         run: |
           set -euo pipefail
           CANDIDATE=''
@@ -175,7 +188,7 @@ jobs:
           python3 source/android-twa/check_aab_release.py dist/QiblaAstro-4.1.7-code5-unsigned.aab
           sha256sum dist/QiblaAstro-4.1.7-code5-unsigned.aab | tee dist/QiblaAstro-4.1.7-code5-unsigned.aab.sha256
 
-      - name: Upload unsigned AAB proof artifact
+      - name: Upload unsigned Code 5 AAB proof artifact
         uses: actions/upload-artifact@v6
         with:
           name: QiblaAstro-4.1.7-code5-unsigned-AAB-proof
