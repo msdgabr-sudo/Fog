@@ -3,6 +3,8 @@ name: Deploy app.qiblalabs.com
 # Production web release gate.
 # Every source change must pass the core scientific/runtime/offline suite before
 # GitHub Pages can deploy. Pull requests run verification only; they never deploy.
+# PR verification intentionally has no path filter so Branch Protection can require
+# this check for every merge without leaving documentation-only PRs permanently pending.
 
 on:
   push:
@@ -15,10 +17,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'source/**'
-      - 'release-config.json'
-      - '.github/workflows/deploy-app-pages.yml'
   workflow_dispatch:
 
 permissions:
