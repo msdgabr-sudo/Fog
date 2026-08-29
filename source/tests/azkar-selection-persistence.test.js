@@ -1,0 +1,10 @@
+const assert=require('assert');
+const fs=require('fs');
+const js=fs.readFileSync('source/js/azkar-new.js','utf8');
+const html=fs.readFileSync('source/pages/azkar.html','utf8');
+assert(js.includes("qiblaastro:azkar-reminder-selection:v1"),'Azkar UI selection persistence key missing');
+assert(js.includes("qiblaastro:native-azkar-reminder:v1"),'Azkar UI must restore the active native reminder selection');
+assert(js.includes('saveAudioSelection'),'Azkar UI selection save helper missing');
+assert(js.includes('readAudioSelection'),'Azkar UI selection restore helper missing');
+assert(html.includes('لضمان عمل التذكير دون إنترنت وفي الخلفية'),'Offline/background battery note missing');
+console.log('Azkar selected phrase + interval persistence and battery note: PASS');
