@@ -1,0 +1,70 @@
+name: Repository syntax gate
+
+# Read-only repository hygiene gate. Runs for every pull request to main so it can
+# be selected as a required branch-protection check without path-filter deadlocks.
+# It parses tracked source/configuration only and never rewrites application files.
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-platform-syntax:
+    name: Cross-platform syntax
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate snapshot
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Parse tracked JavaScript JSON Python XML Shell and YAML
+        run: |
+          set -euo pipefail
+          python3 source/tools/repository_syntax_check.py
+
+  powershell-syntax:
+    name: PowerShell syntax
+    runs-on: windows-latest
+    steps:
+      - name: Checkout exact candidate snapshot
+        uses: actions/checkout@v7
+
+      - name: Parse every tracked PowerShell script with the PowerShell AST
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scripts = @(git ls-files '*.ps1')
+          if ($scripts.Count -eq 0) {
+            throw 'No tracked PowerShell scripts were found; repository release tooling unexpectedly disappeared.'
+          }
+          foreach ($script in $scripts) {
+            if (-not (Test-Path -LiteralPath $script -PathType Leaf)) {
+              throw "Tracked PowerShell file missing from checkout: $script"
+            }
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path -LiteralPath $script).Path,
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error ("{0}: {1}" -f $_.Extent.Text,$_.Message) }
+              throw "PowerShell syntax errors found in $script"
+            }
+            Write-Host "PASS: $script"
+          }
+          Write-Host "PASS: parsed $($scripts.Count) tracked PowerShell script(s)"
